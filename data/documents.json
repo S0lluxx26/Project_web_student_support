@@ -1,0 +1,188 @@
+{
+  "version": "1.0.0",
+  "documents": [
+    {
+      "id": "register",
+      "required": true,
+      "name": { "ko": "등기부등본 (등기사항전부증명서)", "en": "Property register (deunggibu deungbon)" },
+      "where": { "ko": "인터넷등기소 iros.go.kr — 주소만 알면 누구나 약 700원에 직접 발급", "en": "iros.go.kr — anyone can issue it for about 700 won with just the address" },
+      "desc": {
+        "ko": "가장 중요한 서류입니다. 상대방이 보여주는 것을 믿지 말고, 계약 당일 아침에 직접 발급하세요.",
+        "en": "The single most important document. Don't rely on their copy — issue it yourself on the morning of signing."
+      },
+      "check": {
+        "ko": [
+          "갑구: 소유자 이름이 계약할 사람과 정확히 같은지",
+          "갑구: 가압류·압류·가처분·경매개시결정·신탁 기재가 있는지",
+          "을구: 근저당권 채권최고액이 얼마인지",
+          "(채권최고액 + 내 보증금) ÷ 시세 ≤ 70% 인지",
+          "최근 소유권 이전일 — 며칠 전 바뀌었다면 주의",
+          "표제부: 주소·동·호수가 실제 방과 일치하는지"
+        ],
+        "en": [
+          "Section 갑구: owner's name matches the person signing, exactly",
+          "Section 갑구: any seizure, attachment, injunction, auction or trust entry",
+          "Section 을구: the maximum lien amount of any mortgage",
+          "(lien + your deposit) ÷ market value ≤ 70%",
+          "Recent ownership transfer date — a change days ago is a warning",
+          "Header: address, building and unit number match the actual room"
+        ]
+      },
+      "questions": [
+        { "id": "reg-owner-match", "weight": 30, "q": { "ko": "등기부등본상 소유자와 계약 상대방의 이름이 다릅니까?", "en": "Does the registered owner's name differ from the person signing?" } },
+        { "id": "reg-lien-high", "weight": 30, "q": { "ko": "(근저당 채권최고액 + 보증금)이 시세의 70%를 넘습니까?", "en": "Is (mortgage lien + deposit) more than 70% of market value?" } },
+        { "id": "reg-trust", "weight": 35, "q": { "ko": "신탁, 가압류, 압류, 경매 관련 기재가 있습니까?", "en": "Is there any trust, seizure, attachment or auction entry?" } },
+        { "id": "reg-not-issued", "weight": 25, "q": { "ko": "등기부등본을 아직 직접 발급해보지 않았습니까?", "en": "Have you not yet issued the register yourself?" } }
+      ]
+    },
+    {
+      "id": "building",
+      "required": true,
+      "name": { "ko": "건축물대장", "en": "Building register (geonchungmul daejang)" },
+      "where": { "ko": "정부24 gov.kr — 무료 발급", "en": "gov.kr — free" },
+      "desc": {
+        "ko": "건물의 법적 용도와 위반 여부를 보여줍니다. 주거용이 아니면 전입신고와 보증보험이 막힐 수 있습니다.",
+        "en": "Shows the building's legal use and any violations. If it isn't residential, move-in registration and deposit insurance can be blocked."
+      },
+      "check": {
+        "ko": [
+          "용도가 '주택'인지 — 근린생활시설(사무실·상가)이면 위험",
+          "'위반건축물' 표기가 있는지",
+          "실제 호수와 대장상 호수가 같은지 (쪼개기 여부)",
+          "사용승인일 — 너무 최근이면 시세 확인이 어려움"
+        ],
+        "en": [
+          "Use is residential — commercial/office zoning is a risk",
+          "Any 'violation building' flag",
+          "The actual unit number matches the register (illegal subdivision)",
+          "Approval date — a very recent build makes valuation hard"
+        ]
+      },
+      "questions": [
+        { "id": "bld-violation", "weight": 25, "q": { "ko": "'위반건축물'로 표기되어 있습니까?", "en": "Is it flagged as a violation building?" } },
+        { "id": "bld-nonresi", "weight": 25, "q": { "ko": "용도가 주택이 아닌 근린생활시설·사무실입니까?", "en": "Is the zoning commercial or office rather than residential?" } }
+      ]
+    },
+    {
+      "id": "identity",
+      "required": true,
+      "name": { "ko": "임대인 신분증 (+ 대리인이면 위임장·인감증명서)", "en": "Landlord's ID (plus power of attorney and seal certificate if a proxy)" },
+      "where": { "ko": "계약 현장에서 원본 확인", "en": "Verify the originals at signing" },
+      "desc": {
+        "ko": "신분증의 이름과 등기부등본 소유자가 일치해야 합니다. 대리인이면 인감증명서가 첨부된 위임장이 필수입니다.",
+        "en": "The ID must match the registered owner. A proxy must have a power of attorney with the owner's seal certificate attached."
+      },
+      "check": {
+        "ko": [
+          "신분증 이름·생년월일이 등기부등본 소유자와 일치",
+          "대리인: 위임장 원본 + 3개월 내 인감증명서 + 대리인 신분증",
+          "소유자와 직접 영상통화로 의사 확인",
+          "신분증 사진 촬영을 거부하면 주의"
+        ],
+        "en": [
+          "ID name and birth date match the registered owner",
+          "Proxy: original power of attorney, seal certificate within 3 months, proxy's own ID",
+          "Confirm intent with the owner directly by video call",
+          "Refusal to let you photograph the ID is a warning"
+        ]
+      },
+      "questions": [
+        { "id": "id-proxy", "weight": 30, "q": { "ko": "소유자가 아닌 대리인과 계약하는데 위임장·인감증명서가 없습니까?", "en": "Are you signing with a proxy who has no power of attorney or seal certificate?" } },
+        { "id": "id-refused", "weight": 20, "q": { "ko": "신분증이나 서류 확인·촬영을 거부했습니까?", "en": "Did they refuse to let you inspect or photograph the ID or documents?" } }
+      ]
+    },
+    {
+      "id": "agent",
+      "required": false,
+      "name": { "ko": "공인중개사 등록증·자격증·공제증서", "en": "Agent's registration, licence and indemnity certificate" },
+      "where": { "ko": "중개사무소 벽면 게시 의무 / 시·군·구청 조회", "en": "Must be displayed in the office; verifiable at the district office" },
+      "desc": {
+        "ko": "중개를 통한 계약이라면 등록된 중개사인지 확인해야 사고 시 공제를 받을 수 있습니다.",
+        "en": "If an agent is involved, verify they are licensed — otherwise there is no indemnity cover if something goes wrong."
+      },
+      "check": {
+        "ko": [
+          "등록번호를 구청 또는 국가공간정보포털에서 조회",
+          "공제증서 금액과 유효기간 (최소 2억)",
+          "계약서에 중개사 서명·날인과 등록번호 기재",
+          "사무소 주소가 실제 존재하는지"
+        ],
+        "en": [
+          "Look up the registration number with the district office",
+          "Indemnity certificate amount and validity (at least 200M won)",
+          "Agent's signature, seal and registration number on the contract",
+          "The office address actually exists"
+        ]
+      },
+      "questions": [
+        { "id": "agt-unverified", "weight": 20, "q": { "ko": "중개사 등록번호를 직접 조회해보지 않았습니까?", "en": "Have you not verified the agent's registration number yourself?" } }
+      ]
+    },
+    {
+      "id": "tax",
+      "required": false,
+      "name": { "ko": "임대인 국세·지방세 완납증명서", "en": "Landlord's national and local tax clearance certificates" },
+      "where": { "ko": "임대인에게 요구 (2023년 법 개정으로 요구 가능)", "en": "Request from the landlord — legally requestable since the 2023 amendment" },
+      "desc": {
+        "ko": "세금 체납은 보증금보다 우선 변제됩니다. 체납액이 크면 경매 시 보증금을 못 받을 수 있습니다.",
+        "en": "Unpaid taxes rank ahead of your deposit. Large arrears mean you may recover nothing at auction."
+      },
+      "check": {
+        "ko": ["체납액이 있는지", "임대인이 제출을 거부하는지 (거부 자체가 위험 신호)"],
+        "en": ["Whether arrears exist", "Whether the landlord refuses to provide it — refusal itself is a red flag"]
+      },
+      "questions": [
+        { "id": "tax-refused", "weight": 20, "q": { "ko": "임대인이 세금 완납증명서 제출을 거부했습니까?", "en": "Did the landlord refuse to provide tax clearance certificates?" } }
+      ]
+    },
+    {
+      "id": "residents",
+      "required": false,
+      "name": { "ko": "전입세대열람내역", "en": "Resident registry extract (jeonipsedae yeollam)" },
+      "where": { "ko": "주민센터 — 임대차 계약 예정자도 발급 가능", "en": "Community centre — a prospective tenant may request it" },
+      "desc": {
+        "ko": "같은 집에 이미 전입신고된 세대가 있는지 확인합니다. 다가구 주택과 이중계약 확인에 필수입니다.",
+        "en": "Shows whether other households are already registered at the address. Essential for multi-unit buildings and detecting double leases."
+      },
+      "check": {
+        "ko": ["선순위 임차인이 몇 세대인지", "선순위 보증금 총액 + 내 보증금이 시세를 넘지 않는지"],
+        "en": ["How many tenants have priority over you", "Whether their deposits plus yours exceed the property's value"]
+      },
+      "questions": [
+        { "id": "res-prior", "weight": 20, "q": { "ko": "선순위 임차인이 여러 명인데 그 보증금 총액을 모릅니까?", "en": "Are there prior tenants whose total deposits you don't know?" } }
+      ]
+    },
+    {
+      "id": "contract",
+      "required": true,
+      "name": { "ko": "주택임대차 표준계약서 + 특약", "en": "Standard residential lease contract plus special terms" },
+      "where": { "ko": "국토교통부 표준계약서 양식 사용", "en": "Use the MOLIT standard form" },
+      "desc": {
+        "ko": "모든 약속은 특약사항에 글로 남겨야 합니다. 계약 후 당일 전입신고와 확정일자를 받으세요.",
+        "en": "Every promise must be written into the special terms. Do the move-in report and fixed-date stamp the same day."
+      },
+      "check": {
+        "ko": [
+          "특약: '잔금일까지 근저당 말소, 미이행 시 계약 무효·전액 반환'",
+          "특약: '전세보증보험 가입 불가 시 계약 무효·전액 반환'",
+          "특약: '임대인은 잔금일 다음날까지 추가 담보 설정 금지'",
+          "보증금·월세·관리비·입주일·계약기간이 정확한지",
+          "계약 당일 주민센터에서 전입신고 + 확정일자"
+        ],
+        "en": [
+          "Clause: mortgage cleared by final payment day, else void with full refund",
+          "Clause: void with full refund if deposit insurance is refused",
+          "Clause: landlord may not add new liens until the day after final payment",
+          "Deposit, rent, maintenance fee, move-in date and term are all correct",
+          "Move-in report and fixed-date stamp at the community centre on signing day"
+        ]
+      },
+      "questions": [
+        { "id": "con-delay-move", "weight": 35, "q": { "ko": "전입신고나 확정일자를 미루라는 요구를 받았습니까?", "en": "Were you asked to delay the move-in report or fixed-date stamp?" } },
+        { "id": "con-no-special", "weight": 20, "q": { "ko": "구두 약속이 있는데 특약사항에 적지 않았습니까?", "en": "Are there verbal promises not written into the special terms?" } },
+        { "id": "con-no-insurance", "weight": 25, "q": { "ko": "전세보증보험 가입이 불가능하다고 들었습니까?", "en": "Were you told deposit guarantee insurance isn't possible?" } },
+        { "id": "con-pay-first", "weight": 35, "q": { "ko": "계약서 서명 전에 입금을 요구받았습니까?", "en": "Were you asked to pay before signing the contract?" } }
+      ]
+    }
+  ]
+}

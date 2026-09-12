@@ -1,0 +1,339 @@
+{
+  "version": "1.0.0",
+  "visitChecklist": {
+    "ko": [
+      "방 실제 크기 — 광고 사진은 광각 렌즈로 2배 넓게 보입니다. 줄자나 발걸음으로 재보세요.",
+      "창문 — 외창(외부 직접)인지, 내창(복도 쪽)인지, 무창인지. 무창방은 환기·채광·화재 시 탈출이 불가능합니다.",
+      "소방시설 — 복도 스프링클러, 비상구 2개 이상, 완강기, 소화기. 고시원 화재 사망 사고는 대부분 비상구가 막힌 곳에서 발생했습니다.",
+      "방음 — 옆방 소리가 들리는지 벽을 두드려 확인하고, 가능하면 밤에 한 번 더 방문하세요.",
+      "공동 주방·화장실 — 개수 대비 거주 인원, 청결 상태, 온수가 실제로 나오는지",
+      "잠금장치 — 방문 자체 잠금, 외부 출입문 번호키, CCTV 위치",
+      "곰팡이·벌레 — 벽지 뒤, 침대 밑, 배수구 냄새",
+      "인터넷 속도 — 실제로 속도 측정을 해보세요",
+      "관리자 — 상주하는지, 야간에 연락이 되는지",
+      "입주자 구성 — 남녀 층 분리 여부, 장기 거주자 분위기"
+    ],
+    "en": [
+      "Actual room size — listing photos use wide-angle lenses that double the apparent space. Measure it by steps or tape.",
+      "Window — does it open to the outside, to a corridor, or is there none at all? A windowless room cannot be ventilated or escaped from in a fire.",
+      "Fire safety — corridor sprinklers, at least two exits, descending life line, extinguishers. Most fatal goshiwon fires happened where exits were blocked.",
+      "Soundproofing — knock on the walls, and if possible visit again at night.",
+      "Shared kitchen and bathroom — how many for how many residents, cleanliness, whether hot water actually runs.",
+      "Locks — does the room itself lock, is there a keypad on the main door, where are the cameras.",
+      "Mould and insects — behind the wallpaper, under the bed, drain smells.",
+      "Internet — run an actual speed test.",
+      "Manager — do they live on site, are they reachable at night.",
+      "Other residents — are floors separated by gender, what is the long-term resident atmosphere."
+    ]
+  },
+  "conditions": [
+    {
+      "id": "budget",
+      "type": "select",
+      "label": { "ko": "월 예산", "en": "Monthly budget" },
+      "options": [
+        { "value": "under30", "label": { "ko": "30만원 이하", "en": "Under 300,000 won" } },
+        { "value": "30to45", "label": { "ko": "30–45만원", "en": "300,000–450,000 won" } },
+        { "value": "45to60", "label": { "ko": "45–60만원", "en": "450,000–600,000 won" } },
+        { "value": "over60", "label": { "ko": "60만원 이상", "en": "Over 600,000 won" } }
+      ]
+    },
+    {
+      "id": "window",
+      "type": "select",
+      "label": { "ko": "창문", "en": "Window" },
+      "options": [
+        { "value": "outer", "label": { "ko": "반드시 외창", "en": "Must face outside" } },
+        { "value": "any", "label": { "ko": "내창도 가능", "en": "Corridor window is fine" } },
+        { "value": "none_ok", "label": { "ko": "무창도 상관없음", "en": "Windowless is acceptable" } }
+      ]
+    },
+    {
+      "id": "bathroom",
+      "type": "select",
+      "label": { "ko": "화장실·샤워실", "en": "Bathroom and shower" },
+      "options": [
+        { "value": "private", "label": { "ko": "개인 화장실 필요", "en": "Private bathroom required" } },
+        { "value": "shared", "label": { "ko": "공용 가능", "en": "Shared is fine" } }
+      ]
+    },
+    {
+      "id": "duration",
+      "type": "select",
+      "label": { "ko": "예상 거주 기간", "en": "Expected stay" },
+      "options": [
+        { "value": "short", "label": { "ko": "1–3개월", "en": "1–3 months" } },
+        { "value": "mid", "label": { "ko": "3–6개월", "en": "3–6 months" } },
+        { "value": "long", "label": { "ko": "6개월 이상", "en": "6 months or more" } }
+      ]
+    },
+    {
+      "id": "needs",
+      "type": "multi",
+      "label": { "ko": "필요한 조건 (복수 선택)", "en": "Requirements (select all)" },
+      "options": [
+        { "value": "meals", "label": { "ko": "식사 제공 (밥·김치·라면)", "en": "Meals provided (rice, kimchi, ramen)" } },
+        { "value": "cooking", "label": { "ko": "직접 요리 가능한 주방", "en": "Kitchen I can cook in" } },
+        { "value": "laundry", "label": { "ko": "무료 세탁기·건조기", "en": "Free washer and dryer" } },
+        { "value": "quiet", "label": { "ko": "조용한 공부 환경", "en": "Quiet study environment" } },
+        { "value": "gender", "label": { "ko": "남녀 층 분리", "en": "Gender-separated floors" } },
+        { "value": "transport", "label": { "ko": "역·학교 도보 10분 내", "en": "Within 10 min walk of station or campus" } },
+        { "value": "parking", "label": { "ko": "주차 또는 자전거 보관", "en": "Parking or bicycle storage" } },
+        { "value": "aircon", "label": { "ko": "방 안 개별 에어컨·난방", "en": "Individual aircon and heating in the room" } },
+        { "value": "foreigner", "label": { "ko": "외국인 거주 가능 / 영어 소통", "en": "Foreigners welcome / English support" } }
+      ]
+    }
+  ],
+  "questions": {
+    "universal": {
+      "ko": [
+        "방 호수와 층수를 알려주시고, 그 방의 사진과 영상을 오늘 날짜가 보이게 찍어 보내주실 수 있나요?",
+        "지금 실시간 영상통화로 방과 복도, 공동 주방을 보여주실 수 있나요?",
+        "월세에 관리비, 전기, 수도, 가스, 인터넷이 모두 포함되나요? 별도로 내는 항목이 있나요?",
+        "보증금은 얼마이고, 퇴실할 때 어떤 조건에서 전액 돌려받을 수 있나요?",
+        "입실 전에 취소하면 보증금과 예약금은 전액 환불되나요? 그 내용을 문자로 보내주실 수 있나요?",
+        "최소 계약 기간이 있나요? 중도 퇴실하면 남은 기간은 일할 계산으로 환불되나요?",
+        "사업자등록증을 보여주실 수 있나요? 입금 계좌 예금주가 사업자명과 같나요?",
+        "계약서는 어떤 양식으로 쓰나요? 서명 전에 미리 파일로 볼 수 있나요?",
+        "건물에 스프링클러와 비상구가 몇 개 있나요? 소방점검은 언제 받았나요?",
+        "관리자가 상주하나요? 야간이나 주말에 문제가 생기면 어떻게 연락하나요?"
+      ],
+      "en": [
+        "Which room number and floor is it? Can you send photos and a video of that exact room with today's date visible?",
+        "Can we do a live video call right now so you can show me the room, the corridor and the shared kitchen?",
+        "Does the monthly rent include maintenance, electricity, water, gas and internet? What is billed separately?",
+        "How much is the deposit, and under what conditions do I get all of it back when I leave?",
+        "If I cancel before moving in, are the deposit and reservation fee fully refunded? Can you send that to me in writing?",
+        "Is there a minimum contract term? If I leave early, is the remaining period refunded pro rata?",
+        "Can you show me your business registration certificate? Is the bank account in the same business name?",
+        "What contract form do you use? Can I see it as a file before signing?",
+        "How many sprinklers and emergency exits does the building have? When was the last fire inspection?",
+        "Does a manager live on site? How do I reach someone at night or on weekends?"
+      ]
+    },
+    "conditional": [
+      {
+        "when": { "window": ["outer"] },
+        "ko": [
+          "그 방 창문이 외부로 직접 나 있나요? 창문을 열었을 때 보이는 풍경을 영상으로 보여주실 수 있나요?",
+          "창문을 열면 바로 옆 건물 벽인가요, 아니면 하늘이 보이나요?",
+          "창문에 방충망과 잠금장치가 있나요?"
+        ],
+        "en": [
+          "Does that room's window open directly to the outside? Can you show me the view on video?",
+          "When the window opens, is it a wall right next to it, or can you see the sky?",
+          "Does the window have a screen and a lock?"
+        ]
+      },
+      {
+        "when": { "window": ["any", "none_ok"] },
+        "ko": [
+          "무창방이면 환기는 어떻게 되나요? 환풍기가 24시간 돌아가나요?",
+          "무창방 가격과 외창방 가격 차이가 얼마인가요? 외창방 공실은 언제 나오나요?"
+        ],
+        "en": [
+          "If the room has no window, how is it ventilated? Does a fan run 24 hours?",
+          "What is the price difference between windowless and outside-facing rooms, and when will an outside-facing one open up?"
+        ]
+      },
+      {
+        "when": { "bathroom": ["private"] },
+        "ko": [
+          "개인 화장실·샤워실이 방 안에 있나요? 환기가 되나요?",
+          "온수는 24시간 나오나요, 시간 제한이 있나요?",
+          "개인 화장실 방의 추가 비용은 얼마인가요?"
+        ],
+        "en": [
+          "Is the private bathroom inside the room, and is it ventilated?",
+          "Is hot water available 24 hours, or only at certain times?",
+          "What is the extra cost for a room with a private bathroom?"
+        ]
+      },
+      {
+        "when": { "bathroom": ["shared"] },
+        "ko": [
+          "한 층에 화장실과 샤워실이 각각 몇 개이고, 그 층에 몇 명이 사나요?",
+          "아침 시간에 샤워를 기다려야 하나요?",
+          "청소는 누가 얼마나 자주 하나요?"
+        ],
+        "en": [
+          "How many toilets and showers are there per floor, and how many people live on that floor?",
+          "Do residents have to queue for a shower in the morning?",
+          "Who cleans them and how often?"
+        ]
+      },
+      {
+        "when": { "needs": ["meals"] },
+        "ko": [
+          "식사 제공이 정확히 무엇인가요? 밥·김치·라면만인가요, 반찬도 나오나요?",
+          "식사 제공 시간이 정해져 있나요? 24시간 이용 가능한가요?",
+          "식사가 월세에 포함인가요, 별도 요금인가요?"
+        ],
+        "en": [
+          "What exactly is provided? Only rice, kimchi and ramen, or side dishes too?",
+          "Are there set meal times, or is it available 24 hours?",
+          "Is food included in the rent or charged separately?"
+        ]
+      },
+      {
+        "when": { "needs": ["cooking"] },
+        "ko": [
+          "공동 주방에서 직접 요리가 가능한가요? 인덕션·가스레인지가 몇 개 있나요?",
+          "개인 식재료를 보관할 냉장고 공간이 있나요?",
+          "조리 시간 제한이나 금지 음식이 있나요?"
+        ],
+        "en": [
+          "Can I actually cook in the shared kitchen? How many burners are there?",
+          "Is there fridge space for my own food?",
+          "Are there time limits or banned foods?"
+        ]
+      },
+      {
+        "when": { "needs": ["laundry"] },
+        "ko": [
+          "세탁기와 건조기가 각각 몇 대이고 무료인가요? 유료면 1회 얼마인가요?",
+          "빨래를 말릴 공간이 있나요?"
+        ],
+        "en": [
+          "How many washers and dryers are there, and are they free? If paid, how much per load?",
+          "Is there space to dry laundry?"
+        ]
+      },
+      {
+        "when": { "needs": ["quiet"] },
+        "ko": [
+          "방음이 어느 정도인가요? 옆방 통화 소리가 들리나요?",
+          "소음 규칙이 있나요? 위반하면 어떻게 되나요?",
+          "주로 어떤 분들이 사시나요? 수험생이 많나요, 직장인이 많나요?",
+          "밤 10시 이후 복도나 주방 소음은 어떤가요?"
+        ],
+        "en": [
+          "How good is the soundproofing? Can you hear a neighbour on the phone?",
+          "Are there quiet-hours rules, and what happens if someone breaks them?",
+          "Who lives there mostly — students preparing for exams, or workers?",
+          "How noisy are the corridor and kitchen after 10pm?"
+        ]
+      },
+      {
+        "when": { "needs": ["gender"] },
+        "ko": [
+          "남녀 층이 완전히 분리되어 있나요? 같은 층에 공용 화장실을 함께 쓰나요?",
+          "출입문에 번호키나 카드키가 있나요? 외부인 출입은 어떻게 통제하나요?",
+          "복도와 출입구에 CCTV가 있나요?"
+        ],
+        "en": [
+          "Are floors fully separated by gender, or is the bathroom on that floor shared?",
+          "Is there a keypad or card lock on the entrance, and how are outsiders kept out?",
+          "Are there cameras in the corridor and at the entrance?"
+        ]
+      },
+      {
+        "when": { "needs": ["transport"] },
+        "ko": [
+          "가장 가까운 지하철역·버스정류장까지 실제로 도보 몇 분인가요?",
+          "정확한 주소(동·번지 또는 건물명)를 알려주실 수 있나요? 지도로 확인하고 싶습니다.",
+          "언덕길인가요? 밤에 가는 길이 밝은가요?"
+        ],
+        "en": [
+          "How many minutes is it really on foot to the nearest subway station or bus stop?",
+          "Can you give me the exact address or building name? I want to check it on a map.",
+          "Is it uphill, and is the route well lit at night?"
+        ]
+      },
+      {
+        "when": { "needs": ["parking"] },
+        "ko": [
+          "주차 공간이 있나요? 월 추가 비용은 얼마인가요?",
+          "자전거나 킥보드를 실내에 보관할 수 있나요? 분실 사고가 있었나요?"
+        ],
+        "en": [
+          "Is there parking, and what is the extra monthly cost?",
+          "Can I store a bicycle or scooter indoors? Have any gone missing?"
+        ]
+      },
+      {
+        "when": { "needs": ["aircon"] },
+        "ko": [
+          "방마다 개별 에어컨과 난방이 있나요, 중앙 제어인가요?",
+          "여름·겨울에 사용 시간 제한이 있나요? 전기료가 따로 청구되나요?"
+        ],
+        "en": [
+          "Does each room have its own aircon and heating, or is it centrally controlled?",
+          "Are there usage time limits in summer or winter, and is electricity billed separately?"
+        ]
+      },
+      {
+        "when": { "needs": ["foreigner"] },
+        "ko": [
+          "외국인 거주가 가능한가요? 계약서를 영어로도 제공하시나요?",
+          "외국인등록증이 아직 없어도 계약할 수 있나요?",
+          "관리자나 다른 입주자와 영어로 소통이 가능한가요?"
+        ],
+        "en": [
+          "Do you accept foreign residents, and can you provide the contract in English?",
+          "Can I sign before my alien registration card is issued?",
+          "Can I communicate with the manager or other residents in English?"
+        ]
+      },
+      {
+        "when": { "duration": ["short"] },
+        "ko": [
+          "1–3개월 단기도 가능한가요? 단기는 월세가 더 비싼가요?",
+          "단기 계약도 보증금을 돌려받을 수 있나요?"
+        ],
+        "en": [
+          "Do you accept stays of 1–3 months, and is short-term rent higher?",
+          "Is the deposit still refundable on a short contract?"
+        ]
+      },
+      {
+        "when": { "duration": ["long"] },
+        "ko": [
+          "6개월 이상 계약하면 할인이 있나요?",
+          "계약 기간 중 월세를 올릴 수 있나요? 인상 상한이 계약서에 있나요?",
+          "장기 거주자가 외창방으로 옮길 수 있나요?"
+        ],
+        "en": [
+          "Is there a discount for six months or more?",
+          "Can the rent rise during the term, and is a cap written into the contract?",
+          "Can a long-term resident move to an outside-facing room later?"
+        ]
+      },
+      {
+        "when": { "budget": ["under30", "30to45"] },
+        "ko": [
+          "이 가격에 해당하는 방은 무창방인가요, 지하인가요? 정확히 어떤 방인가요?",
+          "광고된 가격이 모든 비용을 포함한 최종 금액인가요? 추가 비용이 있나요?"
+        ],
+        "en": [
+          "At this price, is the room windowless or in a basement? What exactly is it?",
+          "Is the advertised price the final all-in amount, or are there extra charges?"
+        ]
+      }
+    ]
+  },
+  "depositAdvice": {
+    "ko": [
+      "먼저 실시간 영상통화로 방을 확인하세요. 녹화하거나 캡처해 두세요. 영상통화를 거부하면 계약하지 마세요.",
+      "사업자등록증 사본을 받아 국세청 홈택스 '사업자등록 상태조회'로 실제 영업 중인지 확인하세요.",
+      "입금 계좌의 예금주가 사업자명(또는 대표자명)과 일치하는지 확인하세요. 제3자 개인 계좌는 절대 안 됩니다.",
+      "계약서 파일을 먼저 받아 읽고, 보증금·월세·기간·환불 규정이 들어있는지 확인한 뒤 서명하세요.",
+      "도착 전에는 전액이 아니라 소액의 예약금만 보내세요. 보낼 때 문자로 '○○호, 보증금 ○○원, 입주일 ○월 ○일, 미계약 시 전액 반환' 확인을 받아두세요.",
+      "이체는 반드시 계좌 이체로 하고, 메모에 '예약금' 또는 '보증금'을 적으세요. 현금·상품권·암호화폐 요구는 사기입니다.",
+      "잔금과 보증금은 도착해서 방을 직접 본 뒤, 계약서에 서명하면서 지급하세요.",
+      "모든 대화(카톡·문자)와 송금 내역을 캡처해 보관하세요. 분쟁 시 유일한 증거입니다.",
+      "문제가 생기면: 경찰 112 / 사이버범죄 신고 ecrm.police.go.kr, 법률 상담 대한법률구조공단 132, 주택 관련 분쟁 주택임대차분쟁조정위원회."
+    ],
+    "en": [
+      "First confirm the room on a live video call, and record or screenshot it. If they refuse a video call, do not proceed.",
+      "Get the business registration certificate and verify it is active on the NTS Hometax business-status lookup.",
+      "Check the bank account holder's name matches the business or its representative. Never pay a third party's personal account.",
+      "Ask for the contract file in advance; confirm it states the deposit, rent, term and refund rules before you sign.",
+      "Before you arrive, send only a small reservation fee, never the full amount. Get written confirmation of room number, deposit, move-in date and a full refund if the lease isn't signed.",
+      "Pay by bank transfer with 'reservation fee' or 'deposit' in the memo. Demands for cash, gift vouchers or crypto are fraud.",
+      "Pay the balance and deposit only after you arrive, see the room, and sign the contract.",
+      "Keep screenshots of every message and transfer record — in a dispute they are your only evidence.",
+      "If something goes wrong: police 112 or ecrm.police.go.kr, free legal advice at 132 (Korea Legal Aid Corporation), and the Housing Lease Dispute Mediation Committee."
+    ]
+  }
+}

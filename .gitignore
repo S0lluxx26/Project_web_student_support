@@ -1,0 +1,18 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node (only if tooling is added later)
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# Local scratch
+tmp/
+*.local
