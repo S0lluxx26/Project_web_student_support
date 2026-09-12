@@ -109,12 +109,34 @@
         .replace(/\s+/g, '');
     },
 
-    /** Split text into sentences for quoting the matched line. */
+    /**
+     * Split text into sentences for quoting the matched line.
+     *
+     * Written as a manual scan rather than a lookbehind regex: lookbehind
+     * is a parse-time syntax error in Safari below 16.4, which would throw
+     * while loading this file and take the whole app down on older iPhones
+     * — exactly the devices a student on a budget is likely to be using.
+     */
     sentences: function (text) {
-      return String(text || '')
-        .split(/(?<=[.!?。？！])\s+|[\n\r]+/)
-        .map(function (s) { return s.trim(); })
-        .filter(function (s) { return s.length > 0; });
+      var src = String(text || '');
+      var out = [];
+      var start = 0;
+      for (var i = 0; i < src.length; i++) {
+        var ch = src[i];
+        var isBreak = ch === '\n' || ch === '\r';
+        var isStop = '.!?。？！'.indexOf(ch) !== -1;
+        /* A terminator ends the sentence only when whitespace or the end of
+           the text follows it, so "1,000,000" and "iros.go.kr" stay whole. */
+        var endsHere = isBreak ||
+          (isStop && (i + 1 >= src.length || /\s/.test(src[i + 1])));
+        if (!endsHere) continue;
+        var piece = src.slice(start, isBreak ? i : i + 1).trim();
+        if (piece) out.push(piece);
+        start = i + 1;
+      }
+      var tail = src.slice(start).trim();
+      if (tail) out.push(tail);
+      return out;
     },
 
     /**
@@ -137,6 +159,53 @@
         }
       }
       return null;
+    },
+
+    /**
+     * Character ranges in `text` that correspond to the matched terms.
+     *
+     * Matching happens on a whitespace-stripped copy, so a keyword like
+     * "오늘 안 하면" matches the text "오늘안하면" — meaning the matched
+     * substring often does not literally appear in the original. To
+     * highlight it we keep an index map from each normalized character
+     * back to its position in the original string, then translate the
+     * match offsets through it.
+     *
+     * Returns non-overlapping ranges sorted by start: [{start, end}].
+     */
+    ranges: function (text, terms) {
+      var src = String(text || '');
+      var norm = '';
+      var map = [];
+      for (var i = 0; i < src.length; i++) {
+        var ch = src[i];
+        if (/\s/.test(ch) || /[\u200b-\u200d\ufeff]/.test(ch)) continue;
+        norm += ch.toLowerCase();
+        map.push(i);
+      }
+      if (!norm) return [];
+
+      var found = [];
+      terms.forEach(function (term) {
+        var t = String(term || '').toLowerCase().replace(/\s+/g, '');
+        if (t.length < 2) return;
+        var from = 0, at;
+        while ((at = norm.indexOf(t, from)) !== -1) {
+          found.push({ start: map[at], end: map[at + t.length - 1] + 1 });
+          from = at + t.length;
+        }
+      });
+      if (!found.length) return [];
+
+      /* Merge overlaps so two terms hitting the same span mark it once. */
+      found.sort(function (a, b) { return a.start - b.start; });
+      var merged = [found[0]];
+      for (var k = 1; k < found.length; k++) {
+        var last = merged[merged.length - 1];
+        if (found[k].start <= last.end) last.end = Math.max(last.end, found[k].end);
+        else merged.push(found[k]);
+      }
+      return merged;
     },
 
     /** Find the first sentence containing any of the given raw keywords. */
@@ -198,6 +267,7 @@
           pattern: p,
           hits: hit,
           quote: quote,
+          quoteRanges: quote ? self.ranges(quote, hit) : [],
           informational: !!(p.keywords && p.keywords.requiresCompanion)
         });
       });

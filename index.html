@@ -29,7 +29,7 @@
       </span>
     </a>
     <div class="header-actions">
-      <a class="btn btn-ghost btn-sm" href="#/" data-i18n="nav.home">처음으로</a>
+      <a class="btn btn-ghost btn-sm nav-home" href="#/" data-i18n="nav.home">처음으로</a>
       <button class="btn btn-ghost btn-sm" id="lang-toggle" type="button" data-i18n="nav.lang">English</button>
     </div>
   </div>
@@ -69,17 +69,37 @@
   <!-- ============ HOUSING ============ -->
   <section class="view" id="view-housing" hidden>
     <h1 data-i18n="housing.heading">독립 주거 안전 확인</h1>
-    <ol class="steps" id="housing-steps">
-      <li class="is-active" data-step="1"><span data-i18n="housing.step1">1. 서류 확인</span></li>
-      <li data-step="2"><span data-i18n="housing.step2">2. 대화 분석</span></li>
-      <li data-step="3"><span data-i18n="housing.step3">3. 결과</span></li>
+    <ol class="steps" id="housing-steps" hidden>
+      <li data-step="1"><button type="button" data-goto-step="1" data-i18n="housing.step1">서류</button></li>
+      <li data-step="2"><button type="button" data-goto-step="2" data-i18n="housing.step2">대화</button></li>
+      <li data-step="3"><button type="button" data-goto-step="3" data-i18n="housing.step3">계약서</button></li>
+      <li data-step="4"><button type="button" data-goto-step="4" data-i18n="housing.step4">결과</button></li>
     </ol>
+
+    <!-- step 0: entry gate -->
+    <div class="step-pane" id="housing-step-0">
+      <p class="lede" data-i18n="housing.gate.body"></p>
+      <h2 class="h3" data-i18n="housing.gate.heading">이미 부동산이나 집주인과 이야기해 보셨나요?</h2>
+      <div class="choices choices-2">
+        <button class="choice choice-btn" type="button" data-goto-step="2">
+          <span class="choice-icon" aria-hidden="true">💬</span>
+          <strong data-i18n="housing.gate.yes">네, 대화한 내용이 있어요</strong>
+          <span class="choice-sub" data-i18n="housing.gate.yes.sub"></span>
+        </button>
+        <button class="choice choice-btn" type="button" data-goto-step="1">
+          <span class="choice-icon" aria-hidden="true">📋</span>
+          <strong data-i18n="housing.gate.no">아직 연락하기 전이에요</strong>
+          <span class="choice-sub" data-i18n="housing.gate.no.sub"></span>
+        </button>
+      </div>
+    </div>
 
     <!-- step 1: documents -->
     <div class="step-pane" id="housing-step-1">
       <p class="lede" data-i18n="housing.docs.intro"></p>
       <div id="doc-list" class="doc-list"></div>
       <div class="actions actions-sticky">
+        <button class="btn btn-ghost" type="button" data-goto-step="0" data-i18n="housing.prev">이전</button>
         <button class="btn btn-primary" type="button" data-goto-step="2" data-i18n="housing.next">다음 단계</button>
       </div>
     </div>
@@ -126,11 +146,32 @@
       </div>
     </div>
 
-    <!-- step 3: result -->
+    <!-- step 3: contract photo + checklist -->
     <div class="step-pane" id="housing-step-3" hidden>
+      <h2 class="h3" data-i18n="housing.contract.heading">계약서 확인 (선택)</h2>
+      <p class="lede" id="contract-intro"></p>
+      <div class="panel">
+        <label class="field">
+          <span class="field-label" data-i18n="housing.contract.photo">계약서 사진 올리기</span>
+          <input type="file" id="contract-photo" accept="image/*" multiple>
+        </label>
+        <div id="contract-preview" class="photo-grid"></div>
+      </div>
+      <div class="panel">
+        <h3 class="h4" data-i18n="housing.contract.items">계약서에서 확인할 것</h3>
+        <div class="checks" id="contract-checks"></div>
+      </div>
+      <div class="actions actions-sticky">
+        <button class="btn btn-ghost" type="button" data-goto-step="2" data-i18n="housing.prev">이전</button>
+        <button class="btn btn-primary" id="btn-to-result" type="button" data-i18n="housing.result.go">결과 보기</button>
+      </div>
+    </div>
+
+    <!-- step 4: result -->
+    <div class="step-pane" id="housing-step-4" hidden>
       <div id="result-root"></div>
       <div class="actions no-print">
-        <button class="btn btn-ghost" type="button" data-goto-step="2" data-i18n="housing.prev">이전</button>
+        <button class="btn btn-ghost" type="button" data-goto-step="3" data-i18n="housing.prev">이전</button>
         <button class="btn btn-ghost" id="btn-copy" type="button" data-i18n="result.copy">결과 복사</button>
         <button class="btn btn-ghost" id="btn-share" type="button" hidden data-i18n="result.share">공유</button>
         <button class="btn btn-ghost" id="btn-print" type="button" data-i18n="result.print">인쇄 / PDF 저장</button>

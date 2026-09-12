@@ -4,8 +4,14 @@
     {
       "id": "register",
       "required": true,
-      "name": { "ko": "등기부등본 (등기사항전부증명서)", "en": "Property register (deunggibu deungbon)" },
-      "where": { "ko": "인터넷등기소 iros.go.kr — 주소만 알면 누구나 약 700원에 직접 발급", "en": "iros.go.kr — anyone can issue it for about 700 won with just the address" },
+      "name": {
+        "ko": "등기부등본 (등기사항전부증명서)",
+        "en": "Property register (deunggibu deungbon)"
+      },
+      "where": {
+        "ko": "인터넷등기소 iros.go.kr — 주소만 알면 누구나 약 700원에 직접 발급",
+        "en": "iros.go.kr — anyone can issue it for about 700 won with just the address"
+      },
       "desc": {
         "ko": "가장 중요한 서류입니다. 상대방이 보여주는 것을 믿지 말고, 계약 당일 아침에 직접 발급하세요.",
         "en": "The single most important document. Don't rely on their copy — issue it yourself on the morning of signing."
@@ -29,17 +35,51 @@
         ]
       },
       "questions": [
-        { "id": "reg-owner-match", "weight": 30, "q": { "ko": "등기부등본상 소유자와 계약 상대방의 이름이 다릅니까?", "en": "Does the registered owner's name differ from the person signing?" } },
-        { "id": "reg-lien-high", "weight": 30, "q": { "ko": "(근저당 채권최고액 + 보증금)이 시세의 70%를 넘습니까?", "en": "Is (mortgage lien + deposit) more than 70% of market value?" } },
-        { "id": "reg-trust", "weight": 35, "q": { "ko": "신탁, 가압류, 압류, 경매 관련 기재가 있습니까?", "en": "Is there any trust, seizure, attachment or auction entry?" } },
-        { "id": "reg-not-issued", "weight": 25, "q": { "ko": "등기부등본을 아직 직접 발급해보지 않았습니까?", "en": "Have you not yet issued the register yourself?" } }
+        {
+          "id": "reg-owner-match",
+          "weight": 30,
+          "q": {
+            "ko": "등기부등본상 소유자와 계약 상대방의 이름이 다릅니까?",
+            "en": "Does the registered owner's name differ from the person signing?"
+          }
+        },
+        {
+          "id": "reg-lien-high",
+          "weight": 30,
+          "q": {
+            "ko": "(근저당 채권최고액 + 보증금)이 시세의 70%를 넘습니까?",
+            "en": "Is (mortgage lien + deposit) more than 70% of market value?"
+          }
+        },
+        {
+          "id": "reg-trust",
+          "weight": 35,
+          "q": {
+            "ko": "신탁, 가압류, 압류, 경매 관련 기재가 있습니까?",
+            "en": "Is there any trust, seizure, attachment or auction entry?"
+          }
+        },
+        {
+          "id": "reg-not-issued",
+          "weight": 25,
+          "q": {
+            "ko": "등기부등본을 아직 직접 발급해보지 않았습니까?",
+            "en": "Have you not yet issued the register yourself?"
+          }
+        }
       ]
     },
     {
       "id": "building",
       "required": true,
-      "name": { "ko": "건축물대장", "en": "Building register (geonchungmul daejang)" },
-      "where": { "ko": "정부24 gov.kr — 무료 발급", "en": "gov.kr — free" },
+      "name": {
+        "ko": "건축물대장",
+        "en": "Building register (geonchungmul daejang)"
+      },
+      "where": {
+        "ko": "정부24 gov.kr — 무료 발급",
+        "en": "gov.kr — free"
+      },
       "desc": {
         "ko": "건물의 법적 용도와 위반 여부를 보여줍니다. 주거용이 아니면 전입신고와 보증보험이 막힐 수 있습니다.",
         "en": "Shows the building's legal use and any violations. If it isn't residential, move-in registration and deposit insurance can be blocked."
@@ -59,15 +99,35 @@
         ]
       },
       "questions": [
-        { "id": "bld-violation", "weight": 25, "q": { "ko": "'위반건축물'로 표기되어 있습니까?", "en": "Is it flagged as a violation building?" } },
-        { "id": "bld-nonresi", "weight": 25, "q": { "ko": "용도가 주택이 아닌 근린생활시설·사무실입니까?", "en": "Is the zoning commercial or office rather than residential?" } }
+        {
+          "id": "bld-violation",
+          "weight": 25,
+          "q": {
+            "ko": "'위반건축물'로 표기되어 있습니까?",
+            "en": "Is it flagged as a violation building?"
+          }
+        },
+        {
+          "id": "bld-nonresi",
+          "weight": 25,
+          "q": {
+            "ko": "용도가 주택이 아닌 근린생활시설·사무실입니까?",
+            "en": "Is the zoning commercial or office rather than residential?"
+          }
+        }
       ]
     },
     {
       "id": "identity",
       "required": true,
-      "name": { "ko": "임대인 신분증 (+ 대리인이면 위임장·인감증명서)", "en": "Landlord's ID (plus power of attorney and seal certificate if a proxy)" },
-      "where": { "ko": "계약 현장에서 원본 확인", "en": "Verify the originals at signing" },
+      "name": {
+        "ko": "임대인 신분증 (+ 대리인이면 위임장·인감증명서)",
+        "en": "Landlord's ID (plus power of attorney and seal certificate if a proxy)"
+      },
+      "where": {
+        "ko": "계약 현장에서 원본 확인",
+        "en": "Verify the originals at signing"
+      },
       "desc": {
         "ko": "신분증의 이름과 등기부등본 소유자가 일치해야 합니다. 대리인이면 인감증명서가 첨부된 위임장이 필수입니다.",
         "en": "The ID must match the registered owner. A proxy must have a power of attorney with the owner's seal certificate attached."
@@ -87,15 +147,35 @@
         ]
       },
       "questions": [
-        { "id": "id-proxy", "weight": 30, "q": { "ko": "소유자가 아닌 대리인과 계약하는데 위임장·인감증명서가 없습니까?", "en": "Are you signing with a proxy who has no power of attorney or seal certificate?" } },
-        { "id": "id-refused", "weight": 20, "q": { "ko": "신분증이나 서류 확인·촬영을 거부했습니까?", "en": "Did they refuse to let you inspect or photograph the ID or documents?" } }
+        {
+          "id": "id-proxy",
+          "weight": 30,
+          "q": {
+            "ko": "소유자가 아닌 대리인과 계약하는데 위임장·인감증명서가 없습니까?",
+            "en": "Are you signing with a proxy who has no power of attorney or seal certificate?"
+          }
+        },
+        {
+          "id": "id-refused",
+          "weight": 20,
+          "q": {
+            "ko": "신분증이나 서류 확인·촬영을 거부했습니까?",
+            "en": "Did they refuse to let you inspect or photograph the ID or documents?"
+          }
+        }
       ]
     },
     {
       "id": "agent",
       "required": false,
-      "name": { "ko": "공인중개사 등록증·자격증·공제증서", "en": "Agent's registration, licence and indemnity certificate" },
-      "where": { "ko": "중개사무소 벽면 게시 의무 / 시·군·구청 조회", "en": "Must be displayed in the office; verifiable at the district office" },
+      "name": {
+        "ko": "공인중개사 등록증·자격증·공제증서",
+        "en": "Agent's registration, licence and indemnity certificate"
+      },
+      "where": {
+        "ko": "중개사무소 벽면 게시 의무 / 시·군·구청 조회",
+        "en": "Must be displayed in the office; verifiable at the district office"
+      },
       "desc": {
         "ko": "중개를 통한 계약이라면 등록된 중개사인지 확인해야 사고 시 공제를 받을 수 있습니다.",
         "en": "If an agent is involved, verify they are licensed — otherwise there is no indemnity cover if something goes wrong."
@@ -115,48 +195,99 @@
         ]
       },
       "questions": [
-        { "id": "agt-unverified", "weight": 20, "q": { "ko": "중개사 등록번호를 직접 조회해보지 않았습니까?", "en": "Have you not verified the agent's registration number yourself?" } }
+        {
+          "id": "agt-unverified",
+          "weight": 20,
+          "q": {
+            "ko": "중개사 등록번호를 직접 조회해보지 않았습니까?",
+            "en": "Have you not verified the agent's registration number yourself?"
+          }
+        }
       ]
     },
     {
       "id": "tax",
       "required": false,
-      "name": { "ko": "임대인 국세·지방세 완납증명서", "en": "Landlord's national and local tax clearance certificates" },
-      "where": { "ko": "임대인에게 요구 (2023년 법 개정으로 요구 가능)", "en": "Request from the landlord — legally requestable since the 2023 amendment" },
+      "name": {
+        "ko": "임대인 국세·지방세 완납증명서",
+        "en": "Landlord's national and local tax clearance certificates"
+      },
+      "where": {
+        "ko": "임대인에게 요구 (2023년 법 개정으로 요구 가능)",
+        "en": "Request from the landlord — legally requestable since the 2023 amendment"
+      },
       "desc": {
         "ko": "세금 체납은 보증금보다 우선 변제됩니다. 체납액이 크면 경매 시 보증금을 못 받을 수 있습니다.",
         "en": "Unpaid taxes rank ahead of your deposit. Large arrears mean you may recover nothing at auction."
       },
       "check": {
-        "ko": ["체납액이 있는지", "임대인이 제출을 거부하는지 (거부 자체가 위험 신호)"],
-        "en": ["Whether arrears exist", "Whether the landlord refuses to provide it — refusal itself is a red flag"]
+        "ko": [
+          "체납액이 있는지",
+          "임대인이 제출을 거부하는지 (거부 자체가 위험 신호)"
+        ],
+        "en": [
+          "Whether arrears exist",
+          "Whether the landlord refuses to provide it — refusal itself is a red flag"
+        ]
       },
       "questions": [
-        { "id": "tax-refused", "weight": 20, "q": { "ko": "임대인이 세금 완납증명서 제출을 거부했습니까?", "en": "Did the landlord refuse to provide tax clearance certificates?" } }
+        {
+          "id": "tax-refused",
+          "weight": 20,
+          "q": {
+            "ko": "임대인이 세금 완납증명서 제출을 거부했습니까?",
+            "en": "Did the landlord refuse to provide tax clearance certificates?"
+          }
+        }
       ]
     },
     {
       "id": "residents",
       "required": false,
-      "name": { "ko": "전입세대열람내역", "en": "Resident registry extract (jeonipsedae yeollam)" },
-      "where": { "ko": "주민센터 — 임대차 계약 예정자도 발급 가능", "en": "Community centre — a prospective tenant may request it" },
+      "name": {
+        "ko": "전입세대열람내역",
+        "en": "Resident registry extract (jeonipsedae yeollam)"
+      },
+      "where": {
+        "ko": "주민센터 — 임대차 계약 예정자도 발급 가능",
+        "en": "Community centre — a prospective tenant may request it"
+      },
       "desc": {
         "ko": "같은 집에 이미 전입신고된 세대가 있는지 확인합니다. 다가구 주택과 이중계약 확인에 필수입니다.",
         "en": "Shows whether other households are already registered at the address. Essential for multi-unit buildings and detecting double leases."
       },
       "check": {
-        "ko": ["선순위 임차인이 몇 세대인지", "선순위 보증금 총액 + 내 보증금이 시세를 넘지 않는지"],
-        "en": ["How many tenants have priority over you", "Whether their deposits plus yours exceed the property's value"]
+        "ko": [
+          "선순위 임차인이 몇 세대인지",
+          "선순위 보증금 총액 + 내 보증금이 시세를 넘지 않는지"
+        ],
+        "en": [
+          "How many tenants have priority over you",
+          "Whether their deposits plus yours exceed the property's value"
+        ]
       },
       "questions": [
-        { "id": "res-prior", "weight": 20, "q": { "ko": "선순위 임차인이 여러 명인데 그 보증금 총액을 모릅니까?", "en": "Are there prior tenants whose total deposits you don't know?" } }
+        {
+          "id": "res-prior",
+          "weight": 20,
+          "q": {
+            "ko": "선순위 임차인이 여러 명인데 그 보증금 총액을 모릅니까?",
+            "en": "Are there prior tenants whose total deposits you don't know?"
+          }
+        }
       ]
     },
     {
       "id": "contract",
       "required": true,
-      "name": { "ko": "주택임대차 표준계약서 + 특약", "en": "Standard residential lease contract plus special terms" },
-      "where": { "ko": "국토교통부 표준계약서 양식 사용", "en": "Use the MOLIT standard form" },
+      "name": {
+        "ko": "주택임대차 표준계약서 + 특약",
+        "en": "Standard residential lease contract plus special terms"
+      },
+      "where": {
+        "ko": "국토교통부 표준계약서 양식 사용",
+        "en": "Use the MOLIT standard form"
+      },
       "desc": {
         "ko": "모든 약속은 특약사항에 글로 남겨야 합니다. 계약 후 당일 전입신고와 확정일자를 받으세요.",
         "en": "Every promise must be written into the special terms. Do the move-in report and fixed-date stamp the same day."
@@ -178,11 +309,131 @@
         ]
       },
       "questions": [
-        { "id": "con-delay-move", "weight": 35, "q": { "ko": "전입신고나 확정일자를 미루라는 요구를 받았습니까?", "en": "Were you asked to delay the move-in report or fixed-date stamp?" } },
-        { "id": "con-no-special", "weight": 20, "q": { "ko": "구두 약속이 있는데 특약사항에 적지 않았습니까?", "en": "Are there verbal promises not written into the special terms?" } },
-        { "id": "con-no-insurance", "weight": 25, "q": { "ko": "전세보증보험 가입이 불가능하다고 들었습니까?", "en": "Were you told deposit guarantee insurance isn't possible?" } },
-        { "id": "con-pay-first", "weight": 35, "q": { "ko": "계약서 서명 전에 입금을 요구받았습니까?", "en": "Were you asked to pay before signing the contract?" } }
+        {
+          "id": "con-delay-move",
+          "weight": 35,
+          "q": {
+            "ko": "전입신고나 확정일자를 미루라는 요구를 받았습니까?",
+            "en": "Were you asked to delay the move-in report or fixed-date stamp?"
+          }
+        },
+        {
+          "id": "con-no-special",
+          "weight": 20,
+          "q": {
+            "ko": "구두 약속이 있는데 특약사항에 적지 않았습니까?",
+            "en": "Are there verbal promises not written into the special terms?"
+          }
+        },
+        {
+          "id": "con-no-insurance",
+          "weight": 25,
+          "q": {
+            "ko": "전세보증보험 가입이 불가능하다고 들었습니까?",
+            "en": "Were you told deposit guarantee insurance isn't possible?"
+          }
+        },
+        {
+          "id": "con-pay-first",
+          "weight": 35,
+          "q": {
+            "ko": "계약서 서명 전에 입금을 요구받았습니까?",
+            "en": "Were you asked to pay before signing the contract?"
+          }
+        }
       ]
     }
-  ]
+  ],
+  "contractChecklist": {
+    "intro": {
+      "ko": "계약서 사진을 올리면 화면 옆에 두고 항목을 하나씩 대조할 수 있습니다. 사진은 브라우저 안에만 있고 어디에도 전송되지 않습니다. OCR로 자동 판독하지 않습니다 — 직접 눈으로 확인하는 것이 가장 정확합니다.",
+      "en": "Upload a photo of the contract to check it clause by clause side by side. The photo stays in your browser and is never sent anywhere. There is no automatic OCR — reading it yourself is the most reliable check."
+    },
+    "items": [
+      {
+        "id": "ct-name",
+        "weight": 30,
+        "q": {
+          "ko": "임대인 이름이 등기부등본상 소유자와 다릅니까?",
+          "en": "Does the landlord's name differ from the registered owner?"
+        },
+        "hint": {
+          "ko": "계약서 임대인란의 성명·주민번호 앞자리를 등기부등본 갑구와 한 글자씩 대조하세요.",
+          "en": "Compare the name and birth digits in the landlord field against section 갑구 of the register, character by character."
+        }
+      },
+      {
+        "id": "ct-amount",
+        "weight": 25,
+        "q": {
+          "ko": "보증금·월세 금액이 한글과 숫자로 명확히 적혀 있지 않습니까?",
+          "en": "Are the deposit and rent amounts not written clearly in both words and figures?"
+        },
+        "hint": {
+          "ko": "금액은 '금 일천만원정 (₩10,000,000)'처럼 한글과 숫자를 함께 적어야 위조·변조를 막을 수 있습니다.",
+          "en": "Amounts should appear in words and figures together, which makes later alteration much harder."
+        }
+      },
+      {
+        "id": "ct-account",
+        "weight": 30,
+        "q": {
+          "ko": "입금 계좌 예금주가 임대인 본인 이름이 아닙니까?",
+          "en": "Is the bank account not in the landlord's own name?"
+        },
+        "hint": {
+          "ko": "계약서에 계좌번호와 예금주를 적고, 이체 메모에 '보증금'을 남기세요.",
+          "en": "Write the account number and holder into the contract, and put 'deposit' in the transfer memo."
+        }
+      },
+      {
+        "id": "ct-clause",
+        "weight": 25,
+        "q": {
+          "ko": "특약사항에 이해하기 어렵거나 불리한 조항이 있습니까?",
+          "en": "Are there special clauses you don't understand, or that work against you?"
+        },
+        "hint": {
+          "ko": "'전입신고 금지', '보증금 반환 지연 시 이의 없음', '원상복구 전액 부담' 같은 조항은 그 자리에서 삭제를 요구하세요.",
+          "en": "Clauses forbidding move-in registration, waiving objections to late refunds, or dumping all restoration costs on you should be struck out on the spot."
+        }
+      },
+      {
+        "id": "ct-term",
+        "weight": 20,
+        "q": {
+          "ko": "계약 기간과 퇴거 통지 기한이 명확하지 않습니까?",
+          "en": "Are the contract term and notice period unclear?"
+        },
+        "hint": {
+          "ko": "시작일·종료일과 '계약 만료 몇 개월 전까지 통지'가 적혀 있어야 합니다. 주택임대차보호법상 최소 2년이 보장됩니다.",
+          "en": "Start and end dates plus a notice deadline must be written. The Housing Lease Protection Act guarantees a minimum two-year term."
+        }
+      },
+      {
+        "id": "ct-blank",
+        "weight": 30,
+        "q": {
+          "ko": "빈칸이 남아 있는데 서명하라고 합니까?",
+          "en": "Are you being asked to sign while blanks remain?"
+        },
+        "hint": {
+          "ko": "빈칸은 나중에 임의로 채워질 수 있습니다. 모든 칸을 채우거나 사선을 긋고 서명하세요.",
+          "en": "A blank can be filled in later without you. Fill every field or strike it through before signing."
+        }
+      },
+      {
+        "id": "ct-copy",
+        "weight": 15,
+        "q": {
+          "ko": "서명한 계약서 원본을 한 부 받지 못했습니까?",
+          "en": "Did you not receive an original signed copy?"
+        },
+        "hint": {
+          "ko": "계약서는 임대인·임차인·중개사가 각 1부씩 보관합니다. 사진도 함께 찍어두세요.",
+          "en": "Each party keeps one original. Photograph yours as well."
+        }
+      }
+    ]
+  }
 }

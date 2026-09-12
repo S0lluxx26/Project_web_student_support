@@ -20,12 +20,98 @@
   var Housing = {
     docs: null,
     files: {},
+    photoUrls: [],
     lastResult: null,
 
     init: function (docsData) {
       this.docs = docsData;
       this.renderDocs();
+      this.renderContract();
       this.bind();
+    },
+
+    /* ---------- step 3: contract photo + guided checklist ---------- */
+    renderContract: function () {
+      var cc = this.docs.contractChecklist;
+      var root = document.getElementById('contract-checks');
+      var intro = document.getElementById('contract-intro');
+      if (!cc || !root) return;
+      var pick = I18n.pick.bind(I18n);
+      if (intro) intro.textContent = pick(cc.intro);
+      root.innerHTML = (cc.items || []).map(function (it) {
+        return '<label class="check check-hint">' +
+          '<input type="checkbox" data-doc-risk="' + esc(it.id) + '" data-weight="' + it.weight + '">' +
+          '<span><span class="check-q">' + esc(pick(it.q)) + '</span>' +
+          (it.hint ? '<span class="check-hint-text">' + esc(pick(it.hint)) + '</span>' : '') +
+          '</span></label>';
+      }).join('');
+    },
+
+    bindContractPhoto: function () {
+      var self = this;
+      var input = document.getElementById('contract-photo');
+      var out = document.getElementById('contract-preview');
+      if (!input || !out) return;
+      input.addEventListener('change', function () {
+        /* Object URLs are revoked before rebuilding so repeated picks
+           don't leak. Nothing is read, parsed or uploaded — the photo is
+           only shown so the user can read their own contract on screen. */
+        self.photoUrls.forEach(function (u) { URL.revokeObjectURL(u); });
+        self.photoUrls = [];
+        out.innerHTML = '';
+        Array.prototype.forEach.call(input.files || [], function (f) {
+          if (!/^image\//.test(f.type)) return;
+          var url = URL.createObjectURL(f);
+          self.photoUrls.push(url);
+          var fig = document.createElement('figure');
+          fig.className = 'photo';
+          fig.innerHTML = '<img src="' + url + '" alt="">' +
+            '<figcaption>' + esc(f.name) + '</figcaption>';
+          out.appendChild(fig);
+        });
+      });
+    },
+
+    /**
+     * Re-rendering a list replaces its DOM, which would silently discard
+     * whatever the user had ticked, expanded or attached. Every render path
+     * therefore snapshots that state first and restores it afterwards —
+     * losing a ticked risk would quietly lower the score the user is
+     * relying on.
+     */
+    snapshotState: function () {
+      var checked = {};
+      Array.prototype.forEach.call(
+        document.querySelectorAll('[data-doc-risk]:checked'),
+        function (cb) { checked[cb.getAttribute('data-doc-risk')] = true; }
+      );
+      var open = {};
+      Array.prototype.forEach.call(
+        document.querySelectorAll('details.doc[open]'),
+        function (d) { if (d.dataset.docId) open[d.dataset.docId] = true; }
+      );
+      return { checked: checked, open: open };
+    },
+
+    restoreState: function (snap) {
+      if (!snap) return;
+      Array.prototype.forEach.call(
+        document.querySelectorAll('[data-doc-risk]'),
+        function (cb) { cb.checked = !!snap.checked[cb.getAttribute('data-doc-risk')]; }
+      );
+      Array.prototype.forEach.call(
+        document.querySelectorAll('details.doc'),
+        function (d) { if (snap.open[d.dataset.docId]) d.open = true; }
+      );
+      /* Attached file names live only in our own map — the File objects
+         cannot be re-assigned to a fresh <input type="file">. */
+      var self = this;
+      Object.keys(this.files).forEach(function (id) {
+        var out = document.querySelector('[data-file-names="' + id + '"]');
+        if (out && self.files[id] && self.files[id].length) {
+          out.textContent = '✓ ' + self.files[id].join(', ');
+        }
+      });
     },
 
     /* ---------- step 1: documents ---------- */
@@ -38,6 +124,7 @@
       (this.docs.documents || []).forEach(function (doc, idx) {
         var d = document.createElement('details');
         d.className = 'doc';
+        d.dataset.docId = doc.id;
         if (idx === 0) d.open = true;
 
         var checksHtml = (doc.questions || []).map(function (q) {
@@ -92,6 +179,9 @@
       (this.docs.documents || []).forEach(function (doc) {
         (doc.questions || []).forEach(function (q) { byId[q.id] = pick(q.q); });
       });
+      ((this.docs.contractChecklist || {}).items || []).forEach(function (it) {
+        byId[it.id] = pick(it.q);
+      });
       var out = [];
       Array.prototype.forEach.call(
         document.querySelectorAll('[data-doc-risk]:checked'),
@@ -126,17 +216,16 @@
           return;
         }
         hide('chat-error');
-        var ctx = {
-          deposit: num('ctx-deposit'),
-          rent: num('ctx-rent'),
-          market: num('ctx-market'),
-          who: (document.getElementById('ctx-who') || {}).value
-        };
-        self.lastResult = Analyzer.analyze(text, ctx, docRisks);
-        self.lastCtx = ctx;
-        self.renderResult();
+        self.runAnalysis();
         global.App.gotoStep(3);
       });
+
+      on('btn-to-result', 'click', function () {
+        self.runAnalysis();
+        global.App.gotoStep(4);
+      });
+
+      this.bindContractPhoto();
 
       on('btn-copy', 'click', function () {
         copyText(self.reportText(), 'result.copied');
@@ -147,12 +236,61 @@
       enableShare('btn-share', function () { return self.reportText(); });
     },
 
+    /** Re-read every input and recompute. Safe to call repeatedly. */
+    runAnalysis: function () {
+      var text = (document.getElementById('chat-input') || {}).value || '';
+      var ctx = {
+        deposit: num('ctx-deposit'),
+        rent: num('ctx-rent'),
+        market: num('ctx-market'),
+        who: (document.getElementById('ctx-who') || {}).value
+      };
+      var docRisks = this.collectDocRisks();
+      this.lastCtx = ctx;
+      this.lastResult = Analyzer.analyze(text.trim(), ctx, docRisks);
+      /* "Nothing was entered" and "what you entered looks clean" are very
+         different messages. Conflating them hands a reassuring verdict to
+         someone who has not actually been checked. */
+      this.lastResult.empty = !text.trim() && !docRisks.length;
+      this.renderResult();
+      return this.lastResult;
+    },
+
+    /** Escape the quote, then wrap the matched ranges in <mark>. */
+    markQuote: function (quote, rangeList) {
+      if (!rangeList || !rangeList.length) return esc(quote);
+      var out = '', prev = 0;
+      rangeList.forEach(function (g) {
+        out += esc(quote.slice(prev, g.start)) +
+               '<mark>' + esc(quote.slice(g.start, g.end)) + '</mark>';
+        prev = g.end;
+      });
+      return out + esc(quote.slice(prev));
+    },
+
     renderResult: function () {
       var r = this.lastResult;
       var root = document.getElementById('result-root');
       if (!r || !root) return;
       var t = I18n.t.bind(I18n), pick = I18n.pick.bind(I18n);
+      var self = this;
       var html = '';
+
+      if (r.empty) {
+        root.innerHTML =
+          '<div class="panel panel-warn"><h2 class="h3">' + esc(t('result.empty.title')) +
+          '</h2><p>' + esc(t('result.empty.body')) + '</p>' +
+          '<div class="actions"><button class="btn btn-primary btn-sm" type="button" ' +
+          'data-goto-step="2">' + esc(t('result.empty.cta')) + '</button>' +
+          '<button class="btn btn-ghost btn-sm" type="button" data-goto-step="1">' +
+          esc(t('result.empty.cta2')) + '</button></div></div>' +
+          '<div class="panel panel-before"><h2 class="h3">' +
+          esc(t('result.before.title')) + '</h2><ol class="numbered">' +
+          ['result.before.1', 'result.before.2', 'result.before.3', 'result.before.4']
+            .map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') +
+          '</ol></div>';
+        return;
+      }
 
       html += '<div class="score-card lv-' + r.level + '">' +
         '<div class="score-dial">' + r.score + '</div>' +
@@ -161,6 +299,12 @@
           '<p>' + esc(t('result.level.' + r.level + '.msg')) + '</p>' +
           '<p class="score-meta">' + esc(t('result.score')) + ': ' + r.score + ' / 100</p>' +
         '</div></div>';
+
+      html += '<div class="panel panel-before"><h2 class="h3">' +
+        esc(t('result.before.title')) + '</h2><ol class="numbered">' +
+        ['result.before.1', 'result.before.2', 'result.before.3', 'result.before.4']
+          .map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') +
+        '</ol></div>';
 
       if (r.ratio !== null) {
         var warn = r.ratio >= 70;
@@ -184,7 +328,9 @@
           html += '<div class="signal sev-' + p.severity + '">' +
             '<h3>' + esc(pick(p.title)) +
               '<span class="sev-badge">' + esc(t('common.severity')) + ' ' + p.severity + '/5</span></h3>' +
-            (m.quote ? '<span class="quote">“' + esc(m.quote) + '”</span>' : '') +
+            (m.quote
+              ? '<span class="quote">“' + self.markQuote(m.quote, m.quoteRanges) + '”</span>'
+              : '') +
             '<p class="label">' + esc(t('result.why')) + '</p><p>' + esc(pick(p.why)) + '</p>' +
             '<p class="label">' + esc(t('result.action')) + '</p><p class="do">' + esc(pick(p.action)) + '</p>' +
           '</div>';
@@ -211,6 +357,11 @@
       L.push('');
       L.push(t('result.level') + ': ' + t('result.level.' + r.level) + ' (' + r.score + '/100)');
       L.push(t('result.level.' + r.level + '.msg'));
+      L.push('');
+      L.push('## ' + t('result.before.title'));
+      ['result.before.1', 'result.before.2', 'result.before.3', 'result.before.4']
+        .forEach(function (k, i) { L.push((i + 1) + '. ' + t(k)); });
+
       if (r.ratio !== null) {
         L.push('');
         L.push(t('result.ltv') + ': ' + t('result.ltv.body', { pct: r.ratio }));
@@ -244,15 +395,11 @@
 
     /* Re-render both steps after a language switch. */
     refresh: function () {
+      var snap = this.snapshotState();
       this.renderDocs();
-      if (this.lastResult) {
-        this.lastResult = Analyzer.analyze(
-          (document.getElementById('chat-input') || {}).value || '',
-          this.lastCtx || {},
-          this.collectDocRisks()
-        );
-        this.renderResult();
-      }
+      this.renderContract();
+      this.restoreState(snap);
+      if (this.lastResult) this.runAnalysis();
     }
   };
 

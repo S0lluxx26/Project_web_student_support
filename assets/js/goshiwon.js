@@ -150,6 +150,10 @@
     },
 
     refresh: function () {
+      /* Read the DOM back into `answers` first: re-rendering the fieldsets
+         discards the radio/checkbox state, and `answers` is otherwise only
+         refreshed when the user presses Generate. */
+      if (document.querySelector('#gosi-conditions input')) this.readAnswers();
       this.renderVisit();
       this.renderDeposit();
       this.renderConditions();

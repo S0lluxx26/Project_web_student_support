@@ -79,23 +79,31 @@
         if (el) el.hidden = (v !== view);
       });
 
-      if (view === 'housing') this.gotoStep(1, true);
+      if (view === 'housing') this.gotoStep(0, true);
       if (view === 'goshiwon') this.gotoGosiStep(1, true);
       if (view === 'home') this.syncActionBar();
       global.scrollTo({ top: 0, behavior: 'auto' });
     },
 
     gotoStep: function (n, silent) {
-      [1, 2, 3].forEach(function (i) {
+      /* The result is derived from every input across steps 1-3, so it is
+         recomputed whenever it is opened — including by a rail jump that
+         skips the analyze button. */
+      if (n === 4 && global.Housing && Housing.runAnalysis) Housing.runAnalysis();
+
+      [0, 1, 2, 3, 4].forEach(function (i) {
         var pane = document.getElementById('housing-step-' + i);
         if (pane) pane.hidden = (i !== n);
       });
+      /* The rail is meaningless on the entry gate — there is no step yet. */
+      var rail = document.getElementById('housing-steps');
+      if (rail) rail.hidden = (n === 0);
       Array.prototype.forEach.call(
         document.querySelectorAll('#housing-steps li'),
         function (li) {
           var s = Number(li.getAttribute('data-step'));
           li.classList.toggle('is-active', s === n);
-          li.classList.toggle('is-done', s < n);
+          li.classList.toggle('is-visited', s < n);
         }
       );
       this.syncActionBar();
