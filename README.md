@@ -71,13 +71,27 @@ anyone can audit or extend it by editing JSON. See
 [`docs/SCAM_PATTERNS.md`](docs/SCAM_PATTERNS.md) for the catalogue and
 [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for how to add a pattern.
 
+## Reading a screenshot
+
+Step 2 can read the text out of a chat screenshot. The engine is vendored in this
+repo and runs in a Web Worker on the user's machine — no upload, no CDN. What it
+reads lands in a review pane and the analyzer never sees it until the user has
+corrected it and pressed a button; there is no code path from the engine to the
+conversation box.
+
+Measured on the committed fixtures: 84 confidence on a colour KakaoTalk capture,
+93 on plain text, 92 in dark mode, roughly one misread word per screen. The
+greyscale step is not optional — without it the yellow outgoing bubbles vanish
+entirely. [`docs/OCR.md`](docs/OCR.md) has the full account, including what the
+cleanup deliberately refuses to fix and the flag that gates the feature.
+
+The fixtures are synthetic, so a green test run is a regression guard rather than
+proof it works on a real phone capture.
+
 ## Not implemented yet
 
 Stated plainly so nobody has to read the code to find out:
 
-- **Chat screenshot OCR.** The intake, transcript review and analysis path are
-  designed for it, but no OCR engine is wired in and none has been benchmarked on
-  Korean chat screenshots. Do not describe this app as reading screenshots.
 - **Any trained classifier.** There is no model, no training data, and no evaluation
   set. The pattern catalogue is a rule catalogue, not a labelled corpus.
 - **Offline reload.** Processing is local, but there is no service worker, so the app
@@ -89,9 +103,19 @@ Stated plainly so nobody has to read the code to find out:
 ```bash
 node scripts/test-analyzer.js    # regression table: false positives, speakers, evidence
 node scripts/test-detector.js    # paraphrase detection, benign controls, duplicates
+node scripts/test-data.js        # pattern/lexicon/i18n integrity, asset version
+node scripts/test-ocr.js         # OCR integration, MOCK engine — proves the wiring only
+
+npm install --no-save tesseract.js@5 pngjs
+node scripts/test-ocr-real.js --require-engine   # the real model over real fixtures
+
+npm install --no-save playwright && npx playwright install chromium
+node scripts/smoke-ocr.mjs       # the real page, a real worker: the gate for OCR
 ```
 
-Both run in CI before every deploy. The false-positive half matters more than the
+All of them run in CI before every deploy. `OCR.enabled` in `assets/js/ocr.js` is
+only allowed to be true while `smoke-ocr.mjs` passes against that build — a mock
+suite passing says nothing about whether the engine works in a browser. The false-positive half matters more than the
 true-positive half: a tool that cries wolf gets ignored, and then misses the real thing.
 
 ## Running it locally
@@ -116,6 +140,9 @@ assets/js/detector.js   concept rules and near-duplicate detection
 assets/js/housing.js    checker flow, document answers, report rendering
 assets/js/goshiwon.js   visit guide and question generator
 assets/js/app.js        data loading, routing, focus, session reset
+assets/js/ocr.js        screenshot reading: greyscale, cleanup, the review gate
+assets/js/redact.js     masking identifiers before anything is copied or shared
+assets/vendor/tesseract/  the vendored OCR engine and Korean model
 data/patterns.json      26 scam patterns
 data/lexicon.json       concepts and concept rules
 data/documents.json     document checklist and questions
@@ -123,6 +150,7 @@ data/goshiwon.json      visit checklist, conditions, questions
 data/examples.json      three clearly fictional example conversations
 data/i18n.json          UI strings, Korean and English
 scripts/                test suites, run in CI
+scripts/fixtures/       synthetic Korean chat screenshots for the OCR tests
 docs/                   pattern catalogue, contribution guide, reviews
 ```
 

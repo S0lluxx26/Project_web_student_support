@@ -14,7 +14,10 @@
 <meta property="og:title" content="학생 주거 안전 도우미 | Student Housing Safety Assistant">
 <meta property="og:description" content="한국에서 집을 구하는 학생을 위한 전세·월세 사기 예방 체크리스트와 대화 분석 도구.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="assets/css/style.css?v=f966bf25">
+<!-- Inline so the page never makes a request for it; the browser asks for
+     /favicon.ico otherwise and logs a 404 on every visit. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8F%A0%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/style.css?v=22b827e8">
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="nav.skip">본문으로 건너뛰기</a>
@@ -144,6 +147,53 @@
     <!-- step 2: conversation -->
     <div class="step-pane" id="housing-step-2" hidden>
       <p class="lede" data-i18n="housing.chat.intro"></p>
+
+      <!-- Screenshot reader. Stays hidden unless OCR.available() says the
+           engine can actually run here, so the control is never offered to a
+           browser that would fail on it. -->
+      <details class="panel ocr" id="ocr-panel" hidden>
+        <summary data-i18n="ocr.open">스크린샷에서 글자 읽기</summary>
+        <p class="note" data-i18n="ocr.privacy"></p>
+        <label class="field">
+          <span class="field-label" data-i18n="ocr.pick">스크린샷 고르기</span>
+          <input type="file" id="ocr-file" accept="image/png,image/jpeg,image/webp" multiple>
+        </label>
+        <p class="note" id="ocr-progress" role="status" aria-live="polite" hidden></p>
+        <p class="error" id="ocr-error" hidden></p>
+
+        <!-- The review gate. OCR output lands here and nowhere else; the
+             analyzer sees it only once the user has pressed the button. -->
+        <div id="ocr-review" hidden>
+          <h3 class="h3" data-i18n="ocr.review.heading">읽은 내용 확인</h3>
+          <p class="lede" data-i18n="ocr.review.lede"></p>
+          <div id="ocr-uncertain" hidden>
+            <p class="field-label" data-i18n="ocr.review.uncertain"></p>
+            <ul class="q-list" id="ocr-uncertain-list"></ul>
+          </div>
+          <fieldset id="ocr-sides" hidden>
+            <legend data-i18n="ocr.review.sides"></legend>
+            <div class="opt-grid">
+              <label class="opt"><input type="radio" name="ocr-mine" value="right" checked>
+                <span data-i18n="ocr.review.sides.right"></span></label>
+              <label class="opt"><input type="radio" name="ocr-mine" value="left">
+                <span data-i18n="ocr.review.sides.left"></span></label>
+              <label class="opt"><input type="radio" name="ocr-mine" value="none">
+                <span data-i18n="ocr.review.sides.none"></span></label>
+            </div>
+          </fieldset>
+          <label class="field">
+            <span class="field-label" data-i18n="ocr.review.label">읽은 글 (고칠 수 있습니다)</span>
+            <textarea id="ocr-text" rows="10" spellcheck="false"></textarea>
+          </label>
+          <div class="actions">
+            <button class="btn btn-primary" id="btn-ocr-append" type="button"
+                    data-i18n="ocr.review.append">대화에 추가</button>
+            <button class="btn btn-ghost" id="btn-ocr-discard" type="button"
+                    data-i18n="ocr.review.discard">버리기</button>
+          </div>
+        </div>
+      </details>
+
       <div class="panel">
         <label class="field">
           <span class="field-label" data-i18n="housing.chat.label">대화 내용</span>
@@ -290,13 +340,14 @@
   </div>
 </footer>
 
-<script src="assets/js/i18n.js?v=f966bf25"></script>
-<script src="assets/js/redact.js?v=f966bf25"></script>
-<script src="assets/js/conversation.js?v=f966bf25"></script>
-<script src="assets/js/detector.js?v=f966bf25"></script>
-<script src="assets/js/analyzer.js?v=f966bf25"></script>
-<script src="assets/js/housing.js?v=f966bf25"></script>
-<script src="assets/js/goshiwon.js?v=f966bf25"></script>
-<script src="assets/js/app.js?v=f966bf25"></script>
+<script src="assets/js/i18n.js?v=22b827e8"></script>
+<script src="assets/js/redact.js?v=22b827e8"></script>
+<script src="assets/js/ocr.js?v=22b827e8"></script>
+<script src="assets/js/conversation.js?v=22b827e8"></script>
+<script src="assets/js/detector.js?v=22b827e8"></script>
+<script src="assets/js/analyzer.js?v=22b827e8"></script>
+<script src="assets/js/housing.js?v=22b827e8"></script>
+<script src="assets/js/goshiwon.js?v=22b827e8"></script>
+<script src="assets/js/app.js?v=22b827e8"></script>
 </body>
 </html>

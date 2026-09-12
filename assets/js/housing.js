@@ -259,6 +259,7 @@
       });
 
       this.bindContractPhoto();
+      this.bindOcr();
 
       /* Copy and share open a preview first. Nothing leaves the device
          until the user has seen exactly what would leave. */
@@ -310,6 +311,190 @@
         var b = e.target.closest && e.target.closest('#btn-apply-speakers');
         if (b) { self.applySpeakers(); }
       });
+    },
+
+    /* ---------- step 2: reading a screenshot ---------- */
+
+    /*
+     * The screenshot reader, and the review gate in front of it.
+     *
+     * Recognition is good but not clean: on the fixtures the engine misreads
+     * roughly one word per screen and turns small grey timestamps into
+     * punctuation soup. None of that can be allowed to reach the analyzer
+     * unseen — a misread word is a finding the user never said, in a report
+     * they may act on. So `ocr-text` is a holding pen: the draft lands there,
+     * the user edits it, and only the button moves it into the conversation.
+     * There is deliberately no path from the engine to `chat-input`.
+     */
+    ocrState: null,
+
+    bindOcr: function () {
+      var self = this;
+      var panel = document.getElementById('ocr-panel');
+      if (!panel || !global.OCR) return;
+
+      /* Never show a control that cannot work. */
+      if (!OCR.available()) return;
+      panel.hidden = false;
+
+      var input = document.getElementById('ocr-file');
+      if (input) {
+        input.addEventListener('change', function () {
+          var files = Array.prototype.slice.call(this.files || []);
+          this.value = '';                 /* so re-picking the same file fires */
+          if (files.length) self.readScreenshots(files);
+        });
+      }
+
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.name === 'ocr-mine') self.renderOcrDraft();
+      });
+
+      on('btn-ocr-append', 'click', function () { self.appendOcr(); });
+      on('btn-ocr-discard', 'click', function () { self.clearOcr(); });
+    },
+
+    clearOcr: function () {
+      this.ocrState = null;
+      var box = document.getElementById('ocr-review');
+      if (box) box.hidden = true;
+      hide('ocr-error');
+      hide('ocr-progress');
+      var ta = document.getElementById('ocr-text');
+      if (ta) ta.value = '';
+    },
+
+    /** Run each image in turn, reporting as it goes. */
+    readScreenshots: function (files) {
+      var self = this;
+      var t = I18n.t.bind(I18n);
+      var prog = document.getElementById('ocr-progress');
+      hide('ocr-error');
+      if (prog) { prog.hidden = false; prog.textContent = t('ocr.progress.start'); }
+
+      var results = [];
+      var chain = Promise.resolve();
+      files.forEach(function (file, i) {
+        chain = chain.then(function () {
+          return OCR.recognize(file, {
+            onProgress: function (status, p) {
+              if (!prog) return;
+              /* The first run downloads the model, which on a phone is the
+                 slow part; say so rather than showing a stalled bar. */
+              var key = status === 'recognizing text' ? 'ocr.progress.reading'
+                      : 'ocr.progress.loading';
+              prog.textContent = t(key)
+                .replace('{n}', String(i + 1)).replace('{total}', String(files.length))
+                .replace('{pct}', String(Math.round((p || 0) * 100)));
+            }
+          }).then(function (r) { results.push(r); });
+        });
+      });
+
+      chain.then(function () {
+        if (prog) prog.hidden = true;
+        self.ocrState = {
+          text: results.map(function (r) { return r.text; })
+                       .filter(function (s) { return s.trim(); }).join('\n\n'),
+          uncertain: results.reduce(function (a, r) { return a.concat(r.uncertain || []); }, []),
+          sides: results.length === 1 ? results[0].sides : null
+        };
+        if (!self.ocrState.text.trim()) {
+          self.ocrState = null;
+          show('ocr-error');
+          document.getElementById('ocr-error').textContent = t('ocr.error.empty');
+          return;
+        }
+        self.showOcrReview();
+      }).catch(function (err) {
+        if (prog) prog.hidden = true;
+        console.error(err);
+        var box = document.getElementById('ocr-error');
+        if (box) {
+          box.hidden = false;
+          box.textContent = t('ocr.error.failed') + ' (' + (err && err.message || err) + ')';
+        }
+      });
+    },
+
+    showOcrReview: function () {
+      var s = this.ocrState;
+      if (!s) return;
+      var t = I18n.t.bind(I18n);
+
+      /* Name the lines the engine itself was unsure of. Asking someone to
+         proofread a screen of text is asking for a skim; pointing at the four
+         lines that are probably wrong is a job they will actually do. */
+      var un = document.getElementById('ocr-uncertain');
+      var list = document.getElementById('ocr-uncertain-list');
+      if (un && list) {
+        un.hidden = !s.uncertain.length;
+        list.innerHTML = s.uncertain.map(function (u) {
+          return '<li><span>' + esc(u.text) + ' <span class="note">(' +
+                 u.confidence + '%)</span></span></li>';
+        }).join('');
+      }
+
+      /* Only offer the side question when the layout actually answered it. */
+      var sides = document.getElementById('ocr-sides');
+      if (sides) sides.hidden = !s.sides;
+
+      this.renderOcrDraft();
+      var box = document.getElementById('ocr-review');
+      if (box) box.hidden = false;
+      var ta = document.getElementById('ocr-text');
+      if (ta) ta.focus();
+    },
+
+    /**
+     * Build the draft the user will edit, applying the speaker labels implied
+     * by the chosen side. Re-rendering overwrites the textarea, so it runs only
+     * on a side change and on first show — never while the user is typing.
+     */
+    renderOcrDraft: function () {
+      var s = this.ocrState;
+      var ta = document.getElementById('ocr-text');
+      if (!s || !ta) return;
+
+      var choice = document.querySelector('[name="ocr-mine"]:checked');
+      var mine = s.sides && choice ? choice.value : 'none';
+      if (mine === 'none' || !s.sides) { ta.value = s.text; return; }
+
+      /* The side grouping carries the engine's RAW line text, so the cleanup
+         has to be applied again here — the first version of this labelled the
+         lines and silently handed back every timestamp the unlabelled path
+         strips. Per line, because clean() also collapses blank lines and the
+         groups are already one line each. */
+      var t = I18n.t.bind(I18n);
+      var meLabel = t('ocr.label.me'), themLabel = t('ocr.label.them');
+      ta.value = s.sides.groups.map(function (g) {
+        var text = OCR.clean(g.text);
+        return text ? (g.side === mine ? meLabel : themLabel) + ': ' + text : '';
+      }).filter(function (l) { return l; }).join('\n');
+    },
+
+    /**
+     * Move the reviewed text into the conversation box. Appended, never
+     * substituted: someone who has already typed part of the conversation
+     * should not lose it to a screenshot.
+     */
+    appendOcr: function () {
+      var ta = document.getElementById('ocr-text');
+      var target = document.getElementById('chat-input');
+      if (!ta || !target) return;
+      var draft = (ta.value || '').trim();
+      if (!draft) return;
+
+      var existing = (target.value || '').trim();
+      target.value = existing ? existing + '\n\n' + draft : draft;
+      this.clearOcr();
+      var panel = document.getElementById('ocr-panel');
+      if (panel) panel.open = false;
+      hide('chat-error');
+      target.focus();
+      /* Put the cursor at the end so the user sees what was added. */
+      try { target.setSelectionRange(target.value.length, target.value.length); } catch (e) {}
+      target.scrollTop = target.scrollHeight;
     },
 
     /** Load one of the fictional examples, confirming before overwriting. */

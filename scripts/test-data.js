@@ -177,7 +177,8 @@ console.log('\n--- deployment ---');
   const crypto = require('crypto');
   const files = ['assets/css/style.css', 'assets/js/app.js', 'assets/js/housing.js',
                  'assets/js/analyzer.js', 'assets/js/goshiwon.js', 'assets/js/i18n.js',
-                 'assets/js/detector.js', 'assets/js/conversation.js'];
+                 'assets/js/detector.js', 'assets/js/conversation.js',
+                 'assets/js/redact.js', 'assets/js/ocr.js'];
   const h = crypto.createHash('sha1');
   files.forEach(f => h.update(fs.readFileSync(path.join(ROOT, f))));
   const want = h.digest('hex').slice(0, 8);

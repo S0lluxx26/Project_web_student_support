@@ -16,3 +16,12 @@ npm-debug.log*
 # Local scratch
 tmp/
 *.local
+
+# Files delivered into the folder by the Claude desktop app, and stray
+# scratch images — neither belongs in the published site.
+Claude outputs/
+*.bmp
+
+# The workflow copy kept at the repo root for reference; the live one is
+# .github/workflows/deploy.yml
+deploy-workflow.yml
