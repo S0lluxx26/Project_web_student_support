@@ -86,3 +86,31 @@ for (const file of [guide, pdf, diagramPath, recordPath,
 }
 console.log(lang + ' report checks passed: 15 linked chapters, 4 matching Mermaid figures, attribution, resources and PDF hashes (' + record.pages + ' pages).');
 }
+
+// Keep the compact submission and its actual screenshots tied to the reviewed PDF.
+const featureRecordPath = 'assets/manual/features-ko/report-build.json';
+const featureRecord = JSON.parse(read(featureRecordPath));
+const featureMd = read(featureRecord.source).toString('utf8');
+assert.equal(featureRecord.source, 'manual/MAIN_FUNCTIONS_KO.md');
+assert.equal(featureRecord.pdf, 'manual/main-functions-ko.pdf');
+assert.equal(featureRecord.sourceSha256, hash(featureRecord.source), 'Review feature Markdown, then run python scripts/build-functions-pdf.py');
+assert.equal(featureRecord.pdfSha256, hash(featureRecord.pdf));
+assert.equal(featureRecord.captureRecordSha256, hash('assets/manual/features-ko/cases.json'));
+assert.equal(featureRecord.pages, 6);
+assert.equal(featureRecord.font, 'Malgun Gothic');
+assert.equal(featureRecord.fontSizePt, 9);
+assert.equal(featureRecord.lineSpacing, 1.0);
+assert.equal(featureRecord.leadingPt, 9);
+assert.equal(featureRecord.maker, 'Bui Xuan Mai');
+assert(!/\b(daughter|father|mother)\b|딸|아버지|어머니/i.test(featureMd));
+assert.equal([...featureMd.matchAll(/^## 3\.\d+\. /gm)].length, 6);
+assert.equal(featureRecord.screenshots.length, 6);
+for (const shot of featureRecord.screenshots) {
+  assert.equal(hash(shot.file), shot.sha256, 'Feature screenshot changed: regenerate the PDF');
+  assert(featureMd.includes('../' + shot.file));
+}
+for (const file of [featureRecord.source, featureRecord.pdf, featureRecordPath,
+  ...featureRecord.screenshots.map(shot => shot.file)]) {
+  if (fs.existsSync(path.join(root, 'dist', file))) assert.equal(hash('dist/' + file), hash(file), 'Run npm run build');
+}
+console.log('Korean feature submission passed: six actual screenshots, Markdown/PDF hashes and 9pt/1.0 font record.');

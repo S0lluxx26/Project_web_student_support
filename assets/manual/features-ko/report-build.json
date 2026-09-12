@@ -1,0 +1,39 @@
+{
+  "source": "manual/MAIN_FUNCTIONS_KO.md",
+  "sourceSha256": "66e73dde9a9b4cdfbf0ed02664b37fff6e20780f22fc91bafae1e012e37d1040",
+  "pdf": "manual/main-functions-ko.pdf",
+  "pdfSha256": "936b25d990d1b9a12c59b9c34a7c5d54e05f9f01b29052c789df45ffd2e81e29",
+  "pages": 6,
+  "font": "Malgun Gothic",
+  "fontSizePt": 9,
+  "lineSpacing": 1.0,
+  "leadingPt": 9,
+  "maker": "Bui Xuan Mai",
+  "captureRecordSha256": "bea211f04e201e8476b4c3c6adcdaeb05d3165dee39fcff7d350164bb4c6dcc8",
+  "screenshots": [
+    {
+      "file": "assets/manual/features-ko/02-review.jpg",
+      "sha256": "bbb4066a15531ff3542f72e7b90b1450b9b553579528ee40d184227f0926e5e2"
+    },
+    {
+      "file": "assets/manual/features-ko/03-pressure-result.jpg",
+      "sha256": "ff12ce432b58a49044680a52a0a302cbef9026c3ea11b702d7007b5ca823bf43"
+    },
+    {
+      "file": "assets/manual/features-ko/05-contract.jpg",
+      "sha256": "3c1e6f86f0c24fc29668c434602497456b32d85ad9b0860535a3e511463c87da"
+    },
+    {
+      "file": "assets/manual/features-ko/06-export.jpg",
+      "sha256": "92824c98bff0ce91b8084cada14160eea291fcec7adf4020d30f5e906559cd40"
+    },
+    {
+      "file": "assets/manual/features-ko/09-help.jpg",
+      "sha256": "798ee6a02e28cea60f3a988bf3b235d6fe7599082e35877095c372deb13d07c6"
+    },
+    {
+      "file": "assets/manual/features-ko/07-ai-controls.jpg",
+      "sha256": "fd76a76776948a02be1a6c94b26a559cc57926624b387f81177b81a0d3a1e006"
+    }
+  ]
+}

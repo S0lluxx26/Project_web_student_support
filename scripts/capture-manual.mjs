@@ -1,5 +1,7 @@
 /* Regenerate public guide captures from two fictional fixtures, using real OCR.
  * npm run assets:stamp && node scripts/capture-manual.mjs
+ * Korean feature submission: node scripts/capture-manual.mjs --features --lang ko
+ * --features writes a separate features-ko folder and demonstrates export masking.
  * Requires the project's Playwright Chromium. No model download is performed.
  * Changes assets/manual/: review the images and cases.json before committing.
  */
@@ -10,9 +12,11 @@ import { createHash } from 'node:crypto';
 import { chromium } from 'playwright';
 import { createSiteServer, listen, ROOT } from './serve-site.mjs';
 
-const lang = process.argv.includes('--lang') ? process.argv[process.argv.indexOf('--lang') + 1] : 'en';
+const features = process.argv.includes('--features');
+const lang = process.argv.includes('--lang') ? process.argv[process.argv.indexOf('--lang') + 1] : features ? 'ko' : 'en';
 if (!['en', 'ko'].includes(lang)) throw Error('--lang must be en or ko');
-const out = path.join(ROOT, 'assets/manual', lang === 'ko' ? 'ko' : '');
+if (features && lang !== 'ko') throw Error('--features currently requires Korean');
+const out = path.join(ROOT, 'assets/manual', features ? 'features-ko' : lang === 'ko' ? 'ko' : '');
 fs.mkdirSync(out, { recursive: true });
 const sources = { pressure: '01-kakao-pressure.jpg', ordinary: '02-kakao-ordinary.jpg' };
 for (const [id, file] of Object.entries(sources))
@@ -21,12 +25,13 @@ const server = createSiteServer({ root: ROOT });
 await listen(server, 0);
 const base = 'http://127.0.0.1:' + server.address().port + '/';
 const browser = await chromium.launch();
-const page = await browser.newPage({ locale: lang === 'ko' ? 'ko-KR' : 'en-US', colorScheme: 'light', viewport: { width: 1120, height: 820 } });
+const viewport = features ? { width: 900, height: 780 } : { width: 1120, height: 820 };
+const page = await browser.newPage({ locale: lang === 'ko' ? 'ko-KR' : 'en-US', colorScheme: 'light', viewport });
 const errors = [], requests = [];
 page.on('pageerror', e => errors.push(e.message));
 page.on('request', req => requests.push(req.url()));
 const records = { capturedAt: new Date().toISOString(), language: lang, browser: browser.version(),
-  viewport: { width: 1120, height: 820 },
+  viewport,
   source: 'Fictional chats drawn by demo/make-demo-screenshots.py; actual browser OCR and rule results.',
   speakerChoice: 'right', textCorrections: 'none', cases: [] };
 async function shot(file, selector) {
@@ -78,6 +83,29 @@ try {
       await shot('05-contract.jpg');
     }
     console.log(id + ': ' + result.assessment + ', ' + result.signals.length + ' signals');
+  }
+  if (features) {
+    await page.goto(base);
+    await page.waitForSelector('body[data-ready="true"]');
+    const redactionInput = '집주인: 오늘 가계약금 100만원을 먼저 보내주시고 010-0000-0000으로 연락하세요.';
+    await page.locator('#home-chat').fill(redactionInput);
+    await page.locator('#btn-home-analyze').click();
+    await page.waitForSelector('#housing-step-4:not([hidden])');
+    await page.locator('#btn-copy').click();
+    const preview = await page.locator('#export-text').inputValue();
+    assert(!preview.includes('010-0000-0000'), 'fictional phone is masked in export');
+    const masked = await page.locator('.export-found').textContent();
+    assert(masked.includes('전화번호'), 'actual mask summary identifies phone data');
+    await page.locator('#export-text').evaluate(el => { el.scrollTop = 0; });
+    await page.locator('#export-preview').screenshot({ path: path.join(out, '06-export.jpg'), type: 'jpeg', quality: 88, animations: 'disabled' });
+    records.exportDemo = { fictional: true, input: redactionInput, maskSummary: masked, preview };
+    await page.goto(base + 'help.html');
+    await page.waitForSelector('#learning-cases .sample-card');
+    if (await page.locator('html').getAttribute('lang') !== 'ko') await page.locator('#help-language').click();
+    assert.equal(await page.locator('html').getAttribute('lang'), 'ko');
+    assert.equal(await page.locator('#learning-cases .sample-card').count(), 12);
+    await page.locator('#compare').screenshot({ path: path.join(out, '09-help.jpg'), type: 'jpeg', quality: 88, animations: 'disabled' });
+    records.helpCases = 12;
   }
   assert.deepEqual(errors, []);
   assert.equal(requests.some(url => /wllama|huggingface|llm-worker/.test(url)), false, 'captures do not load the optional model');

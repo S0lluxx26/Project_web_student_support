@@ -65,7 +65,8 @@ if (skipTests) {
  * the next deploy and nobody would notice.
  */
 const FILES = ['index.html', 'demo.html', 'help.html', 'manual/PROJECT_GUIDE.md',
-  'manual/project-guide.pdf', 'manual/PROJECT_GUIDE_KO.md', 'manual/project-guide-ko.pdf', '.nojekyll', 'LICENSE'];
+  'manual/project-guide.pdf', 'manual/PROJECT_GUIDE_KO.md', 'manual/project-guide-ko.pdf',
+  'manual/MAIN_FUNCTIONS_KO.md', 'manual/main-functions-ko.pdf', '.nojekyll', 'LICENSE'];
 const DIRS = ['assets', 'data'];
 
 /*

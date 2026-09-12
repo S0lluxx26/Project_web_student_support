@@ -10,6 +10,7 @@ It does not establish whether a person or property is fraudulent.
 · [Install on a PC](INSTALL.md) · [Project guide and AI prompts](manual/PROJECT_GUIDE.md)
 · [Safety help and 12 practice screenshots](https://s0lluxx26.github.io/Project_web_student_support/help.html)
 · [한국어 프로젝트 보고서](manual/PROJECT_GUIDE_KO.md)
+· [주요 기능 소개와 실제 화면](manual/MAIN_FUNCTIONS_KO.md)
 
 ## Main features
 
@@ -135,6 +136,13 @@ and actual Korean UI captures. Reproduce it with `--lang ko` on
 `scripts/capture-manual.mjs`, `scripts/render-report-diagrams.mjs` and
 `scripts/build-guide-pdf.py`. Review Markdown before generating the PDF;
 English files remain separate. Both editions are checked by `npm run test:report`.
+
+The Korean feature-introduction submission has six actual screenshots with short
+descriptions. Its PDF uses Malgun Gothic, 9pt text and 1.0 line spacing. Capture
+with `node scripts/capture-manual.mjs --features --lang ko`, review
+`manual/MAIN_FUNCTIONS_KO.md`, then run `python scripts/build-functions-pdf.py`.
+The builder also creates `output/main-functions-ko-submission.zip` with the
+Markdown, PDF and six screenshot files for inserting into a submission template.
 
 Application: MIT. Vendored components retain their licenses. The GGUF model is
 Apache-2.0 and is not bundled in the repository.
