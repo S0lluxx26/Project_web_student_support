@@ -1,0 +1,24 @@
+sequenceDiagram
+  actor U as PC 사용자
+  participant UI as 브라우저 화면
+  participant W as LLM 워커
+  participant S as 모델 공급원
+  Note over U,UI: 휴대전화와 태블릿은 비활성화. PC도 처음에는 사용 안 함
+  U->>UI: AI 실험 사용 선택
+  UI-->>U: 다운로드 없이 불러오기 버튼 표시
+  U->>UI: 불러오기 또는 로컬 GGUF 선택
+  UI->>W: 고정된 모델 설정 적용
+  W->>S: 선택한 파일, 캐시 또는 모델 다운로드
+  Note over W,S: 필요할 때 고정 Hugging Face 주소 사용. 대화는 전송하지 않음
+  S-->>W: 모델 파일 바이트
+  W-->>UI: 검증 후 준비 완료 또는 실패
+  U->>UI: 경고 하나 선택 후 설명 생성
+  UI->>W: 규칙 안내와 기존 평가만 전달
+  W-->>UI: 생성 초안 또는 오류
+  alt 화면 측 검증 통과
+    UI-->>U: 별도의 실험용 설명 표시
+  else 잘못된 출력 또는 실패
+    UI-->>U: 원래 규칙 보고서 유지 및 상태 안내
+  end
+  Note over UI,W: 중단과 초기화는 워커 종료. 이전 작업은 출력을 복구할 수 없음
+  Note over U,UI: 초안은 평가를 바꾸지 않고 보고서 내보내기에도 포함되지 않음

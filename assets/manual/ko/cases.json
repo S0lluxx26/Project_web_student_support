@@ -1,0 +1,63 @@
+{
+  "capturedAt": "2026-09-12T10:38:44.941Z",
+  "language": "ko",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1120,
+    "height": 820
+  },
+  "source": "Fictional chats drawn by demo/make-demo-screenshots.py; actual browser OCR and rule results.",
+  "speakerChoice": "right",
+  "textCorrections": "none",
+  "cases": [
+    {
+      "id": "pressure",
+      "fixture": "demo/screenshots/01-kakao-pressure.jpg",
+      "sha256": "dec358315b8f808bfd8d24ea015897d22dac79c3fd8f2dcc7c02c6105130e0c1",
+      "draft": "저: 2026년 9월 8일\n상대방: 안녕하세요어제문의주신원룸 건으로 연락드립니다\n저: 네 안녕하세요 이번 주말에 방 볼 수 있을까요\n상대방: 지금세입자가살고 있어서방을 못 보여드려요\n상대방: 사진으로충분히 보셨죠 상태 아주 좋습니다\n상대방: 오늘 가계약금 100만원만 먼저 보내주시면 방 잡아드릴게요\n상대방: 다른분도지금보고 계셔서 오늘 안에 결정하셔야 해요\n저: 등기부등본 먼저 보여주실 수 있나요\n상대방: 그건 계약하실 때 보여드립니다 걱정 안 하셔도 돼요\n상대방: 제명의 계좌로 보내주세요 사장님이 지방에 계셔서요",
+      "assessment": "strong_warning_signals",
+      "signals": [
+        {
+          "id": "pay-urgency",
+          "title": {
+            "ko": "입금을 서두르게 하는 압박",
+            "en": "Pressure to pay immediately"
+          },
+          "quote": "오늘 가계약금 100만원만 먼저 보내주시면 방 잡아드릴게요"
+        },
+        {
+          "id": "pay-personal-account",
+          "title": {
+            "ko": "소유자 명의가 아닌 계좌로 송금 요구",
+            "en": "Payment requested to an account not in the owner's name"
+          },
+          "quote": "제명의 계좌로 보내주세요 사장님이 지방에 계셔서요"
+        },
+        {
+          "id": "good-remote-keys",
+          "title": {
+            "ko": "방문·대면 없이 계약 요구",
+            "en": "Contract without any visit or meeting"
+          },
+          "quote": "사진으로충분히 보셨죠 상태 아주 좋습니다"
+        },
+        {
+          "id": "pay-before-contract",
+          "title": {
+            "ko": "계약서 작성 전 입금 요구",
+            "en": "Payment demanded before any contract exists"
+          },
+          "quote": "오늘 가계약금 100만원만 먼저 보내주시면 방 잡아드릴게요"
+        }
+      ]
+    },
+    {
+      "id": "ordinary",
+      "fixture": "demo/screenshots/02-kakao-ordinary.jpg",
+      "sha256": "504f5099be74a021a3ff9f97873345a57c8d185364442473c8f863ce4aa0c0a5",
+      "draft": "저: 2026년 9월 8일\n상대방: 안녕하세요문의주신 원룸 안내드립니다\n저: .네 방 보러 갈 수 있을까요\n상대방: 기 네토요일오후2시에 가능하십니다\n상대방: 오실때신분증만 들고 오시면 됩니다\n저: 등기부등본도 볼 수 있을까요\n상대방: 물론입니다방문하시면 같이 확인해 드릴게요\n상대방: 근저당은 없고 집주인분 명의로 되어 있습니다\n저: 전입신고랑 확정일자도 가능한가요\n상대방: 기 네계약후 바로하시면 됩니다\n상대방: 메시지 입력",
+      "assessment": "no_known_signals",
+      "signals": []
+    }
+  ]
+}

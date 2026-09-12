@@ -1,0 +1,91 @@
+{
+  "source": "manual/PROJECT_GUIDE_KO.md",
+  "language": "ko",
+  "sourceSha256": "859ed33cc995088bd288b67d86576effd389b712c7c375004bdd74cbe3bb7a95",
+  "pdfSha256": "f156b377a3565036974c8c255577bdd702d56b98d3a6cacb9f1d22fcb4a216ba",
+  "pages": 25,
+  "bytes": 1823771,
+  "maker": "Bui Xuan Mai",
+  "repository": "https://github.com/S0lluxx26/Project_web_student_support",
+  "promptReference": "https://github.com/S0lluxx26/Project_web_student_support/blob/main/docs/AI_PROMPTS.md",
+  "headingsVerified": 54,
+  "contents": [
+    {
+      "title": "1. 프로젝트 개요와 범위",
+      "anchor": "1-프로젝트-개요와-범위",
+      "page": 3
+    },
+    {
+      "title": "2. 저장소 아키텍처와 파일 구조",
+      "anchor": "2-저장소-아키텍처와-파일-구조",
+      "page": 4
+    },
+    {
+      "title": "3. 배포 구조와 데이터 흐름",
+      "anchor": "3-배포-구조와-데이터-흐름",
+      "page": 6
+    },
+    {
+      "title": "4. 시스템 시퀀스 다이어그램",
+      "anchor": "4-시스템-시퀀스-다이어그램",
+      "page": 8
+    },
+    {
+      "title": "5. AI 프롬프트 출처와 작업 방법",
+      "anchor": "5-ai-프롬프트-출처와-작업-방법",
+      "page": 10
+    },
+    {
+      "title": "6. 로컬 설치와 화면 구현",
+      "anchor": "6-로컬-설치와-화면-구현",
+      "page": 11
+    },
+    {
+      "title": "7. 근거를 제시하는 대화 분석 구현",
+      "anchor": "7-근거를-제시하는-대화-분석-구현",
+      "page": 12
+    },
+    {
+      "title": "8. 스크린샷 OCR과 검토 절차",
+      "anchor": "8-스크린샷-ocr과-검토-절차",
+      "page": 13
+    },
+    {
+      "title": "9. 시연 결과와 학습 예시",
+      "anchor": "9-시연-결과와-학습-예시",
+      "page": 15
+    },
+    {
+      "title": "10. 문서 확인과 개인정보를 고려한 내보내기",
+      "anchor": "10-문서-확인과-개인정보를-고려한-내보내기",
+      "page": 17
+    },
+    {
+      "title": "11. 선택형 PC AI와 한계",
+      "anchor": "11-선택형-pc-ai와-한계",
+      "page": 19
+    },
+    {
+      "title": "12. 데모와 보고서 재현 방법",
+      "anchor": "12-데모와-보고서-재현-방법",
+      "page": 21
+    },
+    {
+      "title": "13. 검증과 배포",
+      "anchor": "13-검증과-배포",
+      "page": 23
+    },
+    {
+      "title": "14. 성과와 한계 및 남은 과제",
+      "anchor": "14-성과와-한계-및-남은-과제",
+      "page": 24
+    },
+    {
+      "title": "15. 참고 자료와 용어",
+      "anchor": "15-참고-자료와-용어",
+      "page": 25
+    }
+  ],
+  "diagramManifestSha256": "f3a2731121676891aec3bbae7ee326eb840442df375ff9ee4456e3513e1375c9",
+  "visualReview": "Required separately: render and inspect every page."
+}

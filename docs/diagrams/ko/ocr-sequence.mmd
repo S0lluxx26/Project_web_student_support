@@ -1,0 +1,25 @@
+sequenceDiagram
+  actor U as 사용자
+  participant UI as 브라우저 화면
+  participant OCR as OCR 워커
+  participant A as 규칙 분석기
+  U->>UI: 대화 스크린샷 선택
+  UI->>OCR: 새 인식 작업 시작
+  Note over UI,OCR: 저장소에 포함된 엔진과 한국어 데이터를 필요할 때 불러옴
+  OCR-->>UI: 진행 상태 전달
+  alt 사용자가 중단하거나 초기화
+    U->>UI: 중단 또는 초기화
+    UI->>OCR: 워커 종료
+    Note over UI,OCR: 이전 작업 무효화 및 늦은 응답 무시
+  else 인식 완료
+    OCR-->>UI: 인식 초안, 영역, 불확실성
+    UI-->>U: 원본 이미지와 편집 화면
+    U->>UI: 내 말풍선 확인, 글 수정, 적용
+    UI->>A: 검토한 글, 상황, 문서 답변
+    A-->>UI: 평가, 근거, 확인 질문
+    UI-->>U: 결과 보고서 표시
+    U->>UI: 복사, 공유 또는 인쇄 요청
+    UI-->>U: 개인정보를 가린 편집용 초안
+    U->>UI: 초안 수정 후 최종 확인
+    UI-->>U: 확인한 글만 내보내기
+  end

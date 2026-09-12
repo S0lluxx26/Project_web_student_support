@@ -10,7 +10,9 @@ import { createHash } from 'node:crypto';
 import { chromium } from 'playwright';
 import { createSiteServer, listen, ROOT } from './serve-site.mjs';
 
-const out = path.join(ROOT, 'assets/manual');
+const lang = process.argv.includes('--lang') ? process.argv[process.argv.indexOf('--lang') + 1] : 'en';
+if (!['en', 'ko'].includes(lang)) throw Error('--lang must be en or ko');
+const out = path.join(ROOT, 'assets/manual', lang === 'ko' ? 'ko' : '');
 fs.mkdirSync(out, { recursive: true });
 const sources = { pressure: '01-kakao-pressure.jpg', ordinary: '02-kakao-ordinary.jpg' };
 for (const [id, file] of Object.entries(sources))
@@ -19,11 +21,11 @@ const server = createSiteServer({ root: ROOT });
 await listen(server, 0);
 const base = 'http://127.0.0.1:' + server.address().port + '/';
 const browser = await chromium.launch();
-const page = await browser.newPage({ locale: 'en-US', colorScheme: 'light', viewport: { width: 1120, height: 820 } });
+const page = await browser.newPage({ locale: lang === 'ko' ? 'ko-KR' : 'en-US', colorScheme: 'light', viewport: { width: 1120, height: 820 } });
 const errors = [], requests = [];
 page.on('pageerror', e => errors.push(e.message));
 page.on('request', req => requests.push(req.url()));
-const records = { capturedAt: new Date().toISOString(), browser: browser.version(),
+const records = { capturedAt: new Date().toISOString(), language: lang, browser: browser.version(),
   viewport: { width: 1120, height: 820 },
   source: 'Fictional chats drawn by demo/make-demo-screenshots.py; actual browser OCR and rule results.',
   speakerChoice: 'right', textCorrections: 'none', cases: [] };

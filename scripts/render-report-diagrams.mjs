@@ -9,9 +9,13 @@ import { chromium } from 'playwright';
 import { createSiteServer, listen, ROOT } from './serve-site.mjs';
 
 const names = ['deployment', 'data-flow', 'ocr-sequence', 'llm-sequence'];
+const lang = process.argv.includes('--lang') ? process.argv[process.argv.indexOf('--lang') + 1] : 'en';
+if (!['en', 'ko'].includes(lang)) throw Error('--lang must be en or ko');
+const sourceDir = 'docs/diagrams' + (lang === 'ko' ? '/ko' : '');
+const outputDir = 'assets/manual/diagrams' + (lang === 'ko' ? '/ko' : '');
 const bundle = 'docs/report-tools/node_modules/mermaid/dist/mermaid.esm.min.mjs';
 if (!fs.existsSync(path.join(ROOT, bundle))) throw new Error('Run npm ci --prefix docs/report-tools --ignore-scripts first.');
-const out = path.join(ROOT, 'assets/manual/diagrams');
+const out = path.join(ROOT, outputDir);
 fs.mkdirSync(out, { recursive: true });
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const server = createSiteServer({ root: ROOT });
@@ -26,12 +30,12 @@ try {
   await page.addScriptTag({ type: 'module', content: 'import mermaid from ' + JSON.stringify(base + bundle) + '; window.reportMermaid = mermaid;' });
   await page.waitForFunction(() => !!window.reportMermaid);
   for (const id of names) {
-    const source = fs.readFileSync(path.join(ROOT, 'docs/diagrams/' + id + '.mmd'), 'utf8');
-    const result = await page.evaluate(async ({ id, source }) => {
+    const source = fs.readFileSync(path.join(ROOT, sourceDir, id + '.mmd'), 'utf8');
+    const result = await page.evaluate(async ({ id, source, lang }) => {
       reportMermaid.initialize({
         startOnLoad: false, securityLevel: 'strict', theme: 'base', layout: 'dagre', markdownAutoWrap: false,
         deterministicIds: true, deterministicIDSeed: id,
-        fontFamily: 'Arial, sans-serif',
+        fontFamily: lang === 'ko' ? 'Malgun Gothic, Noto Sans CJK KR, sans-serif' : 'Arial, sans-serif',
         themeVariables: { fontSize: '20px', primaryColor: '#eaf2ee', primaryTextColor: '#182e33',
           primaryBorderColor: '#146356', lineColor: '#49636a', secondaryColor: '#faf0db',
           tertiaryColor: '#f3f6f8', actorBkg: '#eaf2ee', actorBorder: '#146356',
@@ -52,11 +56,11 @@ try {
       node.style.maxWidth = 'none';
       node.style.background = 'white';
       return { svg: node.outerHTML, width: Math.ceil(view.width), height: Math.ceil(view.height) };
-    }, { id, source });
+    }, { id, source, lang });
     fs.writeFileSync(path.join(out, id + '.svg'), result.svg + '\n');
     await page.locator('svg').screenshot({ path: path.join(out, id + '.png'), animations: 'disabled' });
-    const sourcePath = 'docs/diagrams/' + id + '.mmd';
-    const svgPath = 'assets/manual/diagrams/' + id + '.svg', pngPath = 'assets/manual/diagrams/' + id + '.png';
+    const sourcePath = sourceDir + '/' + id + '.mmd';
+    const svgPath = outputDir + '/' + id + '.svg', pngPath = outputDir + '/' + id + '.png';
     manifest.diagrams.push({ id, source: sourcePath, sourceSha256: hash(fs.readFileSync(path.join(ROOT, sourcePath))),
       svg: svgPath, svgSha256: hash(fs.readFileSync(path.join(ROOT, svgPath))),
       png: pngPath, pngSha256: hash(fs.readFileSync(path.join(ROOT, pngPath))),

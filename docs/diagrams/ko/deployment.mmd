@@ -1,0 +1,14 @@
+flowchart TB
+  Dev["개발자<br/>로컬 Git 작업 폴더"] --> Repo["GitHub 저장소<br/>main 브랜치"]
+  Repo --> CI["GitHub Actions<br/>빌드 및 테스트"]
+  CI --> Gate{"검사 통과?"}
+  Gate -->|아니요| Stop["배포 중단<br/>수정 후 재검사"]
+  Gate -->|예| Dist["dist/<br/>공개 파일만 포함"]
+  Dist --> Pages["GitHub Pages<br/>기본 배포"]
+  Repo -.->|선택: 계정에서 가져오기| Vercel["Vercel<br/>동일한 빌드 설정"]
+  Pages --> Browser["방문자 브라우저<br/>화면, OCR, 선택형 CPU LLM"]
+  Vercel --> Browser
+  classDef core fill:#eaf2ee,stroke:#146356,color:#182e33
+  classDef gate fill:#faf0db,stroke:#aa7021,color:#182e33
+  class Dev,Repo,CI,Dist,Pages,Vercel,Browser core
+  class Gate,Stop gate

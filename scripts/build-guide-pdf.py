@@ -5,7 +5,7 @@ No network access, model download or code execution from Markdown.
 from pathlib import Path
 from xml.sax.saxutils import escape, quoteattr
 from urllib.parse import urljoin
-import hashlib, json, os, re, shutil, textwrap
+import argparse, hashlib, json, os, re, shutil, textwrap
 from PIL import Image as PILImage
 from pypdf import PdfReader
 from reportlab.lib import colors
@@ -17,15 +17,23 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, 
 from reportlab.platypus.tableofcontents import TableOfContents
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "manual/PROJECT_GUIDE.md"
-OUT = ROOT / "output/pdf/project-guide.pdf"
-PUBLIC = ROOT / "manual/project-guide.pdf"
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--lang", choices=("en", "ko"), default="en")
+LANG = parser.parse_args().lang
+KO = LANG == "ko"
+source_name = "PROJECT_GUIDE_KO.md" if KO else "PROJECT_GUIDE.md"
+pdf_name = "project-guide-ko.pdf" if KO else "project-guide.pdf"
+SOURCE = ROOT / "manual" / source_name
+OUT = ROOT / "output/pdf" / pdf_name
+PUBLIC = ROOT / "manual" / pdf_name
+DIAGRAM_PATH = "assets/manual/diagrams/ko/manifest.json" if KO else "assets/manual/diagrams/manifest.json"
+RECORD_PATH = "assets/manual/report-build-ko.json" if KO else "assets/manual/report-build.json"
 REPO = "https://github.com/S0lluxx26/Project_web_student_support"
 PROMPTS = REPO + "/blob/main/docs/AI_PROMPTS.md"
-PUBLIC_SOURCE = "https://s0lluxx26.github.io/Project_web_student_support/manual/PROJECT_GUIDE.md"
+PUBLIC_SOURCE = "https://s0lluxx26.github.io/Project_web_student_support/manual/" + source_name
 FENCE = chr(96) * 3
 md = SOURCE.read_text(encoding="utf-8")
-assert "**Maker: Bui Xuan Mai**" in md and REPO in md and PROMPTS in md
+assert ("**제작자: Bui Xuan Mai**" if KO else "**Maker: Bui Xuan Mai**") in md and REPO in md and PROMPTS in md
 assert not re.search(r"\b(daughter|father|mother)\b", md, re.I)
 assert md.count(FENCE) % 2 == 0, "Unclosed Markdown code fence"
 regular = Path(os.environ.get("GUIDE_FONT", "C:/Windows/Fonts/malgun.ttf"))
@@ -41,6 +49,8 @@ if mono.is_file():
     MONO = "GuideMono"
 else:
     MONO = "Courier"
+if KO:
+    MONO = "Guide"  # Consolas/Courier do not contain Korean prompt glyphs.
 ink, teal, dim = [colors.HexColor(x) for x in ["#182e33", "#146356", "#49636a"]]
 PAGE_W, PAGE_H = A4
 MARGIN = 43
@@ -57,14 +67,23 @@ styles = {
 }
 styles["bullet"] = ParagraphStyle("bullet", parent=styles["body"], leftIndent=13, firstLineIndent=-10, spaceAfter=4)
 styles["toc"] = ParagraphStyle("toc", parent=styles["body"], fontSize=10, leading=15, spaceBefore=6, spaceAfter=6, rightIndent=25)
+if KO:
+    for style in styles.values():
+        style.wordWrap = "CJK"
+    styles["body"].fontSize = 9.5
+    styles["body"].leading = 15
+    styles["body"].spaceAfter = 7
+    styles["bullet"].spaceAfter = 3
+    styles["code"].fontSize = 8
+    styles["code"].leading = 11
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def slug(text):
-    return re.sub(r"[^a-z0-9 -]", "", text.lower()).replace(" ", "-")
+    return re.sub(r"[^a-z0-9가-힣 -]", "", text.lower()).replace(" ", "-")
 
-diagram_manifest = json.loads((ROOT / "assets/manual/diagrams/manifest.json").read_text(encoding="utf-8"))
+diagram_manifest = json.loads((ROOT / DIAGRAM_PATH).read_text(encoding="utf-8"))
 diagrams = {item["id"]: item for item in diagram_manifest["diagrams"]}
 for item in diagrams.values():
     for kind in ("source", "svg", "png"):
@@ -102,16 +121,16 @@ def para(text, style="body"):
 
 def decorate(canvas, doc):
     canvas.saveState()
-    canvas.setTitle("Student Housing Safety Assistant - Project guide")
+    canvas.setTitle("학생 주거 안전 도우미 - 프로젝트 보고서" if KO else "Student Housing Safety Assistant - Project guide")
     canvas.setAuthor("Bui Xuan Mai")
     canvas.setSubject("Illustrated manual, architecture, AI prompts and installation for " + REPO)
     canvas.setFillColor(dim)
     canvas.setFont("Guide", 7.5)
     if doc.page > 1:
-        canvas.drawString(MARGIN, PAGE_H - 28, "STUDENT HOUSING SAFETY ASSISTANT / PROJECT GUIDE")
+        canvas.drawString(MARGIN, PAGE_H - 28, "학생 주거 안전 도우미 / 한국어 프로젝트 보고서" if KO else "STUDENT HOUSING SAFETY ASSISTANT / PROJECT GUIDE")
     canvas.setStrokeColor(colors.HexColor("#d3e0dc"))
     canvas.line(MARGIN, 35, PAGE_W - MARGIN, 35)
-    canvas.drawString(MARGIN, 22, "Bui Xuan Mai | 12 September 2026")
+    canvas.drawString(MARGIN, 22, "Bui Xuan Mai | 2026년 9월 12일" if KO else "Bui Xuan Mai | 12 September 2026")
     canvas.drawRightString(PAGE_W - MARGIN, 22, str(doc.page))
     canvas.restoreState()
 
@@ -180,7 +199,16 @@ while i < len(lines):
         else:
             wrapped = []
             for row in block:
-                wrapped.extend(textwrap.wrap(row, width=91, replace_whitespace=False, drop_whitespace=False) or [""])
+                if KO:
+                    segment = ""
+                    for char in row:
+                        if pdfmetrics.stringWidth(segment + char, MONO, styles["code"].fontSize) > WIDTH - 20:
+                            wrapped.append(segment)
+                            segment = ""
+                        segment += char
+                    wrapped.append(segment)
+                else:
+                    wrapped.extend(textwrap.wrap(row, width=91, replace_whitespace=False, drop_whitespace=False) or [""])
             story.append(Preformatted("\n".join(wrapped), styles["code"]))
         i += 1; continue
     match = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", line)
@@ -227,11 +255,11 @@ while i < len(lines):
         markup += inline(part.rstrip())
         if j < len(block) - 1:
             markup += "<br/>" if part.endswith("  ") else " "
-    story.append(Paragraph(markup, styles["caption"] if re.match(r"Figure \d+\.", block[0]) else styles["body"]))
+    story.append(Paragraph(markup, styles["caption"] if re.match(r"(?:Figure|그림) \d+\.", block[0]) else styles["body"]))
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
 doc = GuideDocument(str(OUT), pagesize=A4, rightMargin=MARGIN, leftMargin=MARGIN, topMargin=48, bottomMargin=47,
-                        title="Student Housing Safety Assistant - Project guide", author="Bui Xuan Mai")
+                        title="학생 주거 안전 도우미 - 프로젝트 보고서" if KO else "Student Housing Safety Assistant - Project guide", author="Bui Xuan Mai")
 assert len(rendered_diagrams) == len(diagrams) == 4
 doc.multiBuild(story, onFirstPage=decorate, onLaterPages=decorate)
 reader = PdfReader(str(OUT))
@@ -249,15 +277,15 @@ for entry in doc.chapter_entries:
 PUBLIC.parent.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(OUT, PUBLIC)
 assert OUT.read_bytes() == PUBLIC.read_bytes()
-record = {"source": "manual/PROJECT_GUIDE.md", "sourceSha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
+record = {"source": "manual/" + source_name, "language": LANG, "sourceSha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
           "pdfSha256": hashlib.sha256(OUT.read_bytes()).hexdigest(), "pages": len(reader.pages),
           "bytes": OUT.stat().st_size, "maker": reader.metadata.author, "repository": REPO,
           "promptReference": PROMPTS, "headingsVerified": len(headings), "contents": doc.chapter_entries,
-          "diagramManifestSha256": digest(ROOT / "assets/manual/diagrams/manifest.json"),
+          "diagramManifestSha256": digest(ROOT / DIAGRAM_PATH),
           "visualReview": "Required separately: render and inspect every page."}
-(ROOT / "assets/manual/report-build.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+(ROOT / RECORD_PATH).write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 tmp = ROOT / "tmp/pdfs"
 tmp.mkdir(parents=True, exist_ok=True)
-(tmp / "guide-text.txt").write_text(text, encoding="utf-8")
-(tmp / "build-record.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+(tmp / ("guide-text-" + LANG + ".txt")).write_text(text, encoding="utf-8")
+(tmp / ("build-record-" + LANG + ".json")).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
 print(json.dumps(record, indent=2))

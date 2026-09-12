@@ -1,0 +1,49 @@
+{
+  "renderer": "mermaid@12.0.0",
+  "diagrams": [
+    {
+      "id": "deployment",
+      "source": "docs/diagrams/ko/deployment.mmd",
+      "sourceSha256": "c2e556ee4aad1bbc8b2bfbb918d22d598502e17e6f2c5144ead53904af57dacd",
+      "svg": "assets/manual/diagrams/ko/deployment.svg",
+      "svgSha256": "cae3053da074740b6680d959e90b4db1cd26722f31a1ad3fdd4d3fa5401f08c1",
+      "png": "assets/manual/diagrams/ko/deployment.png",
+      "pngSha256": "987e7fd912980625795e9db43a7a360d63d13231834ea79d3b5d2f63817eb09a",
+      "width": 587,
+      "height": 917
+    },
+    {
+      "id": "data-flow",
+      "source": "docs/diagrams/ko/data-flow.mmd",
+      "sourceSha256": "069b731b1a5be5b3b092b612575f485d13ccfb173b1e9910888796f81e7e6ffc",
+      "svg": "assets/manual/diagrams/ko/data-flow.svg",
+      "svgSha256": "63114acda0af55f734941518c878aa38d58bdb85604a4c77e9c85060e60a062c",
+      "png": "assets/manual/diagrams/ko/data-flow.png",
+      "pngSha256": "a6f100667f370e01fce215ef1d49cb8ef64a631106f44f9f86b86dedf5690e7e",
+      "width": 1077,
+      "height": 1177
+    },
+    {
+      "id": "ocr-sequence",
+      "source": "docs/diagrams/ko/ocr-sequence.mmd",
+      "sourceSha256": "0543f26533cb6b648da6157700bdd2c80c72d4116eef7be00c35e74290a228c4",
+      "svg": "assets/manual/diagrams/ko/ocr-sequence.svg",
+      "svgSha256": "62591c992941ccb7e97aaabd24489b2cb955477a939921eef35ce911d7aa79d8",
+      "png": "assets/manual/diagrams/ko/ocr-sequence.png",
+      "pngSha256": "b38dbcd8afb6053d34ae3ddd169cff6960b70ea9e25073631a265ceef651f584",
+      "width": 878,
+      "height": 1126
+    },
+    {
+      "id": "llm-sequence",
+      "source": "docs/diagrams/ko/llm-sequence.mmd",
+      "sourceSha256": "fb47e0e9f08f8360770b4559b9bc28b386b3e9acf8e5a8f5dafe4b5382e77233",
+      "svg": "assets/manual/diagrams/ko/llm-sequence.svg",
+      "svgSha256": "740adc23e576e6672a929109970e110386f9023bcd633d37ff75fdddd66238af",
+      "png": "assets/manual/diagrams/ko/llm-sequence.png",
+      "pngSha256": "3f54013434c074bdb80ef732a344c0e98e359e0da0ab484ff6739da5b79d1081",
+      "width": 875,
+      "height": 1234
+    }
+  ]
+}

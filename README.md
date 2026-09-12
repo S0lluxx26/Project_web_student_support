@@ -9,6 +9,7 @@ It does not establish whether a person or property is fraudulent.
 **Maker: Bui Xuan Mai** · [Demo / user guide](https://s0lluxx26.github.io/Project_web_student_support/demo.html)
 · [Install on a PC](INSTALL.md) · [Project guide and AI prompts](manual/PROJECT_GUIDE.md)
 · [Safety help and 12 practice screenshots](https://s0lluxx26.github.io/Project_web_student_support/help.html)
+· [한국어 프로젝트 보고서](manual/PROJECT_GUIDE_KO.md)
 
 ## Main features
 
@@ -128,6 +129,12 @@ illustrated results and links to [the prompt playbook](docs/AI_PROMPTS.md).
 [Editable Mermaid sources and reproduction steps](docs/diagrams/README.md)
 are included. `npm run test:report` checks the committed report and PDF for
 consistency without installing Python or Mermaid.
+
+The Korean edition includes translated diagrams, Korean AI prompt templates
+and actual Korean UI captures. Reproduce it with `--lang ko` on
+`scripts/capture-manual.mjs`, `scripts/render-report-diagrams.mjs` and
+`scripts/build-guide-pdf.py`. Review Markdown before generating the PDF;
+English files remain separate. Both editions are checked by `npm run test:report`.
 
 Application: MIT. Vendored components retain their licenses. The GGUF model is
 Apache-2.0 and is not bundled in the repository.
