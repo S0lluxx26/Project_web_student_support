@@ -67,6 +67,12 @@ had no other model benchmark running. Download speed depends on the connection.
 Inputs were the first ten patterns' guidance at commit `6512447`, each in Korean
 and English. No real rental transcript was used.
 
+**Public Pages verification:** the real deployed runtime at commit `1c01155`
+also loaded the exact local GGUF (3.45 s), generated a Korean explanation
+(44.86 s), and canceled another generation successfully, with one CPU thread,
+no isolation and no page errors. [Live-origin record](benchmarks/llm-pages-live.json).
+This verifies real Pages execution; it does not change the quality decision.
+
 ## Quality decision
 
 The validator accepted 19/20 outputs. **This is not 95% accuracy.** Inspection

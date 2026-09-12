@@ -13,6 +13,8 @@ target hardware or an account connection.
 2. Added real worker cancellation and initialization guards for OCR, retryable
    script loading, file/pixel bounds and partial-image recovery. Reset/discard
    clears all screenshot URLs, original OCR text and uncertain-line content.
+   Image encoding finishes before Tesseract receives bytes, preventing its
+   asynchronous conversion from sending to a worker canceled in the meantime.
 3. Kept speaker identity unknown until confirmed. Edited OCR text is retained
    across language changes and navigation. The explicit rebuild action remains
    a deliberate replacement with the original recognition.
@@ -41,6 +43,8 @@ checks. The browser suite exercises real Korean OCR, session resets, export
 masking, default-hidden AI, mock inference failures, real wrong-file rejection,
 and both root/sub-path layouts. Real GGUF inference is tested separately with
 `npm run bench:llm`; see [the recorded evidence](BROWSER_LLM_OPTIONS.md).
+The real LLM was also exercised on the public GitHub Pages origin. The
+landing-to-OCR path is explicitly included in the browser host tests.
 
 Fixtures and model prompts are synthetic. No private chat or model weights are
 committed. No claim is made that a trained scam classifier exists, that phone

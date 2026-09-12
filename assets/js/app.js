@@ -209,6 +209,15 @@
     },
 
     gotoStep: function (n, silent) {
+      // A direct entry from the landing page must reveal the housing view too.
+      // The hash event below is suppressed because this navigation is applied
+      // synchronously, so it cannot be relied on to reveal the parent later.
+      if (!silent) {
+        ['home', 'housing', 'goshiwon'].forEach(function (view) {
+          var el = document.getElementById('view-' + view);
+          if (el) el.hidden = view !== 'housing';
+        });
+      }
       /* The result is derived from every input across steps 1-3, so it is
          recomputed whenever it is opened — including by a rail jump that
          skips the analyze button. */

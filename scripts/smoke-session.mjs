@@ -160,6 +160,24 @@ try {
   await page.waitForTimeout(9000);
   ok(await page.isHidden('#ocr-review'), 'a cancelled read never opens the review pane');
 
+  console.log('\n--- cancel during asynchronous image encoding ---');
+  await page.evaluate(() => {
+    window.__originalToBlob = HTMLCanvasElement.prototype.toBlob;
+    window.__encoding = false;
+    HTMLCanvasElement.prototype.toBlob = function (callback, ...args) {
+      window.__encoding = true;
+      const canvas = this;
+      setTimeout(() => window.__originalToBlob.call(canvas, callback, ...args), 400);
+    };
+  });
+  await page.setInputFiles('#ocr-file', SHOT);
+  await page.waitForFunction(() => window.__encoding);
+  await page.click('#btn-ocr-cancel');
+  await page.waitForTimeout(900);
+  ok(await page.isHidden('#ocr-review'), 'canceled image conversion cannot start recognition');
+  ok(await page.evaluate(() => OCR.engine === null), 'the canceled worker is released');
+  await page.evaluate(() => { HTMLCanvasElement.prototype.toBlob = window.__originalToBlob; });
+
   /* --------------------------------------------- nothing deleted in secret */
   console.log('\n--- cleanup is inspectable ---');
   await open();

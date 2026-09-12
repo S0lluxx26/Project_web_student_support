@@ -73,14 +73,15 @@ for (const layout of LAYOUTS) {
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 
   try {
-    await page.goto(base + '#/housing/conversation', { waitUntil: 'load' });
+    await page.goto(base, { waitUntil: 'load' });
     await page.waitForSelector('body[data-ready="true"]', { timeout: 20000 });
     ok(true, 'the app boots and the data files load');
 
-    ok(await page.isVisible('#ocr-panel'), 'the screenshot reader is offered');
+    await page.click('#btn-home-ocr');
+    ok(await page.isVisible('#view-housing'), 'the landing screenshot button reveals its parent view');
+    ok(await page.isVisible('#ocr-file'), 'the screenshot picker is visible and usable from the landing page');
 
     if (HAS_FIXTURE) {
-      await page.click('#ocr-panel > summary');
       await page.setInputFiles('#ocr-file', FIXTURE);
       await page.waitForSelector('#ocr-review:not([hidden])', { timeout: 240000 });
 

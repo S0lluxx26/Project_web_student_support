@@ -242,9 +242,19 @@
                 ? worker.setParameters({ tessedit_pageseg_mode: psm })
                     .then(function () { currentPsm = psm; })
                 : Promise.resolve();
-              return ready.then(function () {
+              // Tesseract 5 converts canvas images asynchronously, then sends
+              // to an internal worker reference that terminate() sets to null.
+              // Finish that conversion here, where cancellation can be checked
+              // before giving it bytes. Its byte-input path only uses microtasks.
+              var encoded = input instanceof HTMLCanvasElement ? new Promise(function (resolve, reject) {
+                input.toBlob(function (blob) {
+                  if (!blob) { reject(new Error('image-encode')); return; }
+                  blob.arrayBuffer().then(function (buffer) { resolve(new Uint8Array(buffer)); }, reject);
+                }, 'image/png');
+              }) : Promise.resolve(input);
+              return Promise.all([ready, encoded]).then(function (values) {
                 if (closed) throw new Error('ocr-cancelled');
-                return worker.recognize(input);
+                return worker.recognize(values[1]);
               }).then(function (r) {
                 return {
                   text: r.data.text || '',
