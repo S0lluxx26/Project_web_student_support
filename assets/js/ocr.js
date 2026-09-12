@@ -106,6 +106,10 @@
     prepare: function (file) {
       var self = this;
       return this._decode(file).then(function (bitmap) {
+        if (!bitmap.width || !bitmap.height || bitmap.width * bitmap.height > 12000000) {
+          if (bitmap.close) bitmap.close();
+          throw new Error('image-dimensions');
+        }
         var c = document.createElement('canvas');
         c.width = bitmap.width;
         c.height = bitmap.height;
@@ -179,12 +183,16 @@
     engine: null,
 
     _loadingScript: null,
+    _enginePromise: null,
+    _epoch: 0,
+    _progress: null,
 
     /** Pull the vendored library in, once, on first use. */
     _script: function () {
       if (global.Tesseract) return Promise.resolve(global.Tesseract);
       if (this._loadingScript) return this._loadingScript;
       var src = this.VENDOR + 'tesseract.min.js';
+      var self = this;
       this._loadingScript = new Promise(function (resolve, reject) {
         var s = document.createElement('script');
         s.src = src;
@@ -194,7 +202,7 @@
         };
         s.onerror = function () { reject(new Error(src + ': could not be loaded')); };
         document.head.appendChild(s);
-      });
+      }).catch(function (error) { self._loadingScript = null; throw error; });
       return this._loadingScript;
     },
 
@@ -219,12 +227,14 @@
              it on the wire) and removes the failure mode. */
           gzip: false,
           logger: function (m) {
-            if (onProgress) onProgress(m.status, typeof m.progress === 'number' ? m.progress : 0);
+            if (self._progress) self._progress(m.status, typeof m.progress === 'number' ? m.progress : 0);
           }
         }).then(function (worker) {
           var currentPsm = null;
+          var closed = false;
           return {
             recognize: function (input, opts) {
+              if (closed) return Promise.reject(new Error('ocr-cancelled'));
               var psm = opts && opts.psm;
               /* setParameters is a round trip to the worker, so only pay for
                  it when the mode actually changes. */
@@ -232,7 +242,10 @@
                 ? worker.setParameters({ tessedit_pageseg_mode: psm })
                     .then(function () { currentPsm = psm; })
                 : Promise.resolve();
-              return ready.then(function () { return worker.recognize(input); }).then(function (r) {
+              return ready.then(function () {
+                if (closed) throw new Error('ocr-cancelled');
+                return worker.recognize(input);
+              }).then(function (r) {
                 return {
                   text: r.data.text || '',
                   confidence: r.data.confidence,
@@ -242,26 +255,48 @@
                 };
               });
             },
-            terminate: function () { return worker.terminate(); }
+            terminate: function () {
+              if (closed) return Promise.resolve();
+              closed = true;
+              return worker.terminate();
+            }
           };
         });
       });
     },
 
     _engine: function (onProgress) {
+      this._progress = onProgress;
       if (this.engine) return Promise.resolve(this.engine);
+      if (this._enginePromise) return this._enginePromise;
       var self = this;
-      return this._realEngine(onProgress).then(function (e) {
+      var epoch = this._epoch;
+      var pending = this._realEngine(onProgress).then(function (e) {
+        if (epoch !== self._epoch) {
+          if (e.terminate) e.terminate();
+          throw new Error('ocr-cancelled');
+        }
         self.engine = e;
         return e;
-      });
+      }).finally(function () { if (self._enginePromise === pending) self._enginePromise = null; });
+      this._enginePromise = pending;
+      return pending;
     },
 
     /** Drop the worker; the next run rebuilds it. */
     release: function () {
+      this._epoch++;
       var e = this.engine;
+      var pending = this._enginePromise;
       this.engine = null;
-      if (e && e.terminate) { try { e.terminate(); } catch (err) {} }
+      this._enginePromise = null;
+      this._progress = null;
+      // If initialization has not returned its worker yet, its epoch check
+      // disposes it immediately when it does. Active recognition is terminated.
+      return Promise.all([
+        Promise.resolve().then(function () { if (e && e.terminate) return e.terminate(); }).catch(function () {}),
+        pending ? pending.catch(function () {}) : Promise.resolve()
+      ]);
     },
 
     /* ------------------------------------------------------------ clean --- */
@@ -459,6 +494,7 @@
     recognize: function (file, opts) {
       opts = opts || {};
       var self = this;
+      var epoch = this._epoch;
       var report = opts.onProgress || function () {};
       var floor = typeof opts.lowConfidence === 'number' ? opts.lowConfidence : 70;
 
@@ -467,12 +503,13 @@
       var needsPrep = typeof document !== 'undefined' &&
         !(typeof HTMLCanvasElement !== 'undefined' && file instanceof HTMLCanvasElement);
       var input = needsPrep
-        ? this.prepare(file).catch(function () { return file; })
+        ? this.prepare(file)
         : Promise.resolve(file);
 
       var passes = opts.passes || this.PASSES;
 
       return input.then(function (prepared) {
+        if (epoch !== self._epoch) throw new Error('ocr-cancelled');
         report('loading', 0);
         return self._engine(report).then(function (engine) {
           report('recognizing text', 0);
@@ -481,6 +518,7 @@
           var best = null;
           return passes.reduce(function (chain, psm, i) {
             return chain.then(function () {
+              if (epoch !== self._epoch) throw new Error('ocr-cancelled');
               return engine.recognize(prepared, { onProgress: report, psm: psm })
                 .then(function (r) {
                   report('recognizing text', (i + 1) / passes.length);

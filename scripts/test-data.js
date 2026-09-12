@@ -175,12 +175,7 @@ console.log('\n--- examples ---');
 console.log('\n--- deployment ---');
 {
   const crypto = require('crypto');
-  const files = ['assets/css/style.css', 'assets/js/app.js', 'assets/js/housing.js',
-                 'assets/js/analyzer.js', 'assets/js/goshiwon.js', 'assets/js/i18n.js',
-                 'assets/js/detector.js', 'assets/js/conversation.js',
-                 'assets/js/redact.js', 'assets/js/ocr.js'];
-  /* llm.js is deliberately absent: it is not referenced by index.html (it is
-     dynamically imported on opt-in), so it carries no cache-busting query. */
+  const files = require('./asset-files.cjs');
   const h = crypto.createHash('sha1');
   files.forEach(f => h.update(fs.readFileSync(path.join(ROOT, f))));
   const want = h.digest('hex').slice(0, 8);

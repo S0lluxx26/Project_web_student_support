@@ -153,7 +153,7 @@ if (isMain) {
      nobody renamed the checkout. Deriving it silently produces a site where
      every URL 404s and the reason is invisible, so --prefix overrides it and
      the banner below always prints what was used. */
-  const prefix = pages ? '/' + value('--prefix', path.basename(ROOT)).replace(/^\/+/, '') : '';
+  const prefix = pages ? '/' + value('--prefix', 'Project_web_student_support').replace(/^\/+/, '') : '';
 
   if (!src && !fs.existsSync(root)) {
     console.error('\n  dist/ does not exist. Build it first:\n' +

@@ -191,8 +191,6 @@ textarea:focus-visible, select:focus-visible, summary:focus-visible {
   background: var(--surface); border: 1px solid var(--edge);
   border-radius: var(--radius); padding: 22px; margin: 0 0 18px;
   box-shadow: var(--lift);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  backdrop-filter: blur(14px) saturate(1.2);
 }
 .panel-muted { background: var(--surface-2); box-shadow: var(--press-sm); }
 .panel-warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 28%, transparent); }
@@ -567,7 +565,11 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 11px; }
 }
 
 /* ---------- print ---------- */
+.print-review-hint { display: none; }
 @media print {
+  body:not(.printing-sheet) #view-home > *, body:not(.printing-sheet) #view-housing > * { display: none !important; }
+  body:not(.printing-sheet) #view-home > .print-review-hint,
+  body:not(.printing-sheet) #view-housing > .print-review-hint { display: block !important; }
   .site-header, .site-footer, .no-print, .steps, .actions { display: none !important; }
   body { background: #fff; color: #000; font-size: 11pt; }
   .panel, .signal, .q-list li, .doc, .check {
@@ -749,6 +751,15 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 11px; }
 
 /* Printing the reviewed export snapshot, not the page. Everything else is
    hidden so nothing the redaction preview masked can reach the paper. */
+.input-choices { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.25rem 0; }
+.llm-panel { margin-block: 1.25rem; }
+.llm-panel summary { font-weight: 650; cursor: pointer; }
+.llm-panel > .opt { margin-block: 1rem; }
+.llm-panel select { width: 100%; min-height: 44px; }
+.llm-local-file { max-width: 100%; margin: 0; }
+.llm-local-file input { max-width: 100%; }
+#llm-status { min-height: 1.5em; overflow-wrap: anywhere; }
+#llm-draft-content { overflow-wrap: anywhere; }
 #print-sheet { display: none; }
 #print-sheet pre {
   white-space: pre-wrap; word-break: break-word;

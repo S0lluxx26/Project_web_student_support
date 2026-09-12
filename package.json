@@ -1,0 +1,22 @@
+{
+  "name": "student-rental-support",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build-vercel.mjs",
+    "serve": "node scripts/serve-site.mjs",
+    "test": "node scripts/run-tests.mjs",
+    "test:browser": "node scripts/smoke-ocr.mjs && node scripts/smoke-session.mjs && node scripts/smoke-hosts.mjs && node scripts/smoke-llm.mjs",
+    "test:ocr": "node scripts/test-ocr-real.js --require-engine",
+    "bench:llm": "node scripts/bench-llm.mjs",
+    "assets:stamp": "node scripts/stamp-assets.mjs"
+  },
+  "devDependencies": {
+    "@wllama/wllama": "3.6.1",
+    "hash-wasm": "4.12.0",
+    "playwright": "1.63.0",
+    "pngjs": "7.0.0",
+    "tesseract.js": "5.1.1"
+  }
+}

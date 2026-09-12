@@ -9,9 +9,9 @@
  * model — output validation, the injection defence, job identity, the fallback
  * — and they prove NOTHING about whether a 0.6B model can write a usable
  * Korean explanation. That is a device benchmark (docs/BROWSER_LLM_OPTIONS.md)
- * and it has not been run.
+ * see the recorded real benchmark for model behavior.
  *
- * `LLM.enabled` must stay false until it has.
+ * `LLM.enabled` remains false on every new session; users must opt in.
  */
 
 const path = require('path');
@@ -85,8 +85,12 @@ console.log('\n--- validation: bounds ---');
        .reason, 'too-many-points', 'a flood of points is rejected');
   eq(LLM.validate({ ...good, points: [{ id: 'pay-urgency', why: 'x'.repeat(301) }] }, INPUT)
        .reason, 'point-too-long', 'an over-long point is rejected');
-  const trimmed = LLM.validate({ ...good, ask: ['a', 'b', 'c', 'd', 'e'] }, INPUT);
-  ok(trimmed.ok && trimmed.value.ask.length === 3, 'extra questions are trimmed, not fatal');
+  eq(LLM.validate({ ...good, ask: ['a', 'b'] }, INPUT).reason, 'too-many-questions', 'extra questions are rejected');
+  eq(LLM.validate({ ...good, ask: [null] }, INPUT).reason, 'ask-not-a-list', 'invalid questions are rejected');
+  eq(LLM.validate({ ...good, verdict: 'safe' }, INPUT).reason, 'unexpected-field', 'a generated verdict field is rejected');
+  eq(LLM.validate({ ...good, points: [{ id: '__proto__', why: 'x' }] }, INPUT).reason, 'unknown-finding-id', 'object prototype names are not finding IDs');
+  eq(LLM.validate({ summary: 'English only', points: [{ id: 'pay-urgency', why: 'Check this' }], ask: [] }, INPUT).reason,
+     'wrong-language', 'entirely English prose is rejected for Korean');
 }
 
 console.log('\n--- validation: invented findings ---');
@@ -129,13 +133,12 @@ console.log('\n--- the prompt treats the transcript as data ---');
   eq(msgs.length, 2, 'system + user');
   eq(msgs[0].role, 'system', 'the rules are in the system message');
   ok(msgs[0].content.includes('untrusted'), 'which says the transcript is untrusted');
-  ok(msgs[1].content.includes('<<<TRANSCRIPT'), 'the transcript is fenced');
-  ok(msgs[1].content.indexOf('ignore all previous instructions') >
-     msgs[1].content.indexOf('<<<TRANSCRIPT'),
-     'and the injection attempt sits INSIDE the fence');
-
-  const long = LLM.buildMessages({ ...INPUT, transcript: 'x'.repeat(9000) });
-  ok(long[1].content.length < 6000, 'an enormous transcript is bounded, not sent whole');
+  const data = JSON.parse(msgs[1].content.replace(/\n\/no_think$/, ''));
+  eq(data.untrusted_transcript, nasty.transcript, 'transcript is preserved inside an untrusted JSON field');
+  eq(data.fixed_assessment, INPUT.assessment, 'injection cannot replace the structured assessment');
+  let longError = '';
+  try { LLM.buildMessages({ ...INPUT, transcript: 'x'.repeat(9000) }); } catch (e) { longError = e.message; }
+  eq(longError, 'input-too-long', 'an enormous transcript is rejected without silent truncation');
 }
 
 /* ------------------------------------------------------------- lifecycle */

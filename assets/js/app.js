@@ -12,10 +12,12 @@
     OPTIONAL: ['data/goshiwon.json', 'data/lexicon.json', 'data/examples.json'],
 
     fetchJson: function (file) {
+      var controller = new AbortController();
+      var timer = global.setTimeout(function () { controller.abort(); }, 8000);
       /* Every failure path must name the file. A network rejection throws a
          bare "Failed to fetch" with no URL, so the error the user sees said
          nothing about which resource was missing. */
-      return fetch(file, { cache: 'no-cache' })
+      return fetch(file, { cache: 'no-cache', signal: controller.signal })
         .catch(function (err) {
           throw new Error(file + ': ' + (err && err.message || 'network error'));
         })
@@ -24,7 +26,7 @@
           return r.json().catch(function () {
             throw new Error(file + ': invalid JSON');
           });
-        });
+        }).finally(function () { global.clearTimeout(timer); });
     },
 
     boot: function () {

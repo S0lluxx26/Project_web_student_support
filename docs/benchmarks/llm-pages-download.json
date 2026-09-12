@@ -1,0 +1,90 @@
+{
+  "at": "2026-09-12T08:30:49.358Z",
+  "synthetic": true,
+  "isolated": false,
+  "download": true,
+  "device": {
+    "os": "win32",
+    "arch": "x64",
+    "cpu": "Intel(R) Core(TM) i7-14700KF",
+    "logicalCpus": 28,
+    "installedRamBytes": 34163757056,
+    "browser": "153.0.8010.12"
+  },
+  "missing": [],
+  "errors": [],
+  "capabilities": {
+    "usable": true,
+    "reason": null,
+    "crossOriginIsolated": false,
+    "sharedArrayBuffer": false,
+    "webgpu": true,
+    "threads": 28
+  },
+  "loadWallMs": 12893,
+  "loadStatus": "Model ready · browser CPU (1 thread(s))",
+  "loadStats": {
+    "source": "download",
+    "loadMs": 12846,
+    "threads": 1,
+    "mode": "wasm-cpu-singlethread"
+  },
+  "memoryAfterLoad": {
+    "workingSetBytes": 1716453376,
+    "processes": 4,
+    "privateCommitBytes": 1861799936
+  },
+  "cases": [
+    {
+      "case": 1,
+      "lang": "ko",
+      "finding": "pay-urgency",
+      "ok": true,
+      "value": {
+        "summary": "정상적인 임대차 계약은 등기부등본 확인과 서류 검토에 시간이 필요합니다. '오늘 안 하면 다른 사람이 계약한다'는 말은 검증 시간을 빼앗기 위한 사기 수법입니다.",
+        "points": [
+          {
+            "id": "pay-urgency",
+            "why": "정상적인 임대차 계약은 등기부등본 확인과 서류 검토에 시간이 필요합니다."
+          }
+        ],
+        "ask": [
+          "다음으로, 어떤 금액도 입금하지 마십시오."
+        ]
+      },
+      "raw": "{\n  \"summary\": \"정상적인 임대차 계약은 등기부등본 확인과 서류 검토에 시간이 필요합니다. '오늘 안 하면 다른 사람이 계약한다'는 말은 검증 시간을 빼앗기 위한 사기 수법입니다.\",\n  \"points\": [\n    {\n      \"id\": \"pay-urgency\",\n      \"why\": \"정상적인 임대차 계약은 등기부등본 확인과 서류 검토에 시간이 필요합니다.\"\n    }\n  ],\n  \"ask\": [\n    \"다음으로, 어떤 금액도 입금하지 마십시오.\"\n  ]\n}",
+      "stats": {
+        "source": "download",
+        "loadMs": 12846,
+        "threads": 1,
+        "mode": "wasm-cpu-singlethread",
+        "usage": {
+          "completion_tokens": 147,
+          "prompt_tokens": 265,
+          "total_tokens": 412,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "finishReason": "stop",
+        "firstTokenMs": 18951,
+        "generationMs": 41957
+      }
+    }
+  ],
+  "finalAssessment": "strong_warning_signals",
+  "memoryAfterGeneration": {
+    "workingSetBytes": 1717252096,
+    "processes": 4,
+    "privateCommitBytes": 1838288896
+  },
+  "cancelResult": "cancelled",
+  "cacheReloadStats": {
+    "source": "verified-cache",
+    "loadMs": 2482,
+    "threads": 1,
+    "mode": "wasm-cpu-singlethread"
+  },
+  "cacheRemoved": true,
+  "unloaded": true
+}

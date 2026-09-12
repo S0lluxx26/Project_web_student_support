@@ -233,11 +233,13 @@
       on('btn-sample', 'click', function () {
         var ta = document.getElementById('chat-input');
         ta.value = SAMPLE[I18n.lang] || SAMPLE.ko;
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
         ta.focus();
       });
 
       on('btn-clear', 'click', function () {
         document.getElementById('chat-input').value = '';
+        document.getElementById('chat-input').dispatchEvent(new Event('input', { bubbles: true }));
         hide('chat-error');
       });
 
@@ -250,7 +252,7 @@
         }
         hide('chat-error');
         self.runAnalysis();
-        global.App.gotoStep(3);
+        global.App.gotoStep(4);
       });
 
       on('btn-to-result', 'click', function () {
@@ -302,12 +304,32 @@
 
       on('btn-home-clear', 'click', function () {
         var ta = document.getElementById('home-chat');
-        if (ta) { ta.value = ''; ta.focus(); }
+        if (ta) { ta.value = ''; ta.dispatchEvent(new Event('input', { bubbles: true })); ta.focus(); }
         hide('home-chat-error');
       });
 
       on('btn-home-example', 'click', function () { self.offerExample(); });
       on('btn-reset', 'click', function () { self.resetSession(); });
+      on('btn-home-ocr', 'click', function () {
+        global.App.gotoStep(2);
+        var panel = document.getElementById('ocr-panel');
+        if (panel && !panel.hidden) { panel.open = true; document.getElementById('ocr-file').focus(); }
+      });
+      on('btn-home-text', 'click', function () { document.getElementById('home-chat').focus(); });
+      if (global.LLMUI) LLMUI.init();
+      document.addEventListener('input', function (event) {
+        var el = event.target;
+        if (el.id === 'home-chat' || el.id === 'chat-input') {
+          var other = document.getElementById(el.id === 'home-chat' ? 'chat-input' : 'home-chat');
+          if (other) other.value = el.value;
+          self.speakerOverrides = {};
+        }
+        if (el.id === 'home-chat' || el.id === 'chat-input' || /^ctx-/.test(el.id)) self.invalidateReport();
+      });
+      document.addEventListener('change', function (event) {
+        if (event.target.matches('[data-doc-answer], [data-speaker-for], [name="home-housing-type"]')) self.invalidateReport();
+      });
+      global.addEventListener('afterprint', function () { self.clearPrintSheet(); });
 
       /* Speaker corrections re-run the analysis against the same text. */
       document.addEventListener('change', function (e) {
@@ -411,6 +433,7 @@
     /** Cancel the running recognition: the result can no longer land. */
     cancelOcr: function () {
       this.ocrJob++;
+      if (global.OCR) OCR.release();
       hide('ocr-progress');
       hide('ocr-cancel-row');
       hide('ocr-error');
@@ -420,6 +443,7 @@
       /* Bumping the job is what makes this safe to call at any moment,
          including while a recognition is still running. */
       this.ocrJob++;
+      if (global.OCR) OCR.release();
       this.ocrState = null;
       this.ocrDirty = false;
       this.ocrPristine = '';
@@ -433,11 +457,13 @@
       if (relabel) relabel.hidden = true;
       var ta = document.getElementById('ocr-text');
       if (ta) ta.value = '';
-      var img = document.getElementById('ocr-source');
-      if (img) {
-        if (img.src) { try { URL.revokeObjectURL(img.src); } catch (e) {} }
-        img.removeAttribute('src');
-      }
+      this.showSources([]);
+      var original = document.querySelector('#ocr-original pre');
+      if (original) original.textContent = '';
+      var uncertain = document.getElementById('ocr-uncertain-list');
+      if (uncertain) uncertain.replaceChildren();
+      var side = document.querySelector('[name="ocr-mine"][value="none"]');
+      if (side) side.checked = true;
       var sources = document.getElementById('ocr-source-row');
       if (sources) sources.hidden = true;
     },
@@ -446,6 +472,13 @@
     readScreenshots: function (files) {
       var self = this;
       var t = I18n.t.bind(I18n);
+      if (files.length > 5 || files.some(function (f) { return !/^image\/(png|jpeg|webp)$/.test(f.type) || f.size > 8 * 1024 * 1024; }) ||
+          files.reduce(function (sum, f) { return sum + f.size; }, 0) > 25 * 1024 * 1024) {
+        document.getElementById('ocr-error').textContent = t('ocr.error.limit');
+        show('ocr-error'); return;
+      }
+      self.clearOcr();
+      if (global.LLMUI) LLMUI.stop(true);
       var prog = document.getElementById('ocr-progress');
       hide('ocr-error');
       if (prog) { prog.hidden = false; prog.textContent = t('ocr.progress.start'); }
@@ -464,6 +497,7 @@
       self.showSources(files);
 
       var results = [];
+      var failures = 0;
       var chain = Promise.resolve();
       files.forEach(function (file, i) {
         chain = chain.then(function () {
@@ -479,7 +513,7 @@
                 .replace('{n}', String(i + 1)).replace('{total}', String(files.length))
                 .replace('{pct}', String(Math.round((p || 0) * 100)));
             }
-          }).then(function (r) { results.push(r); });
+          }).then(function (r) { if (mine()) results.push(r); }).catch(function () { if (mine()) failures++; });
         });
       });
 
@@ -507,6 +541,10 @@
           return;
         }
         self.showOcrReview();
+        if (failures) {
+          document.getElementById('ocr-error').textContent = t('ocr.error.partial', { n: failures });
+          show('ocr-error');
+        }
       }).catch(function (err) {
         if (!mine()) return;
         if (prog) prog.hidden = true;
@@ -655,6 +693,7 @@
 
       var existing = (target.value || '').trim();
       target.value = existing ? existing + '\n\n' + draft : draft;
+      target.dispatchEvent(new Event('input', { bubbles: true }));
       this.clearOcr();
       var panel = document.getElementById('ocr-panel');
       if (panel) panel.open = false;
@@ -711,6 +750,7 @@
         /* Never silently discard something the user typed. */
         if (ta.value.trim() && !global.confirm(I18n.t('example.replace'))) return;
         ta.value = pick(ex.text);
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
         host.remove();
         ta.focus();
       });
@@ -734,6 +774,8 @@
        */
       this.sessionId++;
       this.clearOcr();
+      this.invalidateReport();
+      if (global.LLMUI) LLMUI.reset();
 
       var ex = document.getElementById('export-preview');
       if (ex) ex.remove();
@@ -762,6 +804,8 @@
       this.speakerOverrides = {};
       this.speakerEdited = false;
       this.housingType = 'unknown';
+      var who = document.getElementById('ctx-who');
+      if (who) who.value = 'unknown';
       /* The landing page's own radio group is part of the session too. */
       var gate = document.querySelector('[name="home-housing-type"][value="unknown"]');
       if (gate) gate.checked = true;
@@ -793,6 +837,9 @@
 
     /** Re-read every input and recompute. Safe to call repeatedly. */
     runAnalysis: function () {
+      var oldExport = document.getElementById('export-preview');
+      if (oldExport) oldExport.remove();
+      this.clearPrintSheet();
       var text = (document.getElementById('chat-input') || {}).value || '';
       var ctx = {
         deposit: numOrNull('ctx-deposit'),
@@ -822,7 +869,24 @@
          as if the user had done nothing. */
       this.lastResult.empty = !text.trim() && answered === 0;
       this.renderResult();
+      var home = document.getElementById('home-chat');
+      if (home) home.value = text;
+      if (global.LLMUI) LLMUI.setReport(this.lastResult, I18n.lang);
       return this.lastResult;
+    },
+
+    invalidateReport: function () {
+      this.lastResult = null;
+      var ex = document.getElementById('export-preview');
+      if (ex) ex.remove();
+      this.clearPrintSheet();
+      if (global.LLMUI) LLMUI.reset();
+    },
+
+    clearPrintSheet: function () {
+      var sheet = document.getElementById('print-sheet');
+      if (sheet) sheet.remove();
+      document.body.classList.remove('printing-sheet');
     },
 
     /**
@@ -834,6 +898,7 @@
      * says so rather than implying the text is now safe.
      */
     openExport: function (mode) {
+      if (!this.lastResult) return;
       var self = this;
       var t = I18n.t.bind(I18n);
       var raw = this.reportText();
@@ -928,16 +993,7 @@
       document.body.appendChild(sheet);
       document.body.classList.add('printing-sheet');
 
-      var done = function () {
-        document.body.classList.remove('printing-sheet');
-        var el = document.getElementById('print-sheet');
-        if (el) el.remove();
-        if (global.removeEventListener) global.removeEventListener('afterprint', done);
-      };
-      if (global.addEventListener) global.addEventListener('afterprint', done);
-      try { global.print(); } catch (e) { /* printing refused */ }
-      /* afterprint is unreliable on some mobile browsers; clean up anyway. */
-      global.setTimeout(done, 3000);
+      try { global.print(); } catch (e) { this.clearPrintSheet(); }
     },
 
     /** Escape the quote, then wrap the matched ranges in <mark>. */

@@ -17,7 +17,7 @@
 <!-- Inline so the page never makes a request for it; the browser asks for
      /favicon.ico otherwise and logs a 404 on every visit. -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8F%A0%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/css/style.css?v=d225430a">
+<link rel="stylesheet" href="assets/css/style.css?v=82731666">
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="nav.skip">본문으로 건너뛰기</a>
@@ -42,8 +42,13 @@
 
   <!-- ============ HOME — the conversation checker ============ -->
   <section class="view" id="view-home">
+    <p class="print-review-hint" data-i18n="print.reviewFirst"></p>
     <h1 data-i18n="home.heading">집주인과의 대화, 계약 전에 확인하세요</h1>
     <p class="lede" data-i18n="home.sub"></p>
+    <div class="input-choices no-print">
+      <button class="btn btn-ghost" id="btn-home-text" type="button" data-i18n="home.input.text">대화 붙여넣기</button>
+      <button class="btn btn-primary" id="btn-home-ocr" type="button" data-i18n="home.input.screenshot">채팅 스크린샷 읽기</button>
+    </div>
 
     <div class="panel">
       <label class="field">
@@ -108,6 +113,7 @@
 
   <!-- ============ HOUSING ============ -->
   <section class="view" id="view-housing" hidden>
+    <p class="print-review-hint" data-i18n="print.reviewFirst"></p>
     <h1 data-i18n="housing.heading">독립 주거 안전 확인</h1>
     <ol class="steps" id="housing-steps" hidden>
       <li data-step="1"><button type="button" data-goto-step="1" data-i18n="housing.step1">서류</button></li>
@@ -157,6 +163,7 @@
         <label class="field">
           <span class="field-label" data-i18n="ocr.pick">스크린샷 고르기</span>
           <input type="file" id="ocr-file" accept="image/png,image/jpeg,image/webp" multiple>
+          <span class="field-hint" data-i18n="ocr.limits"></span>
         </label>
         <p class="note" id="ocr-progress" role="status" aria-live="polite" hidden></p>
         <div class="actions" id="ocr-cancel-row" hidden>
@@ -184,11 +191,11 @@
           <fieldset id="ocr-sides" hidden>
             <legend data-i18n="ocr.review.sides"></legend>
             <div class="opt-grid">
-              <label class="opt"><input type="radio" name="ocr-mine" value="right" checked>
+              <label class="opt"><input type="radio" name="ocr-mine" value="right">
                 <span data-i18n="ocr.review.sides.right"></span></label>
               <label class="opt"><input type="radio" name="ocr-mine" value="left">
                 <span data-i18n="ocr.review.sides.left"></span></label>
-              <label class="opt"><input type="radio" name="ocr-mine" value="none">
+              <label class="opt"><input type="radio" name="ocr-mine" value="none" checked>
                 <span data-i18n="ocr.review.sides.none"></span></label>
             </div>
           </fieldset>
@@ -278,6 +285,35 @@
     <div class="step-pane" id="housing-step-4" hidden>
       <div id="result-root" role="region" aria-live="polite" aria-atomic="false"
            data-i18n-aria="result.heading" tabindex="-1"></div>
+      <details id="llm-panel" class="panel llm-panel no-print" hidden>
+        <summary data-i18n="llm.title">기기에서 AI 설명 실험하기 (선택)</summary>
+        <p class="note" data-i18n="llm.intro"></p>
+        <label class="opt"><input type="checkbox" id="llm-enable">
+          <span data-i18n="llm.enable"></span></label>
+        <div id="llm-options" hidden>
+          <p class="note"><strong>Qwen3 0.6B · Q4_K_M · <span id="llm-size"></span></strong></p>
+          <p class="field-hint" data-i18n="llm.privacy"></p>
+          <div class="actions">
+            <button class="btn btn-ghost" type="button" id="llm-download" data-i18n="llm.download"></button>
+            <label class="field llm-local-file"><span data-i18n="llm.localFile"></span>
+              <input type="file" id="llm-file" accept=".gguf" aria-describedby="llm-file-hint"></label>
+          </div>
+          <p id="llm-file-hint" class="field-hint" data-i18n="llm.fileHint"></p>
+          <label class="field"><span data-i18n="llm.chooseFinding"></span><select id="llm-finding"></select></label>
+          <div class="actions">
+            <button class="btn btn-primary" type="button" id="llm-generate" data-i18n="llm.generate" disabled></button>
+            <button class="btn btn-ghost" type="button" id="llm-cancel" data-i18n="llm.cancel" hidden></button>
+            <button class="btn btn-ghost btn-sm" type="button" id="llm-unload" data-i18n="llm.unload" hidden></button>
+            <button class="btn btn-ghost btn-sm" type="button" id="llm-remove-cache" data-i18n="llm.removeCache"></button>
+          </div>
+          <p id="llm-status" class="note" role="status" aria-live="polite"></p>
+          <section id="llm-draft" class="panel panel-muted" hidden>
+            <h3 class="h4" data-i18n="llm.draftTitle"></h3>
+            <p class="field-hint" data-i18n="llm.draftHint"></p>
+            <div id="llm-draft-content"></div>
+          </section>
+        </div>
+      </details>
       <div class="actions no-print">
         <button class="btn btn-ghost" type="button" data-goto-step="3" data-i18n="housing.prev">이전</button>
         <button class="btn btn-ghost" id="btn-copy" type="button" data-i18n="result.copy">결과 복사</button>
@@ -366,14 +402,16 @@
   </div>
 </footer>
 
-<script src="assets/js/i18n.js?v=d225430a"></script>
-<script src="assets/js/redact.js?v=d225430a"></script>
-<script src="assets/js/ocr.js?v=d225430a"></script>
-<script src="assets/js/conversation.js?v=d225430a"></script>
-<script src="assets/js/detector.js?v=d225430a"></script>
-<script src="assets/js/analyzer.js?v=d225430a"></script>
-<script src="assets/js/housing.js?v=d225430a"></script>
-<script src="assets/js/goshiwon.js?v=d225430a"></script>
-<script src="assets/js/app.js?v=d225430a"></script>
+<script src="assets/js/i18n.js?v=82731666"></script>
+<script src="assets/js/redact.js?v=82731666"></script>
+<script src="assets/js/ocr.js?v=82731666"></script>
+<script src="assets/js/conversation.js?v=82731666"></script>
+<script src="assets/js/detector.js?v=82731666"></script>
+<script src="assets/js/analyzer.js?v=82731666"></script>
+<script src="assets/js/llm.js?v=82731666"></script>
+<script src="assets/js/llm-ui.js?v=82731666"></script>
+<script src="assets/js/housing.js?v=82731666"></script>
+<script src="assets/js/goshiwon.js?v=82731666"></script>
+<script src="assets/js/app.js?v=82731666"></script>
 </body>
 </html>

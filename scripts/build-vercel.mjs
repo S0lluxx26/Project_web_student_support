@@ -68,15 +68,14 @@ const FILES = ['index.html', '.nojekyll', 'LICENSE'];
 const DIRS = ['assets', 'data'];
 
 /*
- * The browser-LLM runtime is 8 MB of wasm for a feature that ships disabled and
- * is unreachable while it is. Publishing it anyway would put 8 MB on both hosts
- * and in every Pages deployment for nothing, so inclusion follows the flag: turn
- * LLM.enabled on and the runtime ships with it.
+ * The experimental UI is available, but users must explicitly load the model.
+ * Publish the runtime so that action can work; do not fetch it at page startup.
+ * GGUF weights are never stored under assets or copied to the artifact.
  */
 const LLM_DIR = 'assets/vendor/wllama';
 const llmSource = fs.existsSync(path.join(ROOT, 'assets/js/llm.js'))
   ? fs.readFileSync(path.join(ROOT, 'assets/js/llm.js'), 'utf8') : '';
-const LLM_ON = /^\s*enabled:\s*true/m.test(llmSource);
+const LLM_ON = /^\s*experimental:\s*true/m.test(llmSource);
 const SKIP = LLM_ON ? [] : [LLM_DIR];
 
 /* Assets whose absence would break the site silently rather than loudly. */
@@ -89,8 +88,13 @@ const REQUIRED = [
   'assets/css/style.css',
   'assets/vendor/tesseract/tesseract.min.js',
   'assets/vendor/tesseract/worker.min.js',
-  'assets/vendor/tesseract/lang/kor.traineddata'
+  'assets/vendor/tesseract/lang/kor.traineddata',
+  'assets/vendor/tesseract/tesseract-core-lstm.wasm.js',
+  'assets/vendor/tesseract/tesseract-core-simd-lstm.wasm.js'
 ];
+if (LLM_ON) REQUIRED.push('assets/js/llm-ui.js', 'assets/js/llm-worker.js',
+  'assets/vendor/wllama/wllama.esm.js', 'assets/vendor/wllama/wllama.wasm',
+  'assets/vendor/hash-wasm/sha256.umd.min.js');
 
 /* ------------------------------------------------------------- clear out */
 /*
@@ -130,7 +134,9 @@ function copyDir(rel) {
   if (!fs.existsSync(src)) die(`${rel}/ is missing`);
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
     const childRel = path.posix.join(rel, entry.name);
-    if (SKIP.includes(childRel)) { log(`skipped ${childRel} (LLM.enabled is false)`); continue; }
+    if (SKIP.includes(childRel)) { log(`skipped ${childRel} (experiment unavailable)`); continue; }
+    if (/\.(gguf|pem|key)$/i.test(entry.name) || /^id_(rsa|ed25519)/.test(entry.name))
+      die(`unexpected model weights or credential file in public assets: ${childRel}`);
     if (entry.isSymbolicLink()) {
       /* node_modules is symlinked in during development; a symlink in the
          published tree would either dangle or leak whatever it points at. */
@@ -166,9 +172,9 @@ if (missing.length) die('missing from the artifact: ' + missing.join(', '));
    all in the build log. */
 let checked = 0;
 function compare(rel) {
-  const a = fs.statSync(path.join(ROOT, rel)).size;
-  const b = fs.statSync(path.join(OUT, rel)).size;
-  if (a !== b) die(`${rel}: ${a} bytes in source, ${b} in the artifact`);
+  const a = fs.readFileSync(path.join(ROOT, rel));
+  const b = fs.readFileSync(path.join(OUT, rel));
+  if (!a.equals(b)) die(`${rel}: copied bytes differ from the source`);
   checked++;
 }
 function walk(dir, base = '') {
@@ -196,6 +202,6 @@ const stamp = {
 };
 fs.writeFileSync(path.join(OUT, 'build-info.json'), JSON.stringify(stamp, null, 2) + '\n');
 
-console.log(`\n  browser LLM: ${LLM_ON ? 'ENABLED — runtime included' : 'disabled — runtime not published'}`);
-console.log(`  ${copied} files, ${(bytes / 1048576).toFixed(2)} MB, ${checked} size-checked`);
+console.log(`\n  browser LLM: ${LLM_ON ? 'opt-in experiment — runtime available, no automatic download' : 'unavailable — runtime not published'}`);
+console.log(`  ${copied} files, ${(bytes / 1048576).toFixed(2)} MiB, ${checked} byte-verified`);
 console.log(`  artifact: ${OUT}\n`);

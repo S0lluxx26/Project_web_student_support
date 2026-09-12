@@ -10,15 +10,22 @@
 !index.html
 !.nojekyll
 !LICENSE
+!vercel.json
+!package.json
+!package-lock.json
+!assets/
 !assets/**
+!data/
 !data/**
 
+!scripts/
 !scripts/build-vercel.mjs
 !scripts/test-analyzer.js
 !scripts/test-detector.js
 !scripts/test-data.js
 !scripts/test-ocr.js
 !scripts/test-llm.js
+!scripts/asset-files.cjs
 
 # Never upload: the demo set and its generated report, the review fixtures,
 # the browser-only suites (they need Playwright, which the build does not

@@ -90,7 +90,7 @@ for (const layout of LAYOUTS) {
 
       await page.click('#btn-ocr-append');
       await page.click('#btn-analyze');
-      await page.waitForSelector('#housing-step-3', { timeout: 10000 });
+      await page.waitForSelector('#housing-step-4', { timeout: 10000 });
       const verdict = await page.evaluate(() => {
         window.Housing.runAnalysis();
         return window.Housing.lastResult && window.Housing.lastResult.assessment;

@@ -10,7 +10,6 @@ desktop.ini
 
 # Node (only if tooling is added later)
 node_modules/
-package-lock.json
 npm-debug.log*
 
 # Local scratch
@@ -34,3 +33,8 @@ demo/report.html
 # disposable output, never source — the build clears and rewrites it.
 /.vercel/
 /dist/
+
+# Downloaded model weights and local browser measurements
+*.gguf
+/test-results/
+/kor.traineddata

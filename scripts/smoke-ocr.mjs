@@ -58,7 +58,7 @@ try {
   /* The flag gates the control, so force it on for the run and re-bind. This
      is the one thing the test may override — it is testing whether turning it
      on is justified. */
-  await page.evaluate(() => { window.OCR.enabled = true; window.Housing.bindOcr(); });
+  // Exercise the shipped binding; binding twice would start two OCR jobs.
 
   const visible = await page.isVisible('#ocr-panel');
   ok(visible, 'the screenshot reader appears once the flag is on');
@@ -101,7 +101,9 @@ try {
 
   const sidesShown = await page.isVisible('#ocr-sides');
   if (sidesShown) {
-    ok(draft.includes(':'), 'the side split produced speaker labels');
+    ok(await page.isChecked('[name="ocr-mine"][value="none"]'), 'speaker identity is unknown until the user confirms');
+    await page.check('[name="ocr-mine"][value="right"]');
+    ok((await page.inputValue('#ocr-text')).includes(':'), 'confirmed side produces editable speaker labels');
   } else {
     console.log('      (no side split on this fixture; labelling falls back to manual)');
   }
@@ -118,7 +120,7 @@ try {
   /* End to end: the appended text must actually produce a finding, or the
      feature is a text box that goes nowhere. */
   await page.click('#btn-analyze');
-  await page.waitForSelector('#housing-step-3', { timeout: 10000 });
+  await page.waitForSelector('#housing-step-4', { timeout: 10000 });
   const assessment = await page.evaluate(() => {
     window.Housing.runAnalysis();
     return window.Housing.lastResult && window.Housing.lastResult.assessment;

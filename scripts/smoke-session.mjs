@@ -51,7 +51,7 @@ const browser = await chromium.launch(
   process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 const page = await browser.newPage({ locale: 'ko-KR' });
 const errors = [];
-page.on('pageerror', e => errors.push(String(e)));
+page.on('pageerror', e => errors.push(e.stack || String(e)));
 
 const open = async () => {
   await page.goto(`http://127.0.0.1:${PORT}/?t=${Date.now()}#/housing/conversation`,
@@ -199,8 +199,7 @@ try {
   await page.fill('#chat-input',
     '집주인: 계좌번호 110-123-456789 로 오늘 계약금 보내주세요. 연락처는 010-1234-5678 입니다.');
   await page.click('#btn-analyze');
-  await page.waitForSelector('#housing-step-3', { timeout: 10000 });
-  await page.click('[data-goto-step="4"]');
+  await page.waitForSelector('#housing-step-4', { timeout: 10000 });
   await page.click('#btn-print');
   ok(await page.isVisible('#export-preview'),
      'print opens the same preview copy and share use');

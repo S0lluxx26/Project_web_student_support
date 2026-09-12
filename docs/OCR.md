@@ -161,10 +161,10 @@ Running them:
 
     node scripts/test-ocr.js
 
-    npm install --no-save tesseract.js@5 pngjs
+    npm ci --ignore-scripts
     node scripts/test-ocr-real.js --require-engine
 
-    npm install --no-save playwright && npx playwright install chromium
+    npx playwright install chromium
     node scripts/smoke-ocr.mjs
     # CHROMIUM_PATH=/path/to/chrome node scripts/smoke-ocr.mjs   # reuse an existing build
 
@@ -201,5 +201,10 @@ before anything is packaged for Pages.
   step deliberately does not run OCR — a misread contract clause is a worse
   error than a misread chat line, and the checklist there asks the user what
   they can see instead.
-- **No cancel button.** A long recognition can only be waited out or the page
-  reloaded. Worth adding.
+- **Cancellation during initialization.** Cancel terminates an active worker. If worker initialization has not returned yet, its result is rejected and the worker is disposed when initialization completes. Old results cannot populate a new session.
+
+## Current session safeguards (2026-09-12)
+
+Screenshot reading is directly reachable from the landing page. Speaker side defaults to unknown until explicitly selected. Text corrections survive language/navigation changes; the explicit rebuild button still restores the original recognized draft and discards edits, as its label states.
+
+Files are limited to five PNG/JPEG/WebP images, 8 MiB each, 25 MiB combined and 12 million pixels after decoding. The pixel limit prevents a second large canvas allocation; it cannot prevent the browser’s initial decoder allocation. Partial image failures preserve successful drafts and show a warning. Reset/discard releases image URLs, raw text and derived state.

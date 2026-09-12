@@ -69,7 +69,7 @@ function raw(file) {
      'the Korean model is vendored in this repo');
 
   const worker = await Tesseract.createWorker('kor', 1, {
-    langPath: LANG_DIR, gzip: false, logger: () => {}
+    langPath: LANG_DIR, gzip: false, cacheMethod: 'none', logger: () => {}
   });
   const read = async (buf) => (await worker.recognize(buf)).data;
 

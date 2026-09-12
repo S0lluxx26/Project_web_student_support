@@ -1,44 +1,59 @@
-name: Deploy to GitHub Pages
+name: Test and deploy static site
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate JSON data files
-        run: |
-          for f in data/*.json; do
-            python3 -c "import json; json.load(open('$f', encoding='utf-8')); print('ok:', '$f')"
-          done
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Validate and build the shared public artifact
+        run: npm run build
+      - name: Verify vendored OCR with the real engine
+        run: npm run test:ocr
+      - name: Verify session recovery and both host URL layouts
+        run: npm run test:browser
+      - name: Upload only public files
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
 
+  deploy:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
 
       - name: Deploy
         id: deployment
