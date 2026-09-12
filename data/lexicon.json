@@ -1,0 +1,259 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-09-12",
+  "_readme": "Concept lexicon for the fuzzy detector. A concept lists every surface form that means the same thing in a rental conversation. Adding a new slang term here improves every rule that mentions the concept, which is why this scales where flat keyword lists do not. Forms are matched after whitespace and punctuation are stripped, so spacing variants need no separate entry.",
+
+  "lexicon": {
+    "URGENCY": [
+      "오늘", "지금", "당장", "바로", "즉시", "곧", "빨리", "서둘", "급하", "얼른",
+      "오늘안에", "오늘까지", "금방", "마감", "임박", "선착순", "마지막",
+      "today", "now", "hurry", "immediately", "right away", "asap", "last one"
+    ],
+    "PAY": [
+      "입금", "송금", "이체", "넣어", "넣으시", "보내주", "보내시", "쏴", "쏘시",
+      "결제", "지급", "선금", "예약금", "가계약금", "계약금", "보증금",
+      "pay", "transfer", "deposit", "send the money", "wire"
+    ],
+    "HOLD_ROOM": [
+      "잡아드", "잡아둘", "잡아놓", "빼놓", "확보", "킵", "예약해", "찜",
+      "hold the room", "reserve it", "keep it for you"
+    ],
+    "COMPETITION": [
+      "다른분", "다른사람", "다른손님", "딴사람", "보고계", "보러오", "문의가많",
+      "경쟁", "나갈거", "나가요", "계약될",
+      "someone else", "another person", "other people", "going fast"
+    ],
+    "ACCOUNT": [
+      "계좌", "통장", "account", "bank"
+    ],
+    "THIRD_PARTY": [
+      "제계좌", "개인계좌", "가족", "누나", "형", "동생", "언니", "오빠",
+      "어머니", "아버지", "아내", "와이프", "남편", "지인", "친구", "직원",
+      "명의가다", "명의다", "다른명의",
+      "personal account", "my sister", "my brother", "my wife", "my husband",
+      "a friend", "different name"
+    ],
+    "OWNER": [
+      "집주인", "임대인", "소유자", "명의자", "건물주",
+      "owner", "landlord"
+    ],
+    "ABSENT": [
+      "해외", "외국", "지방", "바빠", "바쁘", "연락이안", "연락안", "못와", "안계", "부재",
+      "abroad", "overseas", "out of town", "busy", "unavailable", "can't come"
+    ],
+    "PROXY": [
+      "대신", "대리", "위임", "위임장", "제가맡", "관리인", "매니저",
+      "on behalf", "proxy", "power of attorney", "i manage"
+    ],
+    "REGISTER_DOC": [
+      "등기부", "등기사항", "등본", "등기",
+      "property register", "register", "deunggibu"
+    ],
+    "REFUSE": [
+      "안보여", "못보여", "보여드릴수없", "안돼", "안됩", "곤란", "어려워", "나중에",
+      "필요없", "믿으세", "걱정마", "찍지마", "촬영금지", "사진은안",
+      "can't show", "no need", "later", "just trust", "don't photograph", "not possible"
+    ],
+    "MOVEIN_REPORT": [
+      "전입신고", "확정일자", "주민등록이전", "세대주",
+      "move-in report", "move in registration", "fixed date"
+    ],
+    "DELAY": [
+      "미뤄", "미루", "늦춰", "늦추", "나중에", "천천히", "하지마", "하지말", "안하시",
+      "보류", "기다려", "한달만", "잠깐만",
+      "delay", "hold off", "postpone", "wait", "don't do", "later"
+    ],
+    "MUST_DO": [
+      "꼭", "반드시", "바로하세", "하셔야", "필수", "잊지마",
+      "must", "be sure to", "make sure"
+    ],
+    "MORTGAGE": [
+      "근저당", "융자", "담보", "대출", "채권최고액", "선순위", "빚",
+      "mortgage", "lien", "loan", "secured"
+    ],
+    "REASSURE": [
+      "괜찮", "문제없", "걱정마", "안전해", "신경쓰지", "믿으", "보장",
+      "no problem", "it's fine", "don't worry", "safe", "guarantee"
+    ],
+    "TRUST_CO": [
+      "신탁", "수탁", "위탁", "신탁회사", "신탁등기",
+      "trust company", "in trust", "trustee"
+    ],
+    "SEIZURE": [
+      "가압류", "압류", "가처분", "경매", "체납", "소송",
+      "seizure", "attachment", "auction", "foreclosure", "arrears"
+    ],
+    "NO_VISIT": [
+      "방문안", "안오셔도", "보지않고", "사진으로", "안보셔도", "직접안",
+      "영상통화안", "멀리계", "오시기어려",
+      "no need to visit", "without seeing", "photos are enough", "can't do a video call"
+    ],
+    "KEYS_REMOTE": [
+      "택배", "우편", "등기로보", "도착하면",
+      "by mail", "courier", "post the keys"
+    ],
+    "CHEAP": [
+      "싸게", "저렴", "시세보다", "할인", "깎아", "특가", "반값", "사정이있",
+      "below market", "cheap", "discount", "special price"
+    ],
+    "CONTRACT_DOC": [
+      "계약서", "표준계약", "특약",
+      "contract", "lease", "special terms"
+    ],
+    "VERBAL": [
+      "구두", "말로", "믿고", "굳이", "안써도", "안적어도", "그냥",
+      "verbally", "no need to write", "trust each other"
+    ],
+    "CASH": [
+      "현금", "현찰", "상품권", "문화상품권", "암호화폐", "코인", "비트코인",
+      "cash", "gift card", "crypto", "bitcoin"
+    ],
+    "NO_RECEIPT": [
+      "영수증없", "영수증은나중", "증빙없", "세금계산서안", "현금영수증안",
+      "no receipt", "receipt later", "no invoice"
+    ],
+    "REFUND": [
+      "환불", "반환", "돌려", "refund", "return the deposit"
+    ],
+    "IMPOSSIBLE": [
+      "불가", "안돼", "안됩", "절대안", "못해", "없습니다",
+      "not possible", "cannot", "never", "no refunds"
+    ],
+    "BUSINESS_REG": [
+      "사업자등록", "사업자번호", "상호", "business registration", "company name"
+    ],
+    "ABSENT_DOC": [
+      "없어요", "없습니다", "없고", "안해", "미등록", "무등록",
+      "don't have", "there is none", "unregistered"
+    ]
+  },
+
+  "rules": [
+    {
+      "id": "fz-urgent-payment",
+      "patternId": "pay-urgency",
+      "severity": 5,
+      "all": ["URGENCY", "PAY"],
+      "title": { "ko": "지금 당장 입금하라는 압박", "en": "Pressure to pay right now" }
+    },
+    {
+      "id": "fz-hold-room-payment",
+      "patternId": "pay-urgency",
+      "severity": 5,
+      "all": ["PAY", "HOLD_ROOM"],
+      "title": { "ko": "돈을 보내면 방을 잡아준다는 제안", "en": "Pay and we'll hold the room" }
+    },
+    {
+      "id": "fz-competition-pressure",
+      "patternId": "pay-urgency",
+      "severity": 4,
+      "all": ["COMPETITION", "URGENCY"],
+      "title": { "ko": "다른 사람이 계약한다는 압박", "en": "Someone else is about to take it" }
+    },
+    {
+      "id": "fz-third-party-account",
+      "patternId": "pay-personal-account",
+      "severity": 5,
+      "all": ["ACCOUNT", "THIRD_PARTY"],
+      "title": { "ko": "소유자 아닌 사람의 계좌로 송금 요구", "en": "Transfer to someone else's account" }
+    },
+    {
+      "id": "fz-owner-absent-proxy",
+      "patternId": "id-proxy-no-poa",
+      "severity": 5,
+      "all": ["OWNER", "ABSENT"],
+      "any": ["PROXY", "PAY", "CONTRACT_DOC"],
+      "title": { "ko": "집주인 부재를 이유로 한 대리 계약", "en": "Owner is away, so a proxy signs" }
+    },
+    {
+      "id": "fz-refuse-register",
+      "patternId": "id-refuse-register",
+      "severity": 5,
+      "all": ["REGISTER_DOC", "REFUSE"],
+      "title": { "ko": "등기부등본 확인 회피", "en": "Avoiding the property register" }
+    },
+    {
+      "id": "fz-delay-movein",
+      "patternId": "con-no-moving-report",
+      "severity": 5,
+      "all": ["MOVEIN_REPORT", "DELAY"],
+      "none": ["MUST_DO"],
+      "title": { "ko": "전입신고·확정일자를 미루라는 요구", "en": "Asked to delay the move-in report" }
+    },
+    {
+      "id": "fz-mortgage-reassure",
+      "patternId": "reg-heavy-mortgage",
+      "severity": 5,
+      "all": ["MORTGAGE", "REASSURE"],
+      "title": { "ko": "근저당이 있지만 괜찮다는 설명", "en": "There's a mortgage but it's fine" }
+    },
+    {
+      "id": "fz-trust-reassure",
+      "patternId": "reg-trust",
+      "severity": 5,
+      "all": ["TRUST_CO"],
+      "any": ["REASSURE", "OWNER", "CONTRACT_DOC"],
+      "title": { "ko": "신탁 부동산인데 문제없다는 설명", "en": "Property is in trust but 'no problem'" }
+    },
+    {
+      "id": "fz-seizure-reassure",
+      "patternId": "reg-seizure-auction",
+      "severity": 5,
+      "all": ["SEIZURE", "REASSURE"],
+      "title": { "ko": "압류·경매가 있지만 괜찮다는 설명", "en": "Seizure or auction dismissed as fine" }
+    },
+    {
+      "id": "fz-no-visit",
+      "patternId": "good-remote-keys",
+      "severity": 5,
+      "all": ["NO_VISIT"],
+      "any": ["PAY", "CONTRACT_DOC", "KEYS_REMOTE"],
+      "title": { "ko": "방을 보지 않고 계약·입금 유도", "en": "Contract or payment without a viewing" }
+    },
+    {
+      "id": "fz-keys-by-mail",
+      "patternId": "good-remote-keys",
+      "severity": 5,
+      "all": ["KEYS_REMOTE"],
+      "any": ["NO_VISIT", "PAY"],
+      "title": { "ko": "열쇠를 택배로 보낸다는 제안", "en": "Keys to be sent by mail" }
+    },
+    {
+      "id": "fz-cash-no-receipt",
+      "patternId": "pay-cash-no-receipt",
+      "severity": 4,
+      "all": ["CASH"],
+      "any": ["PAY", "NO_RECEIPT", "CHEAP"],
+      "title": { "ko": "현금 결제 유도", "en": "Pushed toward a cash payment" }
+    },
+    {
+      "id": "fz-verbal-only",
+      "patternId": "con-verbal-only",
+      "severity": 4,
+      "all": ["CONTRACT_DOC", "VERBAL"],
+      "title": { "ko": "약속을 계약서에 적지 않으려 함", "en": "Promises kept out of the contract" }
+    },
+    {
+      "id": "fz-no-refund",
+      "patternId": "gosi-no-refund",
+      "severity": 4,
+      "all": ["REFUND", "IMPOSSIBLE"],
+      "title": { "ko": "환불 불가 조건", "en": "No-refund terms" }
+    },
+    {
+      "id": "fz-no-business-reg",
+      "patternId": "gosi-no-business-reg",
+      "severity": 4,
+      "all": ["BUSINESS_REG", "ABSENT_DOC"],
+      "title": { "ko": "사업자등록이 없다는 답변", "en": "No business registration" }
+    },
+    {
+      "id": "fz-too-cheap",
+      "patternId": "good-too-cheap",
+      "severity": 4,
+      "all": ["CHEAP"],
+      "any": ["URGENCY", "PAY", "HOLD_ROOM"],
+      "title": { "ko": "비정상적으로 싼 조건 + 결정 압박", "en": "Unusually cheap, decide now" }
+    }
+  ]
+}

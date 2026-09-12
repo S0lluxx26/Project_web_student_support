@@ -159,17 +159,23 @@ a { color: var(--brand-ink); }
 .btn:active { box-shadow: var(--press-sm); transform: translateY(0); }
 .btn-sm { padding: 8px 15px; font-size: .875rem; }
 
+/* The primary action is the one control that must never be hard to read.
+   The old gradient ran #6f93cb -> #5b84c4, giving white text 3.13:1 and
+   3.79:1 — both under AA. These endpoints are measured at 4.69:1 and
+   5.80:1, keeping the soft raised look with legible text. */
 .btn-primary {
-  background: linear-gradient(145deg,
-    color-mix(in srgb, var(--brand) 88%, #fff),
-    color-mix(in srgb, var(--brand) 100%, #000));
-  color: #fff; border-color: color-mix(in srgb, var(--brand) 60%, #fff);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .18);
+  background: linear-gradient(145deg, #4a74b8, #3c65a8);
+  color: #fff; border-color: #6f93cb;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .22);
 }
 @media (prefers-color-scheme: dark) {
-  .btn-primary { color: #10141c; text-shadow: none; }
+  .btn-primary {
+    background: linear-gradient(145deg, #9dbcf2, #7ea6e8);
+    color: #0e1320; text-shadow: none; border-color: #b4cdf7;
+  }
+  .btn-primary:hover { background: linear-gradient(145deg, #b0caf7, #8fb3ec); }
 }
-.btn-primary:hover { background: linear-gradient(145deg, var(--brand), var(--brand-deep)); }
+.btn-primary:hover { background: linear-gradient(145deg, #436db0, #35619f); }
 
 .btn-outline { background: var(--surface-2); color: var(--brand-ink); border-color: var(--edge); }
 .btn-ghost { background: var(--surface); color: var(--text); }
@@ -544,8 +550,7 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 11px; }
 @media (hover: none) {
   .choice:hover, .btn:hover { transform: none; box-shadow: var(--lift-sm); }
   .choice:hover { box-shadow: var(--lift); }
-  .btn-primary:hover { background: linear-gradient(145deg,
-    color-mix(in srgb, var(--brand) 88%, #fff), var(--brand)); }
+  .btn-primary:hover { background: linear-gradient(145deg, #4a74b8, #3c65a8); }
   .btn:active, .choice:active { box-shadow: var(--press-sm); }
 }
 
@@ -576,3 +581,123 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 11px; }
   .photo img { height: auto; max-height: 8cm; box-shadow: none !important; }
   a { color: #000; text-decoration: underline; }
 }
+
+/* A fuzzy hit matched the tactic, not the exact wording — say so, so the
+   reader can judge the evidence rather than assuming a verbatim quote. */
+.fuzzy-badge {
+  font-size: .68rem; font-weight: 700; letter-spacing: .03em;
+  padding: 3px 9px; border-radius: var(--pill);
+  background: var(--brand-soft); color: var(--brand-ink);
+  box-shadow: var(--press-sm); white-space: nowrap;
+}
+
+/* "Not enough to judge" is neither a pass nor a warning — it is a request for
+   more input, so it gets its own neutral treatment rather than borrowing the
+   green of a clean result. */
+.score-card.lv-insufficient {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+.lv-insufficient .score-dial {
+  background: linear-gradient(145deg,
+    color-mix(in srgb, var(--text-dim) 70%, #fff), var(--text-dim));
+}
+.field-hint {
+  display: block; font-size: .8rem; color: var(--text-dim);
+  margin-top: 5px; line-height: 1.5;
+}
+
+/* Action priority, not a severity number: the reader needs to know what to
+   do, not how a rule was weighted. */
+.sev-badge.pri-strong { color: var(--danger); }
+.sev-badge.pri-review { color: var(--warn); }
+
+/* ==========================================================================
+   RESULT: verdict, coverage, speaker review
+   The score dial asserted a precision the engine does not have — six
+   severity-5 signals and twelve both read 100/100. What replaces it says
+   what to do and what the conclusion rests on.
+   ========================================================================== */
+.verdict {
+  border-radius: var(--radius); padding: 24px; margin-bottom: 18px;
+  border: 1px solid var(--edge); box-shadow: var(--lift);
+  border-left-width: 5px;
+}
+.verdict h2 { margin: 0 0 6px; }
+.verdict p { margin: 0 0 10px; }
+.verdict p:last-child { margin-bottom: 0; }
+.verdict-count { font-weight: 700; font-size: 1.02rem; }
+
+.verdict.v-insufficient_information { background: var(--surface-2); border-left-color: var(--text-dim); }
+.verdict.v-no_known_signals   { background: var(--ok-soft);     border-left-color: var(--ok); }
+.verdict.v-needs_review       { background: var(--warn-soft);   border-left-color: var(--warn); }
+.verdict.v-strong_warning_signals { background: var(--danger-soft); border-left-color: var(--danger); }
+.v-needs_review h2 { color: var(--warn); }
+.v-strong_warning_signals h2 { color: var(--danger); }
+.v-no_known_signals h2 { color: var(--ok); }
+
+.coverage .bullets { margin-bottom: 0; }
+.coverage .bullets li { margin-bottom: 5px; font-size: .94rem; }
+
+.speakers { margin-top: 16px; }
+.speakers > summary { cursor: pointer; font-weight: 600; font-size: .95rem; padding: 8px 0; }
+.speaker-row {
+  display: flex; gap: 10px; align-items: center; padding: 8px 0;
+  border-top: 1px solid var(--border); font-size: .9rem;
+}
+.speaker-row select { width: auto; min-width: 116px; flex-shrink: 0; padding: 8px 10px; }
+.speaker-text { color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.context-more { margin-top: 6px; border-top: 1px solid var(--border); padding-top: 14px; }
+.context-more > summary { cursor: pointer; font-weight: 600; font-size: .93rem; }
+.context-body { padding-top: 14px; }
+
+@media (max-width: 720px) {
+  .verdict { padding: 18px; }
+  .speaker-row { flex-wrap: wrap; }
+  .speaker-text { white-space: normal; }
+}
+
+/* ==========================================================================
+   TRI-STATE ANSWERS
+   An unticked box could not distinguish "checked, and it's fine" from
+   "haven't looked". The first is evidence; the second is a gap. Four
+   explicit answers, defaulting to "don't know", so nothing is assumed.
+   ========================================================================== */
+.answer {
+  padding: 14px 16px; margin-bottom: 10px;
+  background: var(--surface); border: 1px solid var(--edge);
+  border-radius: var(--radius-sm); box-shadow: var(--lift-sm);
+}
+.answer-q { margin: 0 0 10px; font-size: .94rem; font-weight: 600; }
+.answer .check-hint-text { margin: -4px 0 10px; }
+.answer-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.answer-opt {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  padding: 8px 13px; border-radius: var(--pill); font-size: .88rem;
+  background: var(--surface-2); border: 1px solid var(--border);
+  transition: background .15s, border-color .15s, color .15s;
+}
+.answer-opt input { accent-color: var(--brand); width: 15px; height: 15px; }
+.answer-opt:has(input:checked) { box-shadow: var(--press-sm); font-weight: 600; }
+.answer-opt.opt-yes:has(input:checked) {
+  background: var(--danger-soft); color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 36%, transparent);
+}
+.answer-opt.opt-no:has(input:checked) {
+  background: var(--ok-soft); color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 36%, transparent);
+}
+.answer-opt.opt-na:has(input:checked),
+.answer-opt.opt-unknown:has(input:checked) {
+  background: var(--surface); color: var(--text-dim); border-color: var(--border);
+}
+@media (max-width: 720px) {
+  .answer-opt { min-height: 44px; padding: 10px 14px; }
+  .answer-opts { gap: 7px; }
+}
+
+/* Export preview: the last chance to see what leaves the device. */
+.export-preview { border-color: color-mix(in srgb, var(--brand) 32%, transparent); }
+.export-preview textarea { min-height: 240px; font-size: .9rem; line-height: 1.6; }
+.export-found { color: var(--warn); font-weight: 600; }

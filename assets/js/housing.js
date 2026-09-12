@@ -39,11 +39,8 @@
       var pick = I18n.pick.bind(I18n);
       if (intro) intro.textContent = pick(cc.intro);
       root.innerHTML = (cc.items || []).map(function (it) {
-        return '<label class="check check-hint">' +
-          '<input type="checkbox" data-doc-risk="' + esc(it.id) + '" data-weight="' + it.weight + '">' +
-          '<span><span class="check-q">' + esc(pick(it.q)) + '</span>' +
-          (it.hint ? '<span class="check-hint-text">' + esc(pick(it.hint)) + '</span>' : '') +
-          '</span></label>';
+        return Housing.answerRow(it.id, it.weight, pick(it.q),
+                                 it.hint ? pick(it.hint) : null);
       }).join('');
     },
 
@@ -82,8 +79,8 @@
     snapshotState: function () {
       var checked = {};
       Array.prototype.forEach.call(
-        document.querySelectorAll('[data-doc-risk]:checked'),
-        function (cb) { checked[cb.getAttribute('data-doc-risk')] = true; }
+        document.querySelectorAll('[data-doc-answer]:checked'),
+        function (r) { checked[r.getAttribute('data-doc-answer')] = r.value; }
       );
       var open = {};
       Array.prototype.forEach.call(
@@ -96,8 +93,11 @@
     restoreState: function (snap) {
       if (!snap) return;
       Array.prototype.forEach.call(
-        document.querySelectorAll('[data-doc-risk]'),
-        function (cb) { cb.checked = !!snap.checked[cb.getAttribute('data-doc-risk')]; }
+        document.querySelectorAll('[data-doc-answer]'),
+        function (r) {
+          var want = snap.checked[r.getAttribute('data-doc-answer')] || 'unknown';
+          r.checked = (r.value === want);
+        }
       );
       Array.prototype.forEach.call(
         document.querySelectorAll('details.doc'),
@@ -128,9 +128,7 @@
         if (idx === 0) d.open = true;
 
         var checksHtml = (doc.questions || []).map(function (q) {
-          return '<label class="check">' +
-            '<input type="checkbox" data-doc-risk="' + q.id + '" data-weight="' + q.weight + '">' +
-            '<span>' + esc(pick(q.q)) + '</span></label>';
+          return Housing.answerRow(q.id, q.weight, pick(q.q));
         }).join('');
 
         var checkItems = (pick(doc.check) || []).map(function (c) {
@@ -173,6 +171,39 @@
       });
     },
 
+    /**
+     * One question, four answers.
+     *
+     * An unticked checkbox conflated two very different states: "I checked
+     * and it's fine" and "I haven't looked". The first is evidence; the
+     * second is a gap in coverage. Only an explicit 예 counts as a risk, and
+     * 모름 is the default so nothing is assumed on the user's behalf.
+     */
+    answerRow: function (id, weight, question, hint) {
+      var t = I18n.t.bind(I18n);
+      var opts = ['yes', 'no', 'na', 'unknown'];
+      return '<div class="answer" role="group" aria-labelledby="q-' + esc(id) + '">' +
+        '<p class="answer-q" id="q-' + esc(id) + '">' + esc(question) + '</p>' +
+        (hint ? '<p class="check-hint-text">' + esc(hint) + '</p>' : '') +
+        '<div class="answer-opts">' + opts.map(function (v) {
+          return '<label class="answer-opt opt-' + v + '">' +
+            '<input type="radio" name="ans-' + esc(id) + '" value="' + v + '"' +
+            ' data-doc-answer="' + esc(id) + '" data-weight="' + weight + '"' +
+            (v === 'unknown' ? ' checked' : '') + '>' +
+            '<span>' + esc(t('answer.' + v)) + '</span></label>';
+        }).join('') + '</div></div>';
+    },
+
+    /** Every answered question, including the ones answered "no". */
+    collectDocAnswers: function () {
+      var out = {};
+      Array.prototype.forEach.call(
+        document.querySelectorAll('[data-doc-answer]:checked'),
+        function (r) { out[r.getAttribute('data-doc-answer')] = r.value; }
+      );
+      return out;
+    },
+
     collectDocRisks: function () {
       var pick = I18n.pick.bind(I18n);
       var byId = {};
@@ -184,10 +215,12 @@
       });
       var out = [];
       Array.prototype.forEach.call(
-        document.querySelectorAll('[data-doc-risk]:checked'),
-        function (cb) {
-          var id = cb.getAttribute('data-doc-risk');
-          out.push({ id: id, weight: Number(cb.getAttribute('data-weight')) || 10, label: byId[id] || id });
+        document.querySelectorAll('[data-doc-answer]:checked'),
+        function (r) {
+          if (r.value !== 'yes') return;   /* 아니오 / 해당없음 / 모름 are not risks */
+          var id = r.getAttribute('data-doc-answer');
+          out.push({ id: id, weight: Number(r.getAttribute('data-weight')) || 10,
+                     label: byId[id] || id });
         }
       );
       return out;
@@ -227,33 +260,256 @@
 
       this.bindContractPhoto();
 
-      on('btn-copy', 'click', function () {
-        copyText(self.reportText(), 'result.copied');
-      });
+      /* Copy and share open a preview first. Nothing leaves the device
+         until the user has seen exactly what would leave. */
+      on('btn-copy', 'click', function () { self.openExport('copy'); });
 
       on('btn-print', 'click', function () { global.print(); });
 
-      enableShare('btn-share', function () { return self.reportText(); });
+      if (global.navigator && navigator.share) {
+        var shareBtn = document.getElementById('btn-share');
+        if (shareBtn) {
+          shareBtn.hidden = false;
+          shareBtn.addEventListener('click', function () { self.openExport('share'); });
+        }
+      }
+
+      /* ---- the landing-page checker: paste, press, read the report ---- */
+      on('btn-home-analyze', 'click', function () {
+        var ta = document.getElementById('home-chat');
+        var text = (ta && ta.value || '').trim();
+        if (!text) { show('home-chat-error'); if (ta) ta.focus(); return; }
+        hide('home-chat-error');
+
+        /* Carry the text into the conversation step so the two inputs are
+           one input, and every later edit happens in one place. */
+        var target = document.getElementById('chat-input');
+        if (target) target.value = ta.value;
+
+        var type = document.querySelector('[name="home-housing-type"]:checked');
+        self.housingType = type ? type.value : 'unknown';
+
+        self.runAnalysis();
+        global.location.hash = '#/housing/result';
+      });
+
+      on('btn-home-clear', 'click', function () {
+        var ta = document.getElementById('home-chat');
+        if (ta) { ta.value = ''; ta.focus(); }
+        hide('home-chat-error');
+      });
+
+      on('btn-home-example', 'click', function () { self.offerExample(); });
+      on('btn-reset', 'click', function () { self.resetSession(); });
+
+      /* Speaker corrections re-run the analysis against the same text. */
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.matches('[data-speaker-for]')) self.speakerEdited = true;
+      });
+      document.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('#btn-apply-speakers');
+        if (b) { self.applySpeakers(); }
+      });
+    },
+
+    /** Load one of the fictional examples, confirming before overwriting. */
+    offerExample: function () {
+      var self = this;
+      var list = (this.examples && this.examples.examples) || [];
+      if (!list.length) return;
+      var ta = document.getElementById('home-chat');
+      var pick = I18n.pick.bind(I18n);
+
+      var host = document.getElementById('example-picker');
+      if (host) { host.remove(); return; }
+
+      host = document.createElement('div');
+      host.id = 'example-picker';
+      host.className = 'panel panel-muted';
+      host.innerHTML = '<h3 class="h4">' + esc(I18n.t('example.pick')) + '</h3>' +
+        '<div class="actions">' + list.map(function (ex) {
+          return '<button class="btn btn-ghost btn-sm" type="button" data-example="' +
+            esc(ex.id) + '">' + esc(pick(ex.label)) + '</button>';
+        }).join('') + '</div>';
+
+      var anchor = document.getElementById('btn-home-example');
+      anchor.parentNode.parentNode.insertBefore(host, anchor.parentNode.nextSibling);
+
+      host.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-example]');
+        if (!b) return;
+        var ex = list.filter(function (x) { return x.id === b.getAttribute('data-example'); })[0];
+        if (!ex) return;
+        /* Never silently discard something the user typed. */
+        if (ta.value.trim() && !global.confirm(I18n.t('example.replace'))) return;
+        ta.value = pick(ex.text);
+        host.remove();
+        ta.focus();
+      });
+    },
+
+    /**
+     * Clear the whole session, not just the visible textarea.
+     *
+     * "Clear text" empties one field. This releases everything derived from
+     * the user's input: attached file names, contract photo object URLs,
+     * every ticked check, the context numbers and the computed report. On a
+     * shared machine the difference matters.
+     */
+    resetSession: function () {
+      ['home-chat', 'chat-input', 'ctx-deposit', 'ctx-market', 'ctx-lien'].forEach(function (id) {
+        var e = document.getElementById(id);
+        if (e) e.value = '';
+      });
+      Array.prototype.forEach.call(
+        document.querySelectorAll('[data-doc-answer]'),
+        function (r) { r.checked = (r.value === 'unknown'); }
+      );
+      Array.prototype.forEach.call(
+        document.querySelectorAll('input[type=file]'),
+        function (f) { try { f.value = ''; } catch (err) { /* older browsers */ } }
+      );
+      this.photoUrls.forEach(function (u) { URL.revokeObjectURL(u); });
+      this.photoUrls = [];
+      this.files = {};
+      this.lastResult = null;
+      this.lastCtx = null;
+      this.badNumbers = [];
+      this.speakerOverrides = {};
+
+      var prev = document.getElementById('contract-preview');
+      if (prev) prev.innerHTML = '';
+      Array.prototype.forEach.call(
+        document.querySelectorAll('[data-file-names]'),
+        function (n) { n.textContent = ''; }
+      );
+      var root = document.getElementById('result-root');
+      if (root) root.innerHTML = '';
+      hide('chat-error'); hide('home-chat-error');
+      toast(I18n.t('reset.done'));
+    },
+
+    /** Re-analyze after the user corrects who said what. */
+    applySpeakers: function () {
+      var self = this;
+      this.speakerOverrides = this.speakerOverrides || {};
+      Array.prototype.forEach.call(
+        document.querySelectorAll('[data-speaker-for]'),
+        function (sel) { self.speakerOverrides[sel.getAttribute('data-speaker-for')] = sel.value; }
+      );
+      this.runAnalysis();
+      var root = document.getElementById('result-root');
+      if (root) root.focus();
     },
 
     /** Re-read every input and recompute. Safe to call repeatedly. */
     runAnalysis: function () {
       var text = (document.getElementById('chat-input') || {}).value || '';
       var ctx = {
-        deposit: num('ctx-deposit'),
-        rent: num('ctx-rent'),
-        market: num('ctx-market'),
+        deposit: numOrNull('ctx-deposit'),
+        rent: numOrNull('ctx-rent'),
+        market: numOrNull('ctx-market'),
+        lien: numOrNull('ctx-lien'),
         who: (document.getElementById('ctx-who') || {}).value
       };
       var docRisks = this.collectDocRisks();
       this.lastCtx = ctx;
-      this.lastResult = Analyzer.analyze(text.trim(), ctx, docRisks);
+      this.badNumbers = invalidNumericFields();
+      var answers = this.collectDocAnswers();
+      var answered = Object.keys(answers).filter(function (k) {
+        return answers[k] !== 'unknown';
+      }).length;
+      this.lastResult = Analyzer.analyze(text.trim(), ctx, docRisks,
+                                         { speakers: this.speakerOverrides || {},
+                                           answered: answered });
+      this.lastResult.docAnswers = answers;
+      this.lastResult.answered = answered;
       /* "Nothing was entered" and "what you entered looks clean" are very
          different messages. Conflating them hands a reassuring verdict to
          someone who has not actually been checked. */
-      this.lastResult.empty = !text.trim() && !docRisks.length;
+      /* "Empty" means the user gave us nothing to look at — not that we
+         found nothing. Answering 아니오 to every question IS input, and
+         measuring emptiness by risks alone discarded a careful clean check
+         as if the user had done nothing. */
+      this.lastResult.empty = !text.trim() && answered === 0;
       this.renderResult();
       return this.lastResult;
+    },
+
+    /**
+     * Export preview: show what would leave the device, with obvious
+     * identifiers already masked, and let the user edit before sending.
+     *
+     * `mode` is 'copy' or 'share'. The redaction is best effort — it cannot
+     * reliably find a Korean personal name — so the preview is editable and
+     * says so rather than implying the text is now safe.
+     */
+    openExport: function (mode) {
+      var self = this;
+      var t = I18n.t.bind(I18n);
+      var raw = this.reportText();
+      var red = global.Redact ? Redact.apply(raw) : { text: raw, found: [] };
+
+      var old = document.getElementById('export-preview');
+      if (old) old.remove();
+
+      var box = document.createElement('div');
+      box.id = 'export-preview';
+      box.className = 'panel export-preview no-print';
+      box.innerHTML =
+        '<h3 class="h3">' + esc(t('export.title')) + '</h3>' +
+        '<p class="field-hint">' + esc(t('export.body')) + '</p>' +
+        (red.found.length
+          ? '<p class="field-hint export-found">' + esc(t('export.masked')) + ' ' +
+            red.found.map(function (f) {
+              return esc(I18n.pick(f.label)) + ' ' + f.count;
+            }).join(' · ') + '</p>'
+          : '<p class="field-hint">' + esc(t('export.nothing')) + '</p>') +
+        '<label class="field"><span class="field-label">' + esc(t('export.editable')) +
+          '</span><textarea id="export-text" rows="12"></textarea></label>' +
+        '<div class="actions">' +
+          '<button class="btn btn-primary" type="button" id="export-go">' +
+            esc(t(mode === 'share' ? 'export.share' : 'export.copy')) + '</button>' +
+          '<button class="btn btn-ghost" type="button" id="export-raw">' +
+            esc(t('export.unmasked')) + '</button>' +
+          '<button class="btn btn-ghost" type="button" id="export-cancel">' +
+            esc(t('export.cancel')) + '</button>' +
+        '</div>';
+
+      var root = document.getElementById('result-root');
+      root.parentNode.insertBefore(box, root.nextSibling);
+      var ta = document.getElementById('export-text');
+      ta.value = red.text;
+      ta.focus();
+
+      box.querySelector('#export-cancel').addEventListener('click', function () {
+        box.remove();
+        var back = document.getElementById('btn-copy');
+        if (back) back.focus();
+      });
+
+      box.querySelector('#export-raw').addEventListener('click', function (e) {
+        /* Deliberately including a detail is a legitimate choice — the user
+           may need the account number in the very message they are asking
+           someone else about. It just has to be a choice. */
+        ta.value = raw;
+        e.target.disabled = true;
+        ta.focus();
+      });
+
+      box.querySelector('#export-go').addEventListener('click', function () {
+        var text = ta.value;
+        if (mode === 'share' && global.navigator && navigator.share) {
+          navigator.share({ title: I18n.t('share.title'), text: text })
+            .then(function () { box.remove(); })
+            .catch(function (err) {
+              if (err && err.name !== 'AbortError') copyText(text, 'result.copied');
+            });
+        } else {
+          copyText(text, 'result.copied');
+          box.remove();
+        }
+      });
     },
 
     /** Escape the quote, then wrap the matched ranges in <mark>. */
@@ -292,26 +548,85 @@
         return;
       }
 
-      html += '<div class="score-card lv-' + r.level + '">' +
-        '<div class="score-dial">' + r.score + '</div>' +
-        '<div class="score-text">' +
-          '<h2>' + esc(t('result.level.' + r.level)) + '</h2>' +
-          '<p>' + esc(t('result.level.' + r.level + '.msg')) + '</p>' +
-          '<p class="score-meta">' + esc(t('result.score')) + ': ' + r.score + ' / 100</p>' +
-        '</div></div>';
+      /* ---- 1. Summary: what to do, not what a rule weighed ---------- */
+      var a = r.assessment || 'no_known_signals';
+      var scoredList = r.matches.filter(function (m) { return m.points > 0; });
+      var findings = scoredList.length + r.docRisks.length;
+      html += '<div class="verdict v-' + esc(a) + '">' +
+        '<h2>' + esc(t('assess.' + a)) + '</h2>' +
+        '<p class="verdict-count">' +
+          esc(findings ? t('summary.count', { n: findings }) : t('summary.none')) +
+        '</p>' +
+        '<p>' + esc(t('assess.' + a + '.msg')) + '</p>' +
+      '</div>';
 
+      /* ---- 2. Coverage: what the verdict is actually based on -------- */
+      var unknownSpeakers = (r.messages || []).filter(function (m) {
+        return m.speaker === 'unknown';
+      }).length;
+      var cov = [];
+      cov.push(t('coverage.messages', { n: (r.messages || []).length }));
+      if (unknownSpeakers) cov.push(t('coverage.unknown', { n: unknownSpeakers }));
+      if (r.answered) {
+        cov.push(t('coverage.answered', { n: r.answered }));
+        cov.push(t('coverage.docrisks', { n: r.docRisks.length }));
+      } else {
+        cov.push(t('coverage.nodocs'));
+      }
+      if (r.suppressed && r.suppressed.length) {
+        cov.push(t('coverage.suppressed', { n: r.suppressed.length }));
+      }
+      html += '<div class="panel panel-muted coverage"><h3 class="h4">' +
+        esc(t('coverage.title')) + '</h3><ul class="bullets">' +
+        cov.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') +
+        '</ul>';
+
+      /* Speaker correction lives here because it is a coverage problem:
+         an unknown speaker is a limit on what can be concluded. */
+      if (unknownSpeakers && (r.messages || []).length <= 40) {
+        html += '<details class="speakers"><summary>' + esc(t('speakers.title')) +
+          '</summary><p class="field-hint">' + esc(t('speakers.body')) + '</p>' +
+          (r.messages || []).map(function (m) {
+            return '<label class="speaker-row">' +
+              '<select data-speaker-for="' + esc(m.id) + '">' +
+                ['unknown', 'landlord', 'agent', 'manager', 'tenant'].map(function (role) {
+                  return '<option value="' + role + '"' +
+                    (m.speaker === role ? ' selected' : '') + '>' +
+                    esc(t('result.speaker.' + role)) + '</option>';
+                }).join('') +
+              '</select>' +
+              '<span class="speaker-text">' + esc(m.text.slice(0, 90)) +
+              (m.text.length > 90 ? '…' : '') + '</span></label>';
+          }).join('') +
+          '<div class="actions"><button class="btn btn-primary btn-sm" type="button" ' +
+          'id="btn-apply-speakers">' + esc(t('speakers.apply')) + '</button></div></details>';
+      }
+      html += '</div>';
+
+      /* ---- 3. What to do regardless of the verdict --------------------
+         Shown on every result, including a clean one. "No known signals" is
+         exactly when someone is most likely to skip these four steps. */
       html += '<div class="panel panel-before"><h2 class="h3">' +
         esc(t('result.before.title')) + '</h2><ol class="numbered">' +
         ['result.before.1', 'result.before.2', 'result.before.3', 'result.before.4']
           .map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') +
         '</ol></div>';
 
-      if (r.ratio !== null) {
+      if (r.ratioBasis === 'full' && r.ratio !== null) {
         var warn = r.ratio >= 70;
         html += '<div class="panel ' + (warn ? 'panel-warn' : 'panel-ok') + '">' +
           '<h3 class="h3">' + esc(t('result.ltv')) + '</h3>' +
-          '<p>' + esc(t('result.ltv.body', { pct: r.ratio })) + '</p>' +
+          '<p><strong>' + esc(t('result.ltv.body', { pct: r.ratio })) + '</strong></p>' +
           '<p>' + esc(t(warn ? 'result.ltv.warn' : 'result.ltv.ok')) + '</p></div>';
+      } else if (r.ratioBasis === 'no-lien') {
+        html += '<div class="panel panel-warn">' +
+          '<h3 class="h3">' + esc(t('result.ltv.unknown')) + '</h3>' +
+          '<p>' + esc(t('result.ltv.unknown.body')) + '</p>' +
+          '<p class="do">' + esc(t('result.ltv.unknown.how')) + '</p></div>';
+      }
+
+      if (this.badNumbers && this.badNumbers.length) {
+        html += '<p class="error">' + esc(t('result.badnum')) + '</p>';
       }
 
       if (r.docRisks.length) {
@@ -322,12 +637,18 @@
 
       var scored = r.matches.filter(function (m) { return m.points > 0; });
       if (scored.length) {
-        html += '<h2 class="h3">' + esc(t('result.signals')) + ' (' + scored.length + ')</h2>';
+        html += '<h2 class="h3">' + esc(t('result.evidence.title')) + '</h2>';
         scored.forEach(function (m) {
           var p = m.pattern;
           html += '<div class="signal sev-' + p.severity + '">' +
             '<h3>' + esc(pick(p.title)) +
-              '<span class="sev-badge">' + esc(t('common.severity')) + ' ' + p.severity + '/5</span></h3>' +
+              '<span class="sev-badge pri-' + esc(m.priority || 'info') + '">' +
+                esc(t('result.priority.' + (m.priority || 'info'))) + '</span>' +
+              (m.speaker && m.speaker !== 'unknown'
+                ? '<span class="sev-badge">' + esc(t('result.speaker.' + m.speaker)) + '</span>' : '') +
+              (m.reported ? '<span class="sev-badge">' + esc(t('result.reported')) + '</span>' : '') +
+              (m.fuzzy ? '<span class="fuzzy-badge">' + esc(t('result.fuzzy')) + '</span>' : '') +
+            '</h3>' +
             (m.quote
               ? '<span class="quote">“' + self.markQuote(m.quote, m.quoteRanges) + '”</span>'
               : '') +
@@ -355,16 +676,50 @@
       L.push('# ' + t('site.title') + ' — ' + t('result.heading'));
       L.push(new Date().toLocaleString());
       L.push('');
-      L.push(t('result.level') + ': ' + t('result.level.' + r.level) + ' (' + r.score + '/100)');
-      L.push(t('result.level.' + r.level + '.msg'));
+      /* Screen and export must state the same thing. The empty case used to
+         render an insufficient-information panel on screen while exporting
+         "No known signals (0/100)" — a completed-assessment claim about a
+         conversation that was never analysed. One branch now serves both. */
+      if (r.empty) {
+        L.push(t('result.empty.title'));
+        L.push(t('result.empty.body'));
+        L.push('');
+        L.push('## ' + t('result.before.title'));
+        ['result.before.1', 'result.before.2', 'result.before.3', 'result.before.4']
+          .forEach(function (k, i) { L.push((i + 1) + '. ' + t(k)); });
+        L.push('');
+        L.push(t('footer.disclaimer'));
+        return L.join('\n');
+      }
+
+      var a = r.assessment || 'no_known_signals';
+      var n = r.matches.filter(function (m) { return m.points > 0; }).length +
+              r.docRisks.length;
+      L.push(t('assess.' + a));
+      L.push(n ? t('summary.count', { n: n }) : t('summary.none'));
+      L.push(t('assess.' + a + '.msg'));
+      L.push('');
+      L.push('## ' + t('coverage.title'));
+      L.push('- ' + t('coverage.messages', { n: (r.messages || []).length }));
+      var unknown = (r.messages || []).filter(function (m) {
+        return m.speaker === 'unknown';
+      }).length;
+      if (unknown) L.push('- ' + t('coverage.unknown', { n: unknown }));
+      L.push('- ' + (r.answered
+        ? t('coverage.answered', { n: r.answered }) + ', ' +
+          t('coverage.docrisks', { n: r.docRisks.length })
+        : t('coverage.nodocs')));
       L.push('');
       L.push('## ' + t('result.before.title'));
       ['result.before.1', 'result.before.2', 'result.before.3', 'result.before.4']
         .forEach(function (k, i) { L.push((i + 1) + '. ' + t(k)); });
 
-      if (r.ratio !== null) {
+      if (r.ratioBasis === 'full' && r.ratio !== null) {
         L.push('');
         L.push(t('result.ltv') + ': ' + t('result.ltv.body', { pct: r.ratio }));
+      } else if (r.ratioBasis === 'no-lien') {
+        L.push('');
+        L.push(t('result.ltv.unknown') + ' — ' + t('result.ltv.unknown.how'));
       }
       if (r.docRisks.length) {
         L.push('');
@@ -374,10 +729,11 @@
       var scored = r.matches.filter(function (m) { return m.points > 0; });
       if (scored.length) {
         L.push('');
-        L.push('## ' + t('result.signals'));
+        L.push('## ' + t('result.evidence.title'));
         scored.forEach(function (m) {
           L.push('');
-          L.push('### [' + m.pattern.severity + '/5] ' + pick(m.pattern.title));
+          L.push('### [' + (m.priority || 'info') + '] ' + pick(m.pattern.title) +
+                 (m.reported ? ' (' + t('result.reported') + ')' : ''));
           if (m.quote) L.push('> ' + m.quote);
           L.push(t('result.why') + ': ' + pick(m.pattern.why));
           L.push(t('result.action') + ': ' + pick(m.pattern.action));
@@ -415,9 +771,33 @@
   }
   function show(id) { var e = document.getElementById(id); if (e) e.hidden = false; }
   function hide(id) { var e = document.getElementById(id); if (e) e.hidden = true; }
-  function num(id) {
+  /**
+   * Read a numeric field as either a finite non-negative number or null.
+   *
+   * null means "not supplied" and is deliberately distinct from 0 — for the
+   * senior-debt field, "I don't know" and "there is no lien" lead to
+   * completely different advice, and collapsing them to 0 is what made the
+   * old deposit-only ratio dangerous.
+   *
+   * Anything that is not a finite number >= 0 (a negative, 1e999, a value a
+   * browser lets through) returns null rather than silently becoming 0.
+   */
+  function numOrNull(id) {
     var e = document.getElementById(id);
-    return e && e.value !== '' ? Number(e.value) : 0;
+    if (!e || e.value === '' || e.value == null) return null;
+    var v = Number(e.value);
+    if (!isFinite(v) || v < 0) return null;
+    return v;
+  }
+
+  /** Which numeric fields hold a value the browser accepted but we cannot use. */
+  function invalidNumericFields() {
+    return ['ctx-deposit', 'ctx-rent', 'ctx-market', 'ctx-lien'].filter(function (id) {
+      var e = document.getElementById(id);
+      if (!e || e.value === '') return false;
+      var v = Number(e.value);
+      return !isFinite(v) || v < 0;
+    });
   }
   function copyText(text, toastKey) {
     var done = function () { toast(I18n.t(toastKey)); };

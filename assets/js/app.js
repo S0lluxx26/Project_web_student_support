@@ -5,32 +5,119 @@
   var App = {
     ready: false,
 
-    boot: function () {
-      var files = ['data/i18n.json', 'data/patterns.json', 'data/documents.json', 'data/goshiwon.json'];
-      Promise.all(files.map(function (f) {
-        return fetch(f, { cache: 'no-cache' }).then(function (r) {
-          if (!r.ok) throw new Error(f + ': HTTP ' + r.status);
-          return r.json();
+    /* Core files the app cannot run without, and optional ones that power a
+       single feature. A failure in `goshiwon.json` used to take down the
+       whole application, because everything was loaded in one Promise.all. */
+    CORE: ['data/i18n.json', 'data/patterns.json', 'data/documents.json'],
+    OPTIONAL: ['data/goshiwon.json', 'data/lexicon.json', 'data/examples.json'],
+
+    fetchJson: function (file) {
+      /* Every failure path must name the file. A network rejection throws a
+         bare "Failed to fetch" with no URL, so the error the user sees said
+         nothing about which resource was missing. */
+      return fetch(file, { cache: 'no-cache' })
+        .catch(function (err) {
+          throw new Error(file + ': ' + (err && err.message || 'network error'));
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error(file + ': HTTP ' + r.status);
+          return r.json().catch(function () {
+            throw new Error(file + ': invalid JSON');
+          });
         });
-      })).then(function (res) {
-        I18n.load(res[0]);
-        Analyzer.load(res[1]);
-        I18n.apply();
-        Housing.init(res[2]);
-        Goshiwon.init(res[3]);
-        App.bind();
-        App.route();
-        App.ready = true;
-        document.body.setAttribute('data-ready', 'true');
-      }).catch(function (err) {
-        console.error(err);
-        var m = document.getElementById('main');
-        if (m) {
-          m.insertAdjacentHTML('afterbegin',
-            '<div class="panel panel-danger"><p>데이터를 불러올 수 없습니다. 페이지를 새로고침해 주세요.<br>' +
-            'Could not load site data. Please reload the page.</p></div>');
-        }
+    },
+
+    boot: function () {
+      var self = this;
+      this.degraded = [];
+
+      Promise.all(this.CORE.map(function (f) { return self.fetchJson(f); }))
+        .then(function (core) {
+          I18n.load(core[0]);
+          Analyzer.load(core[1]);
+          I18n.apply();
+
+          /* Optional resources settle independently: one failure disables
+             its own feature and says so, rather than blanking the app. */
+          return Promise.all(self.OPTIONAL.map(function (f) {
+            return self.fetchJson(f).catch(function (err) {
+              console.error(err);
+              self.degraded.push(f);
+              return null;
+            });
+          })).then(function (extra) {
+            return { core: core, extra: extra };
+          });
+        })
+        .then(function (all) {
+          var goshiwon = all.extra[0], lexicon = all.extra[1], examples = all.extra[2];
+
+          if (lexicon) Analyzer.loadFuzzy(lexicon);
+          Housing.examples = examples;
+          Housing.init(all.core[2]);
+          if (goshiwon) Goshiwon.init(goshiwon);
+
+          self.bind();
+          self.route();
+          self.ready = true;
+          document.body.setAttribute('data-ready', 'true');
+          if (self.degraded.length) self.showDegraded();
+        })
+        .catch(function (err) {
+          console.error(err);
+          self.showFatal(err);
+        });
+    },
+
+    /**
+     * A core file failed. Say which one, stop pretending the controls work,
+     * and offer a retry — the usual cause is a dropped connection, not a
+     * broken build.
+     */
+    showFatal: function (err) {
+      var self = this;
+      var m = document.getElementById('main');
+      if (!m) return;
+      document.body.setAttribute('data-ready', 'failed');
+      Array.prototype.forEach.call(document.querySelectorAll('.view'), function (v) {
+        v.hidden = true;
       });
+      var box = document.createElement('div');
+      box.className = 'panel panel-danger';
+      box.setAttribute('role', 'alert');
+      box.innerHTML =
+        '<h2 class="h3">앱을 불러오지 못했습니다 · Could not load the app</h2>' +
+        '<p>필요한 파일을 불러오지 못해 분석을 시작할 수 없습니다.<br>' +
+        'A required file could not be loaded, so nothing can be analysed.</p>' +
+        '<p class="note"><code></code></p>' +
+        '<div class="actions"><button class="btn btn-primary" type="button" ' +
+        'id="btn-retry-boot">다시 시도 · Retry</button></div>';
+      box.querySelector('code').textContent = String(err && err.message || err);
+      m.insertBefore(box, m.firstChild);
+      var btn = box.querySelector('#btn-retry-boot');
+      btn.addEventListener('click', function () {
+        box.remove();
+        document.body.removeAttribute('data-ready');
+        self.boot();
+      });
+      btn.focus();
+    },
+
+    /** An optional file failed: name the feature that is now unavailable. */
+    showDegraded: function () {
+      var m = document.getElementById('main');
+      if (!m) return;
+      var box = document.createElement('div');
+      box.className = 'panel panel-warn no-print';
+      box.setAttribute('role', 'status');
+      var names = this.degraded.map(function (f) {
+        return f.replace('data/', '').replace('.json', '');
+      }).join(', ');
+      box.innerHTML = '<p>일부 기능을 불러오지 못했습니다 (' + names + '). ' +
+        '대화 분석은 정상적으로 동작합니다.<br>' +
+        'Some features could not be loaded (' + names + '). ' +
+        'Conversation checking still works.</p>';
+      m.insertBefore(box, m.firstChild);
     },
 
     bind: function () {
@@ -65,7 +152,23 @@
         if (g) { self.gotoGosiStep(Number(g.getAttribute('data-gosi-step'))); }
       });
 
-      global.addEventListener('hashchange', function () { self.route(); });
+      global.addEventListener('hashchange', function () {
+        /* A hash we wrote ourselves has already been applied. */
+        if (self.suppressRoute) { self.suppressRoute = false; return; }
+        self.route();
+      });
+    },
+
+    /* Step names in the URL, so a step survives a reload, a language switch
+       and the back button. Without this the router reset the step to 0
+       immediately after any code-driven navigation. */
+    STEP_NAMES: ['start', 'documents', 'conversation', 'contract', 'result'],
+
+    stepFromHash: function (hash) {
+      var part = hash.split('/')[2];
+      if (!part) return null;
+      var i = this.STEP_NAMES.indexOf(part);
+      return i === -1 ? null : i;
     },
 
     route: function () {
@@ -79,10 +182,28 @@
         if (el) el.hidden = (v !== view);
       });
 
-      if (view === 'housing') this.gotoStep(0, true);
+      if (view === 'housing') {
+        var step = this.stepFromHash(hash);
+        this.gotoStep(step === null ? 0 : step, true);
+      }
       if (view === 'goshiwon') this.gotoGosiStep(1, true);
       if (view === 'home') this.syncActionBar();
+
+      /* Move focus to the new heading so a keyboard or screen-reader user
+         lands where the content changed, not back at the top of the tab
+         order. */
+      this.focusView(view);
       global.scrollTo({ top: 0, behavior: 'auto' });
+    },
+
+    focusView: function (view) {
+      var el = document.getElementById('view-' + view);
+      if (!el) return;
+      var h = el.querySelector('h1');
+      if (!h) return;
+      if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
+      /* Deferred so the pane is visible before focus moves. */
+      global.setTimeout(function () { try { h.focus({ preventScroll: true }); } catch (e) {} }, 0);
     },
 
     gotoStep: function (n, silent) {
@@ -102,12 +223,30 @@
         document.querySelectorAll('#housing-steps li'),
         function (li) {
           var s = Number(li.getAttribute('data-step'));
-          li.classList.toggle('is-active', s === n);
+          var active = s === n;
+          li.classList.toggle('is-active', active);
           li.classList.toggle('is-visited', s < n);
+          var btn = li.querySelector('button');
+          if (btn) {
+            /* aria-current tells a screen reader which step it is on; the
+               visual highlight alone says nothing. */
+            if (active) btn.setAttribute('aria-current', 'step');
+            else btn.removeAttribute('aria-current');
+          }
         }
       );
       this.syncActionBar();
-      if (!silent) global.scrollTo({ top: 0, behavior: 'smooth' });
+
+      /* Keep the URL truthful. `silent` means we were called BY the router,
+         so rewriting the hash there would loop. */
+      if (!silent) {
+        var want = '#/housing/' + this.STEP_NAMES[n];
+        if (global.location.hash !== want) {
+          this.suppressRoute = true;
+          global.location.hash = want;
+        }
+        global.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     },
 
     gotoGosiStep: function (n, silent) {

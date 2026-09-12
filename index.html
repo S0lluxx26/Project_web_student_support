@@ -14,7 +14,7 @@
 <meta property="og:title" content="학생 주거 안전 도우미 | Student Housing Safety Assistant">
 <meta property="og:description" content="한국에서 집을 구하는 학생을 위한 전세·월세 사기 예방 체크리스트와 대화 분석 도구.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=f966bf25">
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="nav.skip">본문으로 건너뛰기</a>
@@ -37,24 +37,62 @@
 
 <main id="main" class="wrap">
 
-  <!-- ============ HOME ============ -->
+  <!-- ============ HOME — the conversation checker ============ -->
   <section class="view" id="view-home">
-    <h1 data-i18n="home.heading">어떤 집을 구하고 있나요?</h1>
-    <p class="lede" data-i18n="home.sub">원하는 주거 형태를 선택하면 그에 맞는 확인 절차를 안내합니다.</p>
+    <h1 data-i18n="home.heading">집주인과의 대화, 계약 전에 확인하세요</h1>
+    <p class="lede" data-i18n="home.sub"></p>
 
+    <div class="panel">
+      <label class="field">
+        <span class="field-label" data-i18n="home.chat.label">대화 내용</span>
+        <textarea id="home-chat" rows="9" data-i18n-ph="home.chat.placeholder"
+                  aria-describedby="home-chat-hint"></textarea>
+      </label>
+      <p class="field-hint" id="home-chat-hint" data-i18n="home.chat.hint"></p>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btn-home-analyze" type="button"
+                data-i18n="home.chat.analyze">대화 확인하기</button>
+        <button class="btn btn-ghost btn-sm" id="btn-home-example" type="button"
+                data-i18n="home.chat.examples">예시 넣기</button>
+        <button class="btn btn-ghost btn-sm" id="btn-home-clear" type="button"
+                data-i18n="home.chat.cleartext">글 지우기</button>
+      </div>
+      <p class="error" id="home-chat-error" hidden data-i18n="home.chat.empty"></p>
+
+      <details class="context-more">
+        <summary data-i18n="home.context.more">상황 추가하기 (선택)</summary>
+        <div class="context-body">
+          <p class="field-hint" data-i18n="home.context.hint"></p>
+          <fieldset>
+            <legend data-i18n="home.context.type">어떤 집인가요?</legend>
+            <div class="opt-grid">
+              <label class="opt"><input type="radio" name="home-housing-type" value="unknown" checked>
+                <span data-i18n="home.context.type.unknown">아직 모르겠어요</span></label>
+              <label class="opt"><input type="radio" name="home-housing-type" value="independent">
+                <span data-i18n="home.context.type.independent">원룸 · 오피스텔 · 빌라</span></label>
+              <label class="opt"><input type="radio" name="home-housing-type" value="goshiwon">
+                <span data-i18n="home.context.type.goshiwon">고시원 · 원룸텔</span></label>
+            </div>
+          </fieldset>
+        </div>
+      </details>
+    </div>
+
+    <p class="note"><span aria-hidden="true">🔒</span> <span data-i18n="home.privacy"></span></p>
+
+    <h2 class="h3" data-i18n="home.more.title">함께 쓰면 좋은 것</h2>
     <div class="choices">
       <a class="choice" href="#/housing">
-        <span class="choice-icon" aria-hidden="true">🔑</span>
-        <h2 data-i18n="home.housing.title">독립 주거</h2>
-        <p class="choice-sub" data-i18n="home.housing.sub">원룸 · 오피스텔 · 빌라</p>
-        <p data-i18n="home.housing.desc">등기부등본과 기본 서류를 확인하고, 대화에서 사기 신호를 찾아봅니다.</p>
+        <span class="choice-icon" aria-hidden="true">📋</span>
+        <h3 class="h3" data-i18n="home.housing.title">서류 확인</h3>
+        <p data-i18n="home.housing.desc"></p>
         <span class="choice-cta" data-i18n="home.housing.cta">서류 확인 시작</span>
       </a>
       <a class="choice" href="#/goshiwon">
         <span class="choice-icon" aria-hidden="true">🛏️</span>
-        <h2 data-i18n="home.goshiwon.title">고시원</h2>
-        <p class="choice-sub" data-i18n="home.goshiwon.sub">고시원 · 원룸텔 · 리빙텔</p>
-        <p data-i18n="home.goshiwon.desc">직접 방문이 원칙입니다. 멀리 있다면 질문 목록을 만들어 드립니다.</p>
+        <h3 class="h3" data-i18n="home.goshiwon.title">고시원 안내</h3>
+        <p data-i18n="home.goshiwon.desc"></p>
         <span class="choice-cta" data-i18n="home.goshiwon.cta">고시원 확인 시작</span>
       </a>
     </div>
@@ -62,7 +100,6 @@
     <div class="panel panel-muted">
       <h2 class="h3" data-i18n="home.why.title">왜 필요한가요</h2>
       <p data-i18n="home.why.body"></p>
-      <p class="note"><span aria-hidden="true">🔒</span> <span data-i18n="home.privacy"></span></p>
     </div>
   </section>
 
@@ -118,25 +155,19 @@
             <input type="number" id="ctx-deposit" min="0" step="10" inputmode="numeric">
           </label>
           <label class="field">
-            <span class="field-label" data-i18n="housing.chat.rent">월세 (만원)</span>
-            <input type="number" id="ctx-rent" min="0" step="1" inputmode="numeric">
-          </label>
-          <label class="field">
             <span class="field-label" data-i18n="housing.chat.market">시세 (만원)</span>
             <input type="number" id="ctx-market" min="0" step="100" inputmode="numeric">
           </label>
           <label class="field">
-            <span class="field-label" data-i18n="housing.chat.counterpart">상대방</span>
-            <select id="ctx-who">
-              <option value="unknown" data-i18n="housing.chat.counterpart.unknown">모르겠음</option>
-              <option value="agent" data-i18n="housing.chat.counterpart.agent">공인중개사</option>
-              <option value="landlord" data-i18n="housing.chat.counterpart.landlord">집주인</option>
-            </select>
+            <span class="field-label" data-i18n="housing.chat.lien">채권최고액 (만원)</span>
+            <input type="number" id="ctx-lien" min="0" step="100" inputmode="numeric">
+            <span class="field-hint" data-i18n="housing.chat.lien.hint"></span>
           </label>
         </div>
         <div class="actions">
           <button class="btn btn-ghost" id="btn-sample" type="button" data-i18n="housing.chat.sample">예시 대화 넣기</button>
-          <button class="btn btn-ghost" id="btn-clear" type="button" data-i18n="housing.chat.clear">지우기</button>
+          <button class="btn btn-ghost" id="btn-clear" type="button" data-i18n="housing.chat.clear">글 지우기</button>
+          <button class="btn btn-ghost" id="btn-reset" type="button" data-i18n="housing.chat.reset">전체 초기화</button>
         </div>
         <p class="error" id="chat-error" hidden data-i18n="housing.chat.empty"></p>
       </div>
@@ -169,7 +200,8 @@
 
     <!-- step 4: result -->
     <div class="step-pane" id="housing-step-4" hidden>
-      <div id="result-root"></div>
+      <div id="result-root" role="region" aria-live="polite" aria-atomic="false"
+           data-i18n-aria="result.heading" tabindex="-1"></div>
       <div class="actions no-print">
         <button class="btn btn-ghost" type="button" data-goto-step="3" data-i18n="housing.prev">이전</button>
         <button class="btn btn-ghost" id="btn-copy" type="button" data-i18n="result.copy">결과 복사</button>
@@ -258,10 +290,13 @@
   </div>
 </footer>
 
-<script src="assets/js/i18n.js"></script>
-<script src="assets/js/analyzer.js"></script>
-<script src="assets/js/housing.js"></script>
-<script src="assets/js/goshiwon.js"></script>
-<script src="assets/js/app.js"></script>
+<script src="assets/js/i18n.js?v=f966bf25"></script>
+<script src="assets/js/redact.js?v=f966bf25"></script>
+<script src="assets/js/conversation.js?v=f966bf25"></script>
+<script src="assets/js/detector.js?v=f966bf25"></script>
+<script src="assets/js/analyzer.js?v=f966bf25"></script>
+<script src="assets/js/housing.js?v=f966bf25"></script>
+<script src="assets/js/goshiwon.js?v=f966bf25"></script>
+<script src="assets/js/app.js?v=f966bf25"></script>
 </body>
 </html>

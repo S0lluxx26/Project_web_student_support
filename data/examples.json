@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "_readme": "Clearly fictional example conversations. No real person, agency, building or phone number appears here, and none of these are transcripts of anything that happened. They exist so a first-time user can see what the tool does before pasting their own messages, and so the three outcomes — ordinary, concerning, ambiguous — are each demonstrable.",
+
+  "examples": [
+    {
+      "id": "ordinary",
+      "label": { "ko": "평범한 대화", "en": "An ordinary conversation" },
+      "expect": "no_known_signals",
+      "note": {
+        "ko": "정상적인 임대인은 이렇게 말합니다. 주소를 먼저 주고, 방을 보여주고, 계약서를 쓴 뒤에 입금받습니다.",
+        "en": "This is what a legitimate landlord sounds like: address first, viewing, contract, then payment."
+      },
+      "text": {
+        "ko": "집주인: 안녕하세요, 매물 보고 연락 주셨죠? 주소는 ○○구 ○○로 12길 3, 302호입니다.\n저: 네 감사합니다. 등기부등본 먼저 확인해보고 싶은데 괜찮을까요?\n집주인: 그럼요. 인터넷등기소에서 직접 떼보세요. 근저당은 없습니다.\n저: 방은 언제 볼 수 있을까요?\n집주인: 이번 주말 아무 때나 괜찮습니다. 오셔서 보시고 마음에 드시면 그때 계약서 쓰시죠.\n저: 보증금은 어떻게 보내면 되나요?\n집주인: 계약서 쓰고 제 명의 계좌로 보내시면 됩니다. 신분증이랑 등기부등본 같이 확인하시고요.\n저: 전입신고랑 확정일자는요?\n집주인: 이사 당일 주민센터에서 꼭 받으세요. 그게 보증금 지키는 겁니다."
+      }
+    },
+    {
+      "id": "concerning",
+      "label": { "ko": "걱정스러운 대화", "en": "A concerning conversation" },
+      "expect": "strong_warning_signals",
+      "note": {
+        "ko": "여러 신호가 겹쳐 있습니다. 특히 방을 보기 전 입금 요구와 전입신고를 미루라는 요구는 각각 단독으로도 계약을 중단할 이유입니다.",
+        "en": "Several signals at once. Payment before a viewing, and the request to delay the move-in report, are each on their own a reason to stop."
+      },
+      "text": {
+        "ko": "집주인: 어제 문의하신 방인데요, 오늘 가계약금 100만원만 먼저 입금해주시면 잡아드릴게요.\n저: 방을 먼저 보고 싶은데요.\n집주인: 다른 분들도 계속 문의 중이라 오늘 안에 결정하셔야 해요. 입금 확인되면 주소랑 호수 알려드릴게요.\n저: 등기부등본은 볼 수 있을까요?\n집주인: 계약할 때 보여드릴게요. 사진은 찍지 마시고요.\n저: 집주인분 성함으로 된 계좌인가요?\n집주인: 제 개인 계좌로 보내주시면 됩니다. 명의는 좀 다른데 문제없어요.\n집주인: 아 그리고 제가 대출이 있어서, 전입신고는 한 달만 미뤄주세요."
+      }
+    },
+    {
+      "id": "ambiguous",
+      "label": { "ko": "애매한 대화", "en": "An ambiguous conversation" },
+      "expect": "needs_review",
+      "note": {
+        "ko": "명백한 사기 신호는 아니지만 확인하지 않고 넘어가면 안 되는 내용이 있습니다. 근저당이 있다는 사실 자체보다, 그것을 '괜찮다'고 넘기는 태도가 확인 대상입니다.",
+        "en": "Not obviously fraudulent, but not something to wave through either. The issue is less that a mortgage exists than that it is being dismissed as fine."
+      },
+      "text": {
+        "ko": "집주인: 네 그 방 아직 있습니다. 보증금 2억에 월세는 없고요.\n저: 등기부등본 확인해보니 근저당이 잡혀 있던데요.\n집주인: 아 그거 2억 정도 있는데 잔금 받으면 바로 갚을 거라 괜찮아요.\n저: 말소 조건을 계약서에 넣어주실 수 있나요?\n집주인: 그런 건 굳이 안 써도 제가 알아서 처리합니다. 여태 문제된 적 없어요.\n저: 전세보증보험은 가입 가능한가요?\n집주인: 그건 한번 알아보셔야 할 것 같은데요."
+      }
+    }
+  ]
+}

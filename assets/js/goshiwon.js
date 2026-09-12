@@ -150,6 +150,7 @@
     },
 
     refresh: function () {
+      if (!this.data) return;   /* never initialised: its data file failed */
       /* Read the DOM back into `answers` first: re-rendering the fieldsets
          discards the radio/checkbox state, and `answers` is otherwise only
          refreshed when the user presses Generate. */

@@ -170,7 +170,23 @@
           "brother",
           "account"
         ]
-      ]
+      ],
+      "suppressedBy": {
+        "ko": [
+          "소유자와 같",
+          "명의가 같",
+          "예금주가 같",
+          "일치",
+          "본인 명의",
+          "제 명의"
+        ],
+        "en": [
+          "same as the owner",
+          "matches the owner",
+          "in my own name",
+          "account holder matches"
+        ]
+      }
     },
     {
       "id": "pay-cash-no-receipt",
@@ -623,7 +639,8 @@
           "경매",
           "걱정"
         ]
-      ]
+      ],
+      "deniable": true
     },
     {
       "id": "reg-gangtong",
@@ -865,12 +882,11 @@
           "보증금은 제가 받고"
         ],
         "en": [
-          "double contract",
-          "another tenant",
-          "existing tenant will leave",
-          "i collect the deposit",
           "existing tenant's deposit",
-          "previous tenant's deposit"
+          "previous tenant's deposit",
+          "double contract",
+          "i collect the deposit",
+          "two contracts"
         ]
       },
       "title": {
@@ -892,7 +908,8 @@
       "combos": [
         [
           "기존 세입자",
-          "제가"
+          "제가",
+          "보증금"
         ],
         [
           "세입자",
@@ -900,14 +917,16 @@
           "제가"
         ],
         [
-          "tenant",
-          "transfer"
-        ],
-        [
           "tenant's deposit",
           "me"
+        ],
+        [
+          "tenant",
+          "deposit",
+          "transfer to me"
         ]
-      ]
+      ],
+      "deniable": true
     },
     {
       "id": "good-too-cheap",
@@ -1148,22 +1167,6 @@
       "combos": [
         [
           "환불",
-          "안 되"
-        ],
-        [
-          "환불",
-          "불가"
-        ],
-        [
-          "보증금",
-          "못 돌려"
-        ],
-        [
-          "no",
-          "refund"
-        ],
-        [
-          "환불",
           "절대"
         ],
         [
@@ -1176,7 +1179,7 @@
         ],
         [
           "환불",
-          "못"
+          "불가"
         ],
         [
           "보증금",
@@ -1185,9 +1188,21 @@
         ],
         [
           "refund",
-          "not"
+          "not possible"
+        ],
+        [
+          "refund",
+          "impossible"
+        ],
+        [
+          "no refunds"
+        ],
+        [
+          "refund",
+          "refused"
         ]
-      ]
+      ],
+      "deniable": true
     },
     {
       "id": "gosi-no-business-reg",
@@ -1448,18 +1463,25 @@
       "keywords": {
         "ko": [
           "보증보험 안 되",
-          "보증보험은 못",
-          "HUG 안 되",
+          "보증보험 안 됩",
+          "보증보험은 안",
+          "보증보험 불가",
+          "보증보험 가입 불가",
+          "보증보험이 안",
           "전세보증 불가",
-          "보험은 필요 없"
+          "hug 안 되",
+          "보험은 필요 없",
+          "보증보험은 못"
         ],
         "en": [
           "no deposit insurance",
-          "can't get HUG",
-          "insurance not possible",
-          "you don't need insurance",
+          "deposit insurance is not possible",
           "insurance isn't possible",
-          "insurance is not possible"
+          "insurance is not possible",
+          "can't get hug",
+          "cannot get deposit insurance",
+          "you don't need insurance",
+          "insurance not available"
         ]
       },
       "title": {
@@ -1485,29 +1507,38 @@
         ],
         [
           "보증보험",
+          "안 됩"
+        ],
+        [
+          "보증보험",
           "불가"
+        ],
+        [
+          "보증보험",
+          "못"
         ],
         [
           "insurance",
           "not possible"
         ],
         [
-          "보증보험",
-          "안 됩"
-        ],
-        [
-          "보증보험",
-          "이 집은"
+          "insurance",
+          "isn't possible"
         ],
         [
           "insurance",
-          "possible"
+          "cannot"
         ],
         [
           "insurance",
           "can't"
+        ],
+        [
+          "insurance",
+          "not available"
         ]
-      ]
+      ],
+      "deniable": true
     },
     {
       "id": "pay-before-contract",
@@ -1708,6 +1739,96 @@
           "contact"
         ]
       ]
+    },
+    {
+      "id": "pay-before-viewing",
+      "category": "payment_pressure",
+      "severity": 5,
+      "keywords": {
+        "ko": [
+          "입금해야 방을",
+          "입금하셔야 볼",
+          "보내셔야 볼 수",
+          "입금 확인 후에 방",
+          "입금하시면 주소",
+          "송금 후 주소",
+          "돈을 보내야 볼"
+        ],
+        "en": [
+          "once a holding sum",
+          "after payment you can view",
+          "pay before viewing",
+          "viewing can only be arranged once",
+          "only after the deposit reaches",
+          "send the money before you can see"
+        ]
+      },
+      "combos": [
+        [
+          "입금",
+          "방을 볼"
+        ],
+        [
+          "입금",
+          "보여드릴 수"
+        ],
+        [
+          "입금",
+          "주소"
+        ],
+        [
+          "입금 확인",
+          "방"
+        ],
+        [
+          "송금",
+          "주소"
+        ],
+        [
+          "입금",
+          "호수"
+        ],
+        [
+          "보내주셔야",
+          "방"
+        ],
+        [
+          "viewing",
+          "once",
+          "reaches"
+        ],
+        [
+          "view",
+          "after",
+          "payment"
+        ],
+        [
+          "viewing",
+          "only",
+          "holding"
+        ],
+        [
+          "see the room",
+          "after",
+          "pay"
+        ]
+      ],
+      "title": {
+        "ko": "입금해야 방을 볼 수 있다는 조건",
+        "en": "Viewing conditioned on paying first"
+      },
+      "why": {
+        "ko": "방을 보기 전에 돈을 요구하는 것은 방이 존재하지 않거나, 이미 다른 사람이 살고 있거나, 상대방이 그 방과 아무 관계가 없을 때 쓰이는 전형적인 수법입니다. 정상적인 임대인은 방을 보여준 뒤에 계약과 입금을 진행합니다.",
+        "en": "Demanding money before a viewing is the classic move when the room does not exist, is already occupied, or has nothing to do with the person asking. A legitimate landlord shows the room first and takes money at signing."
+      },
+      "action": {
+        "ko": "방을 보기 전에는 어떤 금액도 보내지 마세요. 직접 방문이 어렵다면 실시간 영상통화로 방과 우편함 호수, 창밖을 확인한 뒤에 진행하세요.",
+        "en": "Send nothing before you have seen the room. If you truly cannot visit, insist on a live video call showing the room, the unit number and the view outside before going further."
+      },
+      "sample": {
+        "ko": "입금 확인되면 방 주소랑 호수 알려드릴게요.",
+        "en": "The viewing can only be arranged once a holding sum reaches the bank details I sent."
+      }
     }
   ]
 }
