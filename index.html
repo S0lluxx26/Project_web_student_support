@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>학생 주거 안전 도우미 | Student Housing Safety Assistant</title>
 <meta name="description" content="한국에서 집을 구하는 학생을 위한 전세·월세 사기 예방 체크리스트와 대화 분석 도구. A fraud-prevention checklist and conversation analyzer for students renting in Korea.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="주거 안전">
+<meta property="og:title" content="학생 주거 안전 도우미 | Student Housing Safety Assistant">
+<meta property="og:description" content="한국에서 집을 구하는 학생을 위한 전세·월세 사기 예방 체크리스트와 대화 분석 도구.">
+<meta property="og:type" content="website">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -70,7 +79,7 @@
     <div class="step-pane" id="housing-step-1">
       <p class="lede" data-i18n="housing.docs.intro"></p>
       <div id="doc-list" class="doc-list"></div>
-      <div class="actions">
+      <div class="actions actions-sticky">
         <button class="btn btn-primary" type="button" data-goto-step="2" data-i18n="housing.next">다음 단계</button>
       </div>
     </div>
@@ -106,14 +115,14 @@
           </label>
         </div>
         <div class="actions">
-          <button class="btn btn-primary" id="btn-analyze" type="button" data-i18n="housing.chat.analyze">분석하기</button>
           <button class="btn btn-ghost" id="btn-sample" type="button" data-i18n="housing.chat.sample">예시 대화 넣기</button>
           <button class="btn btn-ghost" id="btn-clear" type="button" data-i18n="housing.chat.clear">지우기</button>
         </div>
         <p class="error" id="chat-error" hidden data-i18n="housing.chat.empty"></p>
       </div>
-      <div class="actions">
+      <div class="actions actions-sticky">
         <button class="btn btn-ghost" type="button" data-goto-step="1" data-i18n="housing.prev">이전</button>
+        <button class="btn btn-primary" id="btn-analyze" type="button" data-i18n="housing.chat.analyze">분석하기</button>
       </div>
     </div>
 
@@ -123,6 +132,7 @@
       <div class="actions no-print">
         <button class="btn btn-ghost" type="button" data-goto-step="2" data-i18n="housing.prev">이전</button>
         <button class="btn btn-ghost" id="btn-copy" type="button" data-i18n="result.copy">결과 복사</button>
+        <button class="btn btn-ghost" id="btn-share" type="button" hidden data-i18n="result.share">공유</button>
         <button class="btn btn-ghost" id="btn-print" type="button" data-i18n="result.print">인쇄 / PDF 저장</button>
       </div>
     </div>
@@ -141,7 +151,7 @@
         <h2 class="h3" data-i18n="gosi.visit.checklist">방문했을 때 확인할 것</h2>
         <ul class="bullets" id="visit-checklist"></ul>
       </div>
-      <div class="actions">
+      <div class="actions actions-sticky">
         <button class="btn btn-primary" id="btn-can-visit" type="button" data-i18n="gosi.visit.canvisit">직접 방문할 수 있습니다</button>
         <button class="btn btn-outline" id="btn-cannot-visit" type="button" data-i18n="gosi.visit.cannot">너무 멀어서 방문이 어렵습니다</button>
       </div>
@@ -157,7 +167,7 @@
       <h2 class="h3" data-i18n="gosi.cond.heading">어떤 조건을 찾고 있나요?</h2>
       <p class="lede" data-i18n="gosi.cond.body"></p>
       <div class="panel" id="gosi-conditions"></div>
-      <div class="actions">
+      <div class="actions actions-sticky">
         <button class="btn btn-ghost" type="button" data-gosi-step="1" data-i18n="housing.prev">이전</button>
         <button class="btn btn-primary" id="btn-gen-questions" type="button" data-i18n="gosi.cond.generate">질문 목록 만들기</button>
       </div>
@@ -170,6 +180,7 @@
       <div class="actions no-print">
         <button class="btn btn-ghost" type="button" data-gosi-step="2" data-i18n="housing.prev">이전</button>
         <button class="btn btn-ghost" id="btn-copy-questions" type="button" data-i18n="gosi.q.copy">질문 전체 복사</button>
+        <button class="btn btn-ghost" id="btn-share-questions" type="button" hidden data-i18n="gosi.q.share">질문 공유</button>
         <button class="btn btn-ghost" id="btn-print-questions" type="button" data-i18n="result.print">인쇄 / PDF 저장</button>
         <button class="btn btn-primary" id="btn-to-deposit" type="button" data-i18n="gosi.q.next">답을 모두 받았습니다 — 입금 방법 보기</button>
       </div>

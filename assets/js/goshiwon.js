@@ -145,6 +145,7 @@
         Util.copyText(self.questionsText(), 'result.copied');
       });
       Util.on('btn-print-questions', 'click', function () { global.print(); });
+      Util.enableShare('btn-share-questions', function () { return self.questionsText(); });
       Util.on('btn-print-deposit', 'click', function () { global.print(); });
     },
 

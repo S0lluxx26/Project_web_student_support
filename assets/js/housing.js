@@ -143,6 +143,8 @@
       });
 
       on('btn-print', 'click', function () { global.print(); });
+
+      enableShare('btn-share', function () { return self.reportText(); });
     },
 
     renderResult: function () {
@@ -286,6 +288,27 @@
       document.body.removeChild(ta);
     }
   }
+  /**
+   * Native share sheet where the browser has one (phones), clipboard
+   * otherwise. `btn` is revealed only when sharing is actually available,
+   * so desktop users don't get a button that silently does nothing.
+   */
+  function enableShare(btnId, getText) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    if (!(global.navigator && navigator.share)) return;
+    btn.hidden = false;
+    btn.addEventListener('click', function () {
+      var text = getText();
+      if (!text) return;
+      navigator.share({ title: I18n.t('share.title'), text: text })
+        .catch(function (err) {
+          /* AbortError just means the user dismissed the sheet. */
+          if (err && err.name !== 'AbortError') copyText(text, 'result.copied');
+        });
+    });
+  }
+
   function toast(msg) {
     var el = document.createElement('div');
     el.className = 'toast';
@@ -295,6 +318,9 @@
     setTimeout(function () { el.remove(); }, 2000);
   }
 
-  global.Util = { esc: esc, on: on, show: show, hide: hide, copyText: copyText, toast: toast };
+  global.Util = {
+    esc: esc, on: on, show: show, hide: hide,
+    copyText: copyText, toast: toast, enableShare: enableShare
+  };
   global.Housing = Housing;
 })(window);

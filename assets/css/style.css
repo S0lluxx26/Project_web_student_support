@@ -16,6 +16,7 @@
   --danger-soft: #fdecec;
   --ok: #1a7a4c;
   --ok-soft: #e8f7ef;
+  --gutter: 20px;
   --radius: 12px;
   --radius-sm: 8px;
   --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 4px 16px rgba(16, 24, 40, .05);
@@ -57,7 +58,7 @@ body {
   line-height: 1.65;
 }
 
-.wrap { width: 100%; max-width: 880px; margin: 0 auto; padding: 0 20px; }
+.wrap { width: 100%; max-width: 880px; margin: 0 auto; padding: 0 var(--gutter); }
 
 .skip {
   position: absolute; left: -9999px;
@@ -280,9 +281,122 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 9px; }
   a { color: #000; text-decoration: underline; }
 }
 
-/* Narrow screens: the tagline costs three lines in the sticky header. */
-@media (max-width: 560px) {
+/* ==========================================================================
+   MOBILE LAYER
+   Phones are the primary device here: a student checks a listing while
+   standing in the room. Everything below assumes a thumb, one hand, and
+   a screen the address bar keeps stealing.
+   ========================================================================== */
+
+/* The sticky primary-action bar. On phones the decisive button (Next,
+   Analyze, Build my list) is pinned above the home indicator so a long
+   checklist never buries it. On desktop it is an ordinary row. */
+.actions-sticky { display: flex; flex-wrap: wrap; gap: 10px; }
+
+@media (max-width: 720px) {
+  /* ---- header: reclaim vertical space ---- */
   .brand-text small { display: none; }
   .brand-mark { font-size: 22px; }
-  .header-inner { min-height: 58px; }
+  .brand-text strong { font-size: 15px; }
+  .header-inner { min-height: 56px; gap: 10px; }
+  :root { --gutter: 16px; }
+
+  /* ---- typography: slightly tighter, still readable at arm's length ---- */
+  h1 { margin: 22px 0 8px; }
+  .lede { font-size: .98rem; margin-bottom: 18px; }
+  .panel { padding: 16px; border-radius: 10px; }
+
+  /* ---- touch targets: 48px minimum, per WCAG 2.5.5 ---- */
+  .btn { min-height: 48px; padding: 12px 16px; }
+  .btn-sm { min-height: 44px; padding: 9px 12px; font-size: .84rem; }
+  .check, .opt { min-height: 48px; align-items: center; padding: 12px 14px; }
+  .check input, .opt input { width: 20px; height: 20px; }
+  .doc > summary { padding: 15px 16px; min-height: 52px; align-items: center; }
+
+  /* ---- one column: side-by-side fields are unusable at this width ---- */
+  .choices, .grid-4, .opt-grid { grid-template-columns: 1fr; }
+  .choice { padding: 20px; }
+  .choice-icon { font-size: 30px; }
+
+  /* ---- inputs: 16px stops iOS Safari zooming on focus ---- */
+  textarea, input[type=text], input[type=number], select {
+    font-size: 16px; padding: 12px;
+  }
+  textarea { min-height: 170px; }
+
+  /* ---- steps: a compact scrollable rail rather than three stacked rows ---- */
+  .steps {
+    flex-wrap: nowrap; overflow-x: auto; gap: 6px;
+    margin: 0 calc(-1 * var(--gutter)) 18px;
+    padding: 0 var(--gutter) 4px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .steps::-webkit-scrollbar { display: none; }
+  .steps li { flex: 0 0 auto; font-size: .84rem; padding: 8px 12px; }
+
+  /* ---- result: dial and text stack ---- */
+  .score-card { padding: 18px; gap: 14px; }
+  .score-dial { width: 74px; height: 74px; font-size: 1.3rem; }
+  .signal { padding: 14px; }
+  .signal h3 { font-size: .98rem; }
+  .q-list li { padding: 11px 12px; font-size: .93rem; }
+
+  /* ---- the sticky bar itself ---- */
+  .actions-sticky {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    margin: 0;
+    padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -2px 12px rgba(16, 24, 40, .08);
+  }
+  .actions-sticky .btn { flex: 1 1 140px; }
+  /* Two long labels side by side wrap mid-word on a phone, so a bar whose
+     buttons carry sentence-length labels stacks them full width instead. */
+  .actions-sticky.is-stacked { flex-direction: column; }
+  .actions-sticky.is-stacked .btn { flex: 0 0 auto; width: 100%; }
+  /* Content clears the bar by its measured height (set by App.syncActionBar),
+     with a static fallback for the moment before the first measurement. */
+  body.has-actionbar main { padding-bottom: calc(var(--actionbar-h, 76px) + 12px); }
+
+  .toast { bottom: calc(96px + env(safe-area-inset-bottom)); }
+
+  .site-footer { margin-top: 32px; padding-block: 22px 28px; font-size: .86rem; }
+  .help-list li { margin-bottom: 7px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .actions-sticky { box-shadow: 0 -2px 12px rgba(0, 0, 0, .4); }
+}
+
+/* Very small phones (iPhone SE and similar). */
+@media (max-width: 380px) {
+  :root { --gutter: 13px; }
+  h1 { font-size: 1.42rem; }
+  .btn { font-size: .9rem; padding: 12px 12px; }
+  .score-dial { width: 64px; height: 64px; font-size: 1.15rem; }
+  .header-actions .btn { padding: 9px 10px; font-size: .8rem; }
+}
+
+/* Landscape phones: the sticky bar would eat a third of the screen. */
+@media (max-width: 900px) and (max-height: 480px) and (orientation: landscape) {
+  .actions-sticky { position: static; padding: 0; border: 0; box-shadow: none; background: none; }
+  body.has-actionbar main { padding-bottom: 0; }
+  .site-header { position: static; }
+}
+
+/* Devices without hover (touch): drop hover-only affordances that stick
+   after a tap and read as a stuck state. */
+@media (hover: none) {
+  .choice:hover { transform: none; border-color: var(--border); }
+  .btn-primary:hover { background: var(--brand); }
+  .btn-ghost:hover { background: var(--surface-2); }
+  .btn-outline:hover { background: transparent; }
+  .btn:active { transform: scale(.985); }
+  .choice:active { border-color: var(--brand); }
+}
+
+/* Respect a user's reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }

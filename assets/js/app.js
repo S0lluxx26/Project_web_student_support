@@ -44,6 +44,17 @@
         I18n.apply();
         Housing.refresh();
         Goshiwon.refresh();
+        self.syncActionBar();
+      });
+
+      /* Rotating the phone or switching language changes the bar's height. */
+      var resizeTimer = null;
+      global.addEventListener('resize', function () {
+        global.clearTimeout(resizeTimer);
+        resizeTimer = global.setTimeout(function () { self.syncActionBar(); }, 120);
+      });
+      global.addEventListener('orientationchange', function () {
+        global.setTimeout(function () { self.syncActionBar(); }, 250);
       });
 
       /* Step buttons inside the housing flow. */
@@ -70,6 +81,7 @@
 
       if (view === 'housing') this.gotoStep(1, true);
       if (view === 'goshiwon') this.gotoGosiStep(1, true);
+      if (view === 'home') this.syncActionBar();
       global.scrollTo({ top: 0, behavior: 'auto' });
     },
 
@@ -86,6 +98,7 @@
           li.classList.toggle('is-done', s < n);
         }
       );
+      this.syncActionBar();
       if (!silent) global.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
@@ -94,7 +107,40 @@
         var pane = document.getElementById('gosi-step-' + i);
         if (pane) pane.hidden = (i !== n);
       });
+      this.syncActionBar();
       if (!silent) global.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    /**
+     * On phones `.actions-sticky` is a fixed bar at the bottom of the screen,
+     * so the page needs bottom padding — but only while a visible pane
+     * actually has one. Mark the body accordingly.
+     */
+    syncActionBar: function () {
+      var bars = document.querySelectorAll('.actions-sticky');
+      var active = null;
+      Array.prototype.forEach.call(bars, function (bar) {
+        /* getClientRects, not offsetParent: a position:fixed element
+           always reports a null offsetParent even while on screen. */
+        if (bar.getClientRects().length > 0) active = bar;
+
+        /* Stack when two or more buttons carry sentence-length labels —
+           side by side they would wrap mid-word on a narrow screen. */
+        var btns = bar.querySelectorAll('.btn');
+        var longOnes = 0;
+        Array.prototype.forEach.call(btns, function (b) {
+          if ((b.textContent || '').trim().length > 12) longOnes++;
+        });
+        bar.classList.toggle('is-stacked', btns.length > 1 && longOnes >= 2);
+      });
+
+      document.body.classList.toggle('has-actionbar', !!active);
+      if (active) {
+        document.body.style.setProperty(
+          '--actionbar-h', Math.ceil(active.getBoundingClientRect().height) + 'px');
+      } else {
+        document.body.style.removeProperty('--actionbar-h');
+      }
     }
   };
 
