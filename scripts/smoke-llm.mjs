@@ -44,7 +44,7 @@ try {
         window.__closed = 0;
         window.__mode = 'good';
         LLM._realEngine = () => Promise.resolve({
-          load: () => window.__mode === 'slow-load' ? new Promise(resolve => { window.__finishLoad = resolve; }) : Promise.resolve({ threads: 1 }),
+          load: () => window.__mode === 'slow-load' ? new Promise(resolve => { window.__finishLoad = resolve; }) : Promise.resolve({ threads: 1, source: 'verified-cache' }),
           generate: messages => {
             window.__messages = messages;
             const input = JSON.parse(messages[1].content.replace(/\n\/no_think$/, ''));
@@ -57,6 +57,7 @@ try {
       });
       await page.locator('#llm-download').click();
       await page.waitForFunction(() => LLMUI.ready && !LLMUI.busy);
+      assert.equal(await page.locator('#llm-source').textContent(),await page.evaluate(()=>I18n.t('llm.sourceCache')));
       await page.locator('#llm-generate').click();
       await page.waitForSelector('#llm-draft:not([hidden])');
       const messages = await page.evaluate(() => window.__messages);
@@ -74,6 +75,8 @@ try {
       await page.evaluate(() => { window.__mode = 'slow-generate'; });
       await page.locator('#llm-generate').click();
       await page.waitForFunction(() => !!window.__finishGenerate);
+      assert.equal(await page.locator('#llm-status').textContent(),await page.evaluate(()=>I18n.t('llm.generating')));
+      assert.equal(await page.locator('#llm-wait-warning').isVisible(),true);
       await page.locator('#llm-cancel').click();
       await page.evaluate(() => window.__finishGenerate());
       await page.waitForFunction(() => !LLMUI.busy);

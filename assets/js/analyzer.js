@@ -280,7 +280,8 @@
       if (!C.countsAsCounterparty(message)) return 'own-side';
 
       /* Asking whether a risk applies is not evidence that it does. */
-      if (message.act === 'question') return 'question';
+      if (message.act === 'question' &&
+          !(pattern.id.indexOf('pay-') === 0 && C.isPaymentRequest(message.text))) return 'question';
 
       /*
        * A refusal by the speaker is the opposite of a demand — but only for
@@ -386,16 +387,6 @@
           }
         });
       }
-      /* Everything the OTHER side said, as one normalized string, for
-         suppressors that cover the whole conversation rather than one line
-         (see `suppressedBy.anywhere` in gate). The user's own words are
-         excluded — a tenant saying the right thing does not make the
-         counterparty's behaviour safe. */
-      var counterpartyText = this.normalize(
-        messages.filter(function (m) {
-          return global.Conversation ? Conversation.countsAsCounterparty(m) : true;
-        }).map(function (m) { return m.text; }).join(' '));
-
       var suppressed = [];
 
       /* Sentences come from message BODIES, never the raw paste.
@@ -418,105 +409,77 @@
         sentOwner = sents.map(function () { return null; });
       }
 
-      /* What the keyword pass scans: message bodies only. */
+      /* Evidence coverage counts message bodies, excluding speaker labels. */
       var analysisText = messages.length
         ? messages.map(function (m) { return m.text; }).join('\n')
         : text;
       var norm = this.normalize(analysisText);
 
-      /* Which message a sentence came from. */
-      function messageFor(sentence) {
-        if (!messages.length) return null;
-        var idx = sents.indexOf(sentence);
-        if (idx !== -1) return sentOwner[idx];
-        var n = self.normalize(sentence);
-        for (var i = 0; i < sents.length; i++) {
-          var sn = self.normalize(sents[i]);
-          if (sn.indexOf(n) !== -1 || n.indexOf(sn) !== -1) return sentOwner[i];
-        }
-        return null;
-      }
-
-      patterns.forEach(function (p) {
-        var kw = []
-          .concat((p.keywords && p.keywords.ko) || [])
-          .concat((p.keywords && p.keywords.en) || []);
-        var hit = kw.filter(function (k) { return norm.indexOf(self.normalize(k)) !== -1; });
-        var quote = hit.length ? self.findQuote(sents, hit) : null;
-
-        if (p.combos) {
-          var combo = self.matchCombos(p.combos, sents);
-          if (combo) {
-            combo.terms.forEach(function (t) { if (hit.indexOf(t) === -1) hit.push(t); });
-            if (!quote) {
-              quote = combo.sentence.length > 220
-                ? combo.sentence.slice(0, 217) + '…'
-                : combo.sentence;
-            }
-          }
-        }
-
-        if (!hit.length && p.regex) {
-          try {
-            if (new RegExp(p.regex, 'i').test(text)) hit = [p.regex];
-          } catch (e) { /* bad regex in data — ignore */ }
-        }
-        if (!hit.length) return;
-
-        var msg = messageFor(quote || text);
+      /* Preserve ownership directly. Never find an owner by searching quote
+         text: identical sentences can come from different speakers, and a
+         shortened excerpt is not a reliable identity. Gate each candidate
+         before deduplication, so a benign first occurrence cannot hide a later
+         demand. Speech acts are local to the sentence being quoted. */
+      var candidates = sents.map(function (sentence, i) {
+        var owner = sentOwner[i];
+        return { sentence: sentence, message: owner && Object.assign({}, owner, {
+          text: sentence,
+          act: Conversation.speechAct(sentence),
+          reported: Conversation.isReported(sentence)
+        }) };
+      });
+      var trustConflict = candidates.some(function (c) {
+        if (c.message && !Conversation.countsAsCounterparty(c.message)) return false;
+        var n = self.normalize(c.sentence);
+        return /동의(?:서)?.{0,12}(?:없이|없|필요없|나중|안받|받지)|(?:without|no).*consent|consent.*(?:notneeded|unnecessary|later)/i.test(n);
+      });
+      /* Cross-message reassurance must come from a counterparty statement,
+         not a tenant's wish or a question asking whether consent exists. */
+      var counterpartyText = trustConflict ? '' : self.normalize(candidates.filter(function (c) {
+        return c.message && Conversation.countsAsCounterparty(c.message) &&
+          c.message.act !== 'question' && c.message.act !== 'refusal';
+      }).map(function (c) { return c.sentence; }).join(' '));
+      var accepted = {};
+      function accept(p, terms, candidate, fuzzy, ruleTitle) {
+        if (accepted[p.id]) return;
+        var msg = candidate.message;
         var blocked = self.gate(p, msg, counterpartyText);
         if (blocked) {
           suppressed.push({ patternId: p.id, reason: blocked,
-                            speaker: msg ? msg.speaker : 'unknown' });
+            speaker: msg ? msg.speaker : 'unknown' });
           return;
         }
-
-        matches.push({
-          pattern: p,
-          hits: hit,
-          quote: quote,
-          quoteRanges: quote ? self.ranges(quote, hit) : [],
-          speaker: msg ? msg.speaker : 'unknown',
-          reported: !!(msg && msg.reported),
-          informational: !!(p.keywords && p.keywords.requiresCompanion)
+        var quote = self.excerpt(candidate.sentence, terms);
+        accepted[p.id] = true;
+        matches.push({ pattern: p, hits: terms, quote: quote,
+          quoteRanges: self.ranges(quote, terms),
+          speaker: msg ? msg.speaker : 'unknown', reported: !!(msg && msg.reported),
+          informational: !!(p.keywords && p.keywords.requiresCompanion),
+          fuzzy: !!fuzzy, ruleTitle: ruleTitle });
+      }
+      patterns.forEach(function (p) {
+        var keywords = [].concat((p.keywords && p.keywords.ko) || [], (p.keywords && p.keywords.en) || []);
+        candidates.forEach(function (candidate) {
+          if (accepted[p.id]) return;
+          var cn = self.normalize(candidate.sentence);
+          var terms = keywords.filter(function (term) { return cn.indexOf(self.normalize(term)) !== -1; });
+          var combo = p.combos && self.matchCombos(p.combos, [candidate.sentence]);
+          if (combo) combo.terms.forEach(function (term) { if (terms.indexOf(term) === -1) terms.push(term); });
+          if (!terms.length && p.regex) {
+            try { if (new RegExp(p.regex, 'i').test(candidate.sentence)) terms = [p.regex]; } catch (_) {}
+          }
+          if (terms.length) accept(p, terms, candidate, false);
         });
       });
-
-      /* Second pass: concept rules find rewordings the keyword lists miss.
-         A pattern already matched literally is not added twice — the fuzzy
-         hit is weaker evidence, so the literal match keeps its quote. */
       if (this.lexicon && global.Detector) {
-        var already = {};
-        matches.forEach(function (m) { already[m.pattern.id] = true; });
         var byId = {};
         patterns.forEach(function (p) { byId[p.id] = p; });
-
-        Detector.matchRules(analysisText, this.lexicon.lexicon, this.lexicon.rules)
-          .forEach(function (hit) {
+        candidates.forEach(function (candidate) {
+          Detector.matchRules(candidate.sentence, self.lexicon.lexicon, self.lexicon.rules).forEach(function (hit) {
             var p = byId[hit.rule.patternId];
-            if (!p || already[p.id]) return;
-
-            var fmsg = messageFor(hit.sentence);
-            var fblocked = self.gate(p, fmsg, counterpartyText);
-            if (fblocked) {
-              suppressed.push({ patternId: p.id, reason: fblocked,
-                                speaker: fmsg ? fmsg.speaker : 'unknown' });
-              return;
-            }
-
-            already[p.id] = true;
-            var fquote = self.excerpt(hit.sentence, hit.terms);
-            matches.push({
-              pattern: p,
-              hits: hit.terms,
-              quote: fquote,
-              quoteRanges: self.ranges(fquote, hit.terms),
-              speaker: fmsg ? fmsg.speaker : 'unknown',
-              reported: !!(fmsg && fmsg.reported),
-              fuzzy: true,
-              ruleTitle: hit.rule.title
-            });
+            if (p) accept(p, hit.terms, candidate, true, hit.rule.title);
           });
+        });
       }
 
       /* Informational-only patterns (e.g. the word "고시원") score nothing

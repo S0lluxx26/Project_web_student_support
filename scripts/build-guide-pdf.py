@@ -168,7 +168,10 @@ while i < len(lines):
             file = ROOT / item["png"]
             with PILImage.open(file) as img:
                 w, h = img.size
-            scale = min(WIDTH / w, 575 / h)
+            # Leave room for the data-flow table on the same page and the
+            # sequence source links below their figures.
+            max_height = 420 if pending_diagram == "data-flow" else 535
+            scale = min(WIDTH / w, max_height / h)
             figure = Image(str(file), width=w * scale, height=h * scale, hAlign="CENTER")
             figure.keepWithNext = True
             story.append(figure)

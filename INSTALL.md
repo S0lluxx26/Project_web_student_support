@@ -130,6 +130,7 @@ Keep that terminal open. Visit:
 
 - Website: http://127.0.0.1:8765/
 - Demo/manual: http://127.0.0.1:8765/demo.html
+- Safety help and 12 practice screenshots: http://127.0.0.1:8765/help.html
 - Markdown guide: http://127.0.0.1:8765/manual/PROJECT_GUIDE.md
 - PDF guide: http://127.0.0.1:8765/manual/project-guide.pdf
 
@@ -160,6 +161,8 @@ Do not open index.html directly from the filesystem.
 |---|---|
 | Open Demo / guide | Seven illustrated steps, fictional examples and project downloads |
 | Toggle English/Korean | Instructions change language without loading OCR/LLM |
+| Open Safety help | Four teaching categories, independent checks and 12 downloadable fictional images |
+| Toggle Dark mode | Theme changes and persists when moving between checker, Demo and help |
 | Download sample A | A fictional KakaoTalk JPG is saved |
 | Open checker in a new tab | Home screen has pasted-text and screenshot input |
 | Select sample A for OCR | Progress, then editable text and original-image review |
@@ -167,13 +170,19 @@ Do not open index.html directly from the filesystem.
 | Review text, then Add and check now | Recorded edition: strong warning signals, 4 scored signals |
 | Reset, repeat with sample B | Recorded edition: no known signals, 0 scored signals |
 | Open copy/share/print | Editable masking preview before the final action |
+| Read a completed report | Sections 1-6 lead from summary and coverage to evidence, actions, export and AI |
 | Open AI panel on PC | Opt-in is available; no model loads automatically |
+| Enable the experiment | Separate load and generate steps; warning about long waits is visible |
 | Open on phone/tablet | AI enable is disabled with an explanation; OCR remains available |
 | Open project downloads | Markdown and PDF name Bui Xuan Mai and include the repository address |
 
 Exact OCR wording and counts may change with future versions, image quality
 or text corrections. Read the warnings and evidence instead of treating a
 number as a fraud verdict. The committed record is assets/manual/cases.json.
+The 12 additional help examples use assets/examples/cases.json for reviewed
+expectations and observations.json for actual OCR results. Reset between cases.
+All 12 reached the intended outcomes without corrections in the recorded run;
+this is fixture verification, not a measured real-world accuracy rate.
 
 The Demo page displays captured results; to run recognition yourself, download
 a sample and select it in the actual checker's file picker.
@@ -187,6 +196,15 @@ The pinned Qwen3 0.6B Q4_K_M model downloads about 397 MB. On the measured
 desktop, browser working set was around 1.7 GB and explanations took 24-62
 seconds. A different PC may be slower or fail. Inference uses the browser CPU;
 no GPU is required. It works with the same static site on Pages or Vercel.
+
+The explicit load button first reuses a verified model cache when available.
+If the cache is missing or removed by the browser, it downloads the pinned file.
+You can instead select the exact downloaded GGUF file from disk. The panel
+shows whether the active model came from a download, cache or local file.
+Inference runs from those bytes on this computer; no hosting migration is
+needed. Cache storage belongs to each site origin, not every website you visit.
+Read the wait warning before Generate explanation draft. A laptop may take
+several minutes or fail; the rule report stays usable and Cancel stops generation.
 
 Model drafts can be wrong, cannot change the assessment and are not exported.
 Use Cancel, Unload model or Remove cached model as needed. For exact model

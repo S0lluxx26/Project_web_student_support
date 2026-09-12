@@ -50,8 +50,8 @@
           "Apple SD Gothic Neo", "Noto Sans KR", Roboto, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+
+  :root[data-theme="dark"] {
     color-scheme: dark;
 
     --bg: #1c1f26;
@@ -84,7 +84,7 @@
     --press: inset 3px 3px 8px rgba(0, 0, 0, .5), inset -2px -2px 6px rgba(255, 255, 255, .04);
     --press-sm: inset 2px 2px 5px rgba(0, 0, 0, .45), inset -1px -1px 4px rgba(255, 255, 255, .035);
   }
-}
+
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -174,13 +174,13 @@ a { color: var(--brand-ink); }
   color: #fff; border-color: #6f93cb;
   text-shadow: 0 1px 1px rgba(0, 0, 0, .22);
 }
-@media (prefers-color-scheme: dark) {
-  .btn-primary {
+
+  :root[data-theme="dark"] .btn-primary {
     background: linear-gradient(145deg, #9dbcf2, #7ea6e8);
     color: #0e1320; text-shadow: none; border-color: #b4cdf7;
   }
-  .btn-primary:hover { background: linear-gradient(145deg, #b0caf7, #8fb3ec); }
-}
+  :root[data-theme="dark"] .btn-primary:hover { background: linear-gradient(145deg, #b0caf7, #8fb3ec); }
+
 .btn-primary:hover { background: linear-gradient(145deg, #436db0, #35619f); }
 
 .btn-outline { background: var(--surface-2); color: var(--brand-ink); border-color: var(--edge); }
@@ -373,7 +373,7 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 11px; }
 .lv-safe .score-dial { background: linear-gradient(145deg, color-mix(in srgb, var(--ok) 82%, #fff), var(--ok)); }
 .lv-caution .score-dial { background: linear-gradient(145deg, color-mix(in srgb, var(--warn) 82%, #fff), var(--warn)); }
 .lv-high .score-dial, .lv-veryhigh .score-dial { background: linear-gradient(145deg, color-mix(in srgb, var(--danger) 82%, #fff), var(--danger)); }
-@media (prefers-color-scheme: dark) { .score-dial { color: #12161d; } }
+ :root[data-theme="dark"] .score-dial { color: #12161d; }
 
 .score-text { flex: 1 1 240px; min-width: 0; }
 .score-text h2 { margin: 0 0 6px; }
@@ -522,13 +522,13 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 11px; }
   .site-footer { margin-top: 34px; padding-block: 24px 30px; font-size: .86rem; }
 }
 
-@media (prefers-color-scheme: dark) and (max-width: 720px) {
-  :root {
+@media (max-width: 720px) {
+  :root[data-theme="dark"] {
     --lift: 4px 4px 12px rgba(0, 0, 0, .45), -3px -3px 9px rgba(255, 255, 255, .03);
     --lift-sm: 2px 2px 7px rgba(0, 0, 0, .4), -2px -2px 5px rgba(255, 255, 255, .028);
     --lift-lg: 6px 6px 18px rgba(0, 0, 0, .5), -5px -5px 14px rgba(255, 255, 255, .035);
   }
-  .actions-sticky { box-shadow: 0 -6px 22px rgba(0, 0, 0, .45); }
+  :root[data-theme="dark"] .actions-sticky { box-shadow: 0 -6px 22px rgba(0, 0, 0, .45); }
 }
 
 /* Very small phones (iPhone SE and similar). */
@@ -775,3 +775,19 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 11px; }
   body.printing-sheet > *:not(#print-sheet) { display: none !important; }
   body.printing-sheet #print-sheet { display: block; padding: 0; margin: 0; }
 }
+
+/* Reading order and quiet supporting controls */
+.report-number { display:inline-grid; place-items:center; width:1.7em; height:1.7em; margin-right:.55em; border-radius:50%; background:var(--brand-soft); color:var(--brand-ink); font-size:.8em; vertical-align:middle; }
+.report-section-title { margin:1.8rem 0 1rem; }
+.verdict .report-section-title { margin:0 0 .8rem; font-size:1rem; }
+.signal .label { margin-top:1rem; font-weight:750; color:var(--text); }
+.signal .do { border-left:3px solid var(--brand-ink); padding:.7rem 1rem; background:var(--brand-soft); }
+.signal h3 { line-height:1.6; }
+.llm-stage { border-top:1px solid var(--border); padding-top:1rem; margin-top:1.4rem; }
+.llm-stage h3 { margin-top:0; }
+.llm-wait { background:var(--warn-soft); border-left:4px solid var(--warn); padding:1rem; margin:1rem 0; color:var(--text); }
+.llm-maintenance { margin-top:1rem; }
+[data-theme-toggle][aria-pressed="true"] { box-shadow:var(--press-sm); outline:2px solid var(--brand-ink); outline-offset:-2px; }
+.report-export { padding:1rem 0; }
+.report-export .actions { position:static; box-shadow:none; background:none; border:0; padding:0; }
+@media (max-width:720px) { .header-actions { gap:6px; } .header-actions .btn { font-size:.8rem; padding:8px 10px; } }

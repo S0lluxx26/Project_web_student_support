@@ -1025,7 +1025,7 @@
           '<button class="btn btn-ghost btn-sm" type="button" data-goto-step="1">' +
           esc(t('result.empty.cta2')) + '</button></div></div>' +
           '<div class="panel panel-before"><h2 class="h3">' +
-          esc(t('result.before.title')) + '</h2><ol class="numbered">' +
+          '<span class="report-number">4</span>' + esc(t('result.before.title')) + '</h2><ol class="numbered">' +
           ['result.before.1', 'result.before.2', 'result.before.3', 'result.before.4']
             .map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') +
           '</ol></div>';
@@ -1037,7 +1037,7 @@
       var scoredList = r.matches.filter(function (m) { return m.points > 0; });
       var findings = scoredList.length + r.docRisks.length;
       html += '<div class="verdict v-' + esc(a) + '">' +
-        '<h2>' + esc(t('assess.' + a)) + '</h2>' +
+        '<p class="report-section-title"><span class="report-number">1</span>' + esc(t('result.readStep')) + '</p><h2>' + esc(t('assess.' + a)) + '</h2>' +
         '<p class="verdict-count">' +
           esc(findings ? t('summary.count', { n: findings }) : t('summary.none')) +
         '</p>' +
@@ -1061,7 +1061,7 @@
         cov.push(t('coverage.suppressed', { n: r.suppressed.length }));
       }
       html += '<div class="panel panel-muted coverage"><h3 class="h4">' +
-        esc(t('coverage.title')) + '</h3><ul class="bullets">' +
+        '<span class="report-number">2</span>' + esc(t('coverage.title')) + '</h3><ul class="bullets">' +
         cov.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') +
         '</ul>';
 
@@ -1090,12 +1090,13 @@
       /* ---- 3. What to do regardless of the verdict --------------------
          Shown on every result, including a clean one. "No known signals" is
          exactly when someone is most likely to skip these four steps. */
-      html += '<div class="panel panel-before"><h2 class="h3">' +
-        esc(t('result.before.title')) + '</h2><ol class="numbered">' +
+      var nextHtml = '<div class="panel panel-before"><h2 class="h3">' +
+        '<span class="report-number">4</span>' + esc(t('result.before.title')) + '</h2><ol class="numbered">' +
         ['result.before.1', 'result.before.2', 'result.before.3', 'result.before.4']
           .map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') +
         '</ol></div>';
 
+      html += '<h2 class="h3 report-section-title"><span class="report-number">3</span>' + esc(t('result.evidence.title')) + '</h2>';
       if (r.ratioBasis === 'full' && r.ratio !== null) {
         var warn = r.ratio >= 70;
         html += '<div class="panel ' + (warn ? 'panel-warn' : 'panel-ok') + '">' +
@@ -1121,7 +1122,7 @@
 
       var scored = r.matches.filter(function (m) { return m.points > 0; });
       if (scored.length) {
-        html += '<h2 class="h3">' + esc(t('result.evidence.title')) + '</h2>';
+
         scored.forEach(function (m) {
           var p = m.pattern;
           html += '<div class="signal sev-' + p.severity + '">' +
@@ -1142,6 +1143,8 @@
         });
       }
 
+      if (!scored.length) html += '<p class="panel panel-muted">' + esc(t('result.noEvidence')) + '</p>';
+      html += nextHtml;
       if (r.questions.length) {
         html += '<h2 class="h3">' + esc(t('result.nextq')) + '</h2><ol class="q-list">' +
           r.questions.map(function (q) { return '<li><span>' + esc(q) + '</span></li>'; }).join('') +

@@ -95,6 +95,10 @@
       $('llm-finding').disabled = !findings || this.busy;
       $('llm-options').setAttribute('aria-busy', this.busy ? 'true' : 'false');
       $('llm-size').textContent = (LLM.MODELS[0].bytes / 1000000).toFixed(1) + ' MB';
+      var source = LLM.stats && LLM.stats.source;
+      var sourceKeys = { 'download': 'llm.sourceDownload', 'verified-cache': 'llm.sourceCache', 'local-file': 'llm.sourceFile' };
+      $('llm-source').hidden = !this.ready || !sourceKeys[source];
+      $('llm-source').textContent = sourceKeys[source] ? t(sourceKeys[source]) : '';
     },
     load: function (file) {
       if (!this.access || !LLM.enabled || this.busy) return;

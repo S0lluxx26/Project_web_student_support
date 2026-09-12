@@ -15,12 +15,12 @@
     {
       "id": "data-flow",
       "source": "docs/diagrams/data-flow.mmd",
-      "sourceSha256": "eb017eb4629d7c98df08a27ad6865eaa8544434ab44fcf409f31cd7510e9dbfe",
+      "sourceSha256": "12b4e2c2c0f5a435a5d9b98bddbeea4fb16b7bfe93f79610b397dc421e8ea749",
       "svg": "assets/manual/diagrams/data-flow.svg",
-      "svgSha256": "413381a4117e107f5149d92c39fb567440c42a9572d309f09e66659ee6c1391a",
+      "svgSha256": "006be88aa197a4595c656ce3a40517f3c1e5db2643edb8a1739dd02d6bff941f",
       "png": "assets/manual/diagrams/data-flow.png",
-      "pngSha256": "a0c1f75ed699770061b11447e80bb41dab02a72ecb05e8124299f0e43c85fa86",
-      "width": 1163,
+      "pngSha256": "bb14537012fcd52b62d3be53b5a38d29b67b5ece0deebc081c927f3c4a8dc9d7",
+      "width": 1209,
       "height": 1140
     },
     {

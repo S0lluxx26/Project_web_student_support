@@ -1,13 +1,13 @@
 {
   "source": "manual/PROJECT_GUIDE.md",
-  "sourceSha256": "195f44747881edb05747667393be61f46e517fe9c9d6357108164a4d84f35267",
-  "pdfSha256": "121480324f09d9fb45ee6d8146b095b463f7d09a5ebcc2c188293bc5c693f4c5",
-  "pages": 24,
-  "bytes": 1765010,
+  "sourceSha256": "6c39bb712b70f9b2822ead59b00e4b4ecb71b615de0fed6a3d02b1fdfcced569",
+  "pdfSha256": "bd90951060089f3df7b3e63608c73449827ec005a1bf9966f2ad8e9417f27aa4",
+  "pages": 26,
+  "bytes": 1851078,
   "maker": "Bui Xuan Mai",
   "repository": "https://github.com/S0lluxx26/Project_web_student_support",
   "promptReference": "https://github.com/S0lluxx26/Project_web_student_support/blob/main/docs/AI_PROMPTS.md",
-  "headingsVerified": 50,
+  "headingsVerified": 53,
   "contents": [
     {
       "title": "1. Project overview and scope",
@@ -27,27 +27,27 @@
     {
       "title": "4. System sequence diagrams",
       "anchor": "4-system-sequence-diagrams",
-      "page": 9
+      "page": 8
     },
     {
       "title": "5. AI prompt sources and working method",
       "anchor": "5-ai-prompt-sources-and-working-method",
-      "page": 11
+      "page": 10
     },
     {
       "title": "6. Local setup and interface implementation",
       "anchor": "6-local-setup-and-interface-implementation",
-      "page": 12
+      "page": 11
     },
     {
       "title": "7. Implementing explainable conversation checks",
       "anchor": "7-implementing-explainable-conversation-checks",
-      "page": 13
+      "page": 12
     },
     {
       "title": "8. Screenshot OCR and the review workflow",
       "anchor": "8-screenshot-ocr-and-the-review-workflow",
-      "page": 14
+      "page": 13
     },
     {
       "title": "9. Demonstration results",
@@ -72,19 +72,19 @@
     {
       "title": "13. Verification and deployment",
       "anchor": "13-verification-and-deployment",
-      "page": 22
+      "page": 23
     },
     {
       "title": "14. Results, limitations and remaining work",
       "anchor": "14-results-limitations-and-remaining-work",
-      "page": 23
+      "page": 24
     },
     {
       "title": "15. References and glossary",
       "anchor": "15-references-and-glossary",
-      "page": 24
+      "page": 25
     }
   ],
-  "diagramManifestSha256": "7dbd76a46f8a41e05d16440042190a9bd00c7f75a4a01844a073970196713da9",
+  "diagramManifestSha256": "b6b11ae20e07642f9b9e53053644100f7d96f21f60e99495d989b45bc8fc66c7",
   "visualReview": "Required separately: render and inspect every page."
 }

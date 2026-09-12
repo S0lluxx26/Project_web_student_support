@@ -8,6 +8,7 @@ It does not establish whether a person or property is fraudulent.
 
 **Maker: Bui Xuan Mai** · [Demo / user guide](https://s0lluxx26.github.io/Project_web_student_support/demo.html)
 · [Install on a PC](INSTALL.md) · [Project guide and AI prompts](manual/PROJECT_GUIDE.md)
+· [Safety help and 12 practice screenshots](https://s0lluxx26.github.io/Project_web_student_support/help.html)
 
 ## Main features
 
@@ -18,6 +19,11 @@ It does not establish whether a person or property is fraudulent.
   starts unknown. Up to 5 PNG/JPEG/WebP images, 8 MiB each, 25 MiB combined,
   and 12 million decoded pixels per image.
 - Optional document questions and a goshiwon visit guide.
+- Six numbered report sections: summary, coverage, evidence, next checks,
+  reviewed export and optional AI. Important evidence and actions are highlighted.
+- Shared light/dark controls on the checker, Demo and Safety help pages.
+- Bilingual self-check guidance and 12 additional fictional screenshots: three
+  ordinary, three uncertain, three pressure and three strong-warning cases.
 - Editable redaction preview for copy/share/Print. Direct browser printing of
   the housing page instructs the user to use the preview. Masking is best effort
   and cannot reliably identify personal names.
@@ -46,6 +52,11 @@ On a Windows i7-14700KF test machine, the browser process group used about
 answers were wrong despite valid JSON. These are not laptop or phone guarantees.
 [Implementation and benchmark evidence](docs/BROWSER_LLM_OPTIONS.md).
 
+Opting in downloads nothing. An explicit load uses the verified browser cache,
+downloads the pinned file if needed, or reads the exact GGUF selected from disk.
+The model runs from those bytes on the visitor's CPU. The UI identifies the load
+source and warns before and during generation; slower laptops may take minutes.
+
 ## Privacy and network use
 
 Conversations, screenshots and contracts are not uploaded. The site host sees
@@ -53,7 +64,7 @@ ordinary asset requests. Copy/share/print happen only when the user chooses them
 The optional model download contacts Hugging Face, which sees the request/IP;
 selecting the exact GGUF from disk avoids that download.
 
-No chat is intentionally persisted. Language preference is stored locally;
+No chat is intentionally persisted. Language and theme preferences are stored locally;
 Tesseract may cache language assets. Verified LLM weights use origin-private
 storage. The experimental panel can remove this app's downloaded LLM cache on
 the current origin. Pages and Vercel have separate caches.
@@ -86,6 +97,10 @@ npm run bench:llm -- --download --cases 1 --cancel-check
 
 Only synthetic fixtures are committed. Their test results do not establish
 accuracy on real conversations, real phone screenshots or legal questions.
+The new examples have independently specified text expectations and recorded
+real OCR outcomes in `assets/examples/`. All 12 reached their intended outcomes
+without text correction in the recorded run; minor OCR noise remains. See the
+[logic review and reproduction notes](docs/REVIEW_2026-09-12.md).
 
 ## Deploy
 

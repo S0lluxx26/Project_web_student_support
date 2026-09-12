@@ -1,0 +1,330 @@
+{
+  "fictional": true,
+  "maker": "Bui Xuan Mai",
+  "cases": [
+    {
+      "id": "ordinary-documents",
+      "category": "ordinary",
+      "title": {
+        "ko": "서류를 먼저 읽기",
+        "en": "Read documents first"
+      },
+      "expect": "no_known_signals",
+      "required": [],
+      "messages": [
+        [
+          "집주인",
+          "방문해서 방 상태를 직접 확인하신 뒤 계약서를 천천히 읽어보세요. 등기부등본도 직접 발급해서 비교하시면 됩니다."
+        ],
+        [
+          "세입자",
+          "서류와 주소를 확인하고 궁금한 내용을 정리해서 다시 연락드리겠습니다."
+        ]
+      ],
+      "text": "집주인: 방문해서 방 상태를 직접 확인하신 뒤 계약서를 천천히 읽어보세요. 등기부등본도 직접 발급해서 비교하시면 됩니다.\n세입자: 서류와 주소를 확인하고 궁금한 내용을 정리해서 다시 연락드리겠습니다.",
+      "why": {
+        "ko": "확인할 시간과 자료를 주는 대화입니다. 실제 서류와 소유자는 별도로 확인해야 합니다.",
+        "en": "The conversation allows time and document checks. The actual documents and owner still need independent verification."
+      },
+      "image": "assets/examples/ordinary-documents.png"
+    },
+    {
+      "id": "ordinary-refusal",
+      "category": "ordinary",
+      "title": {
+        "ko": "임차인의 송금 거절",
+        "en": "Tenant declines payment"
+      },
+      "expect": "no_known_signals",
+      "required": [],
+      "messages": [
+        [
+          "세입자",
+          "오늘 안에 계약금 먼저 보내라는 요청에는 동의하지 않습니다. 집을 직접 보고 서류를 확인한 뒤에 판단하겠습니다."
+        ],
+        [
+          "집주인",
+          "네, 방문 가능한 시간을 알려주세요. 충분히 검토하시고 결정하세요."
+        ]
+      ],
+      "text": "세입자: 오늘 안에 계약금 먼저 보내라는 요청에는 동의하지 않습니다. 집을 직접 보고 서류를 확인한 뒤에 판단하겠습니다.\n집주인: 네, 방문 가능한 시간을 알려주세요. 충분히 검토하시고 결정하세요.",
+      "why": {
+        "ko": "돈을 보내지 않겠다는 임차인의 말은 상대방의 새 요구가 아닙니다.",
+        "en": "A tenant declining payment is not a new demand from the other party."
+      },
+      "image": "assets/examples/ordinary-refusal.png"
+    },
+    {
+      "id": "ordinary-denial",
+      "category": "ordinary",
+      "title": {
+        "ko": "위험 단어의 부정문",
+        "en": "Negated risk words"
+      },
+      "expect": "no_known_signals",
+      "required": [],
+      "messages": [
+        [
+          "집주인",
+          "압류나 경매는 없습니다. 등기부등본을 직접 발급해서 확인해보세요. 보증보험 가입도 가능합니다."
+        ],
+        [
+          "세입자",
+          "말씀 감사합니다. 서류와 보증기관 안내를 직접 확인한 뒤 계약을 검토하겠습니다."
+        ]
+      ],
+      "text": "집주인: 압류나 경매는 없습니다. 등기부등본을 직접 발급해서 확인해보세요. 보증보험 가입도 가능합니다.\n세입자: 말씀 감사합니다. 서류와 보증기관 안내를 직접 확인한 뒤 계약을 검토하겠습니다.",
+      "why": {
+        "ko": "위험 단어가 있어도 부정문을 구분해야 합니다. 상대방의 주장만으로 확인이 끝난 것은 아닙니다.",
+        "en": "Negated risk words need context. The other party’s statement is not independent proof."
+      },
+      "image": "assets/examples/ordinary-denial.png"
+    },
+    {
+      "id": "careful-short",
+      "category": "careful",
+      "title": {
+        "ko": "정보가 너무 적은 대화",
+        "en": "Too little information"
+      },
+      "expect": "insufficient_information",
+      "required": [],
+      "messages": [
+        [
+          "집주인",
+          "네, 가능합니다."
+        ],
+        [
+          "세입자",
+          "알겠습니다."
+        ]
+      ],
+      "text": "집주인: 네, 가능합니다.\n세입자: 알겠습니다.",
+      "why": {
+        "ko": "주소, 조건, 요청 내용이 없어 판단할 근거가 부족합니다.",
+        "en": "There is too little information about the address, terms or requests to assess."
+      },
+      "image": "assets/examples/careful-short.png"
+    },
+    {
+      "id": "careful-switch",
+      "category": "careful",
+      "title": {
+        "ko": "광고 매물 변경",
+        "en": "A listing changes"
+      },
+      "expect": "needs_review",
+      "required": [
+        "agent-pushy-switch"
+      ],
+      "messages": [
+        [
+          "중개사",
+          "그 방은 이미 나갔어요. 다른 방 보여드릴게요."
+        ],
+        [
+          "세입자",
+          "새 매물의 주소와 조건을 먼저 알려주세요. 비교한 뒤 방문을 결정하겠습니다."
+        ]
+      ],
+      "text": "중개사: 그 방은 이미 나갔어요. 다른 방 보여드릴게요.\n세입자: 새 매물의 주소와 조건을 먼저 알려주세요. 비교한 뒤 방문을 결정하겠습니다.",
+      "why": {
+        "ko": "매물이 바뀐 이유와 새 조건을 확인하세요. 변경 자체가 사기의 증거는 아닙니다.",
+        "en": "Ask why the listing changed and compare the new terms. A change alone does not prove fraud."
+      },
+      "image": "assets/examples/careful-switch.png"
+    },
+    {
+      "id": "careful-reported",
+      "category": "careful",
+      "title": {
+        "ko": "다른 사람의 말을 전달",
+        "en": "Reported instructions"
+      },
+      "expect": "needs_review",
+      "required": [
+        "con-no-moving-report"
+      ],
+      "messages": [
+        [
+          "세입자",
+          "집주인이 전입신고 하지 말라고 했어요. 이 말을 듣고 계약 조건을 다시 확인하고 있습니다."
+        ]
+      ],
+      "text": "세입자: 집주인이 전입신고 하지 말라고 했어요. 이 말을 듣고 계약 조건을 다시 확인하고 있습니다.",
+      "why": {
+        "ko": "전달된 위험 요구는 확인이 필요하지만 직접 관찰한 발언과 구분합니다.",
+        "en": "A reported risky instruction needs follow-up and is distinguished from a directly observed message."
+      },
+      "image": "assets/examples/careful-reported.png"
+    },
+    {
+      "id": "pressure-polite",
+      "category": "pressure",
+      "title": {
+        "ko": "공손한 송금 압박",
+        "en": "A polite payment request"
+      },
+      "expect": "strong_warning_signals",
+      "required": [
+        "pay-urgency"
+      ],
+      "messages": [
+        [
+          "집주인",
+          "오늘 안에 계약금 먼저 입금해 주실 수 있나요?"
+        ],
+        [
+          "세입자",
+          "아직 방문하지 못했습니다. 서류를 확인할 시간을 주세요."
+        ]
+      ],
+      "text": "집주인: 오늘 안에 계약금 먼저 입금해 주실 수 있나요?\n세입자: 아직 방문하지 못했습니다. 서류를 확인할 시간을 주세요.",
+      "why": {
+        "ko": "공손한 질문 형태여도 기한을 정한 선입금 요구입니다.",
+        "en": "Polite question wording can still request an upfront payment under a deadline."
+      },
+      "image": "assets/examples/pressure-polite.png"
+    },
+    {
+      "id": "pressure-later-demand",
+      "category": "pressure",
+      "title": {
+        "ko": "질문 뒤에 이어지는 요구",
+        "en": "Demand after a question"
+      },
+      "expect": "strong_warning_signals",
+      "required": [
+        "pay-urgency"
+      ],
+      "messages": [
+        [
+          "세입자",
+          "오늘 안에 계약금 먼저 보내라는 뜻인가요?"
+        ],
+        [
+          "집주인",
+          "오늘 안에 계약금 먼저 보내주세요. 다른 사람도 기다리고 있습니다."
+        ]
+      ],
+      "text": "세입자: 오늘 안에 계약금 먼저 보내라는 뜻인가요?\n집주인: 오늘 안에 계약금 먼저 보내주세요. 다른 사람도 기다리고 있습니다.",
+      "why": {
+        "ko": "앞의 임차인 질문 때문에 뒤의 실제 송금 요구가 가려지면 안 됩니다.",
+        "en": "The tenant’s earlier question must not hide the later payment demand."
+      },
+      "image": "assets/examples/pressure-later-demand.png"
+    },
+    {
+      "id": "pressure-before-viewing",
+      "category": "pressure",
+      "title": {
+        "ko": "방을 보기 전 입금",
+        "en": "Payment before viewing"
+      },
+      "expect": "strong_warning_signals",
+      "required": [
+        "pay-before-viewing"
+      ],
+      "messages": [
+        [
+          "중개사",
+          "방 보려면 먼저 예약금 입금하셔야 합니다. 입금 확인 후에 보여드릴게요."
+        ],
+        [
+          "세입자",
+          "방을 보지 못한 상태에서는 송금하지 않겠습니다."
+        ]
+      ],
+      "text": "중개사: 방 보려면 먼저 예약금 입금하셔야 합니다. 입금 확인 후에 보여드릴게요.\n세입자: 방을 보지 못한 상태에서는 송금하지 않겠습니다.",
+      "why": {
+        "ko": "방문을 결제 조건으로 묶는 요구를 따로 확인하세요.",
+        "en": "Treat a demand to pay before being allowed to view as a warning to investigate."
+      },
+      "image": "assets/examples/pressure-before-viewing.png"
+    },
+    {
+      "id": "risk-third-party",
+      "category": "risk",
+      "title": {
+        "ko": "중개인의 개인 계좌",
+        "en": "Agent’s personal account"
+      },
+      "expect": "strong_warning_signals",
+      "required": [
+        "pay-personal-account"
+      ],
+      "messages": [
+        [
+          "중개사",
+          "보증금은 제 명의 계좌로 보내주세요. 집주인에게 제가 전달하겠습니다."
+        ],
+        [
+          "세입자",
+          "계좌 예금주와 소유자 관계를 서류로 먼저 확인하고 싶습니다."
+        ]
+      ],
+      "text": "중개사: 보증금은 제 명의 계좌로 보내주세요. 집주인에게 제가 전달하겠습니다.\n세입자: 계좌 예금주와 소유자 관계를 서류로 먼저 확인하고 싶습니다.",
+      "why": {
+        "ko": "중개인의 개인 계좌 요구를 소유자 본인의 계좌 안내와 혼동하지 마세요.",
+        "en": "Do not confuse an agent requesting payment to their own account with an owner describing theirs."
+      },
+      "image": "assets/examples/risk-third-party.png"
+    },
+    {
+      "id": "risk-registration",
+      "category": "risk",
+      "title": {
+        "ko": "금지 요구 뒤의 질문",
+        "en": "Prohibition followed by a question"
+      },
+      "expect": "strong_warning_signals",
+      "required": [
+        "con-no-moving-report"
+      ],
+      "messages": [
+        [
+          "집주인",
+          "전입신고 하지 마세요. 다른 궁금한 점 있나요?"
+        ],
+        [
+          "세입자",
+          "해당 조건을 받아들이기 전에 공식 안내와 상담을 확인하겠습니다."
+        ]
+      ],
+      "text": "집주인: 전입신고 하지 마세요. 다른 궁금한 점 있나요?\n세입자: 해당 조건을 받아들이기 전에 공식 안내와 상담을 확인하겠습니다.",
+      "why": {
+        "ko": "마지막 질문이 앞의 금지 요구를 취소하지는 않습니다.",
+        "en": "The final question does not cancel the preceding prohibition."
+      },
+      "image": "assets/examples/risk-registration.png"
+    },
+    {
+      "id": "risk-trust-consent",
+      "category": "risk",
+      "title": {
+        "ko": "동의 없이 진행하자는 요구",
+        "en": "Proceed without consent"
+      },
+      "expect": "strong_warning_signals",
+      "required": [
+        "reg-trust"
+      ],
+      "messages": [
+        [
+          "중개사",
+          "이 집은 신탁등기가 되어 있습니다. 신탁사 동의 없이 계약해도 됩니다."
+        ],
+        [
+          "세입자",
+          "계약 권한과 필요한 서류를 먼저 확인하겠습니다."
+        ]
+      ],
+      "text": "중개사: 이 집은 신탁등기가 되어 있습니다. 신탁사 동의 없이 계약해도 됩니다.\n세입자: 계약 권한과 필요한 서류를 먼저 확인하겠습니다.",
+      "why": {
+        "ko": "동의라는 단어만으로 동의가 확인된 것으로 처리하면 안 됩니다.",
+        "en": "The word consent alone must not be treated as evidence that consent exists."
+      },
+      "image": "assets/examples/risk-trust-consent.png"
+    }
+  ]
+}

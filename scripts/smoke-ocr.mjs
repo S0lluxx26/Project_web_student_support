@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { createSiteServer, listen } from './serve-site.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const PORT = Number(process.env.PORT || 8765);
+const REQUESTED_PORT = Number(process.env.OCR_TEST_PORT || 0);
 
 let chromium;
 try {
@@ -35,7 +35,8 @@ try {
 }
 
 const server = createSiteServer({ root: ROOT });
-await listen(server, PORT);
+await listen(server, REQUESTED_PORT);
+const PORT = server.address().port;
 
 let fails = 0;
 const ok = (c, m) => { console.log((c ? 'PASS  ' : 'FAIL  ') + m); if (!c) fails++; };

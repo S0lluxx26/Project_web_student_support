@@ -1,0 +1,210 @@
+{
+  "fictional": true,
+  "browser": "153.0.8010.12",
+  "recordedAt": "2026-09-12T10:15:08.802Z",
+  "method": "Real browser OCR; explicit transcript correction only when required to meet the independently specified target. Not real-world accuracy.",
+  "cases": [
+    {
+      "id": "ordinary-documents",
+      "sha256": "63a87a86b2d171be9f64032649160497d5b2fc8e98e6cf3104972cde1db9eb1b",
+      "draft": "연습용 대화ㆍ가상 예시\n\n서류를 먼저 읽기\n\n집주인: 방문해서 방 상태를 직접 확인하신 뒤\n계약서를 천천히 읽어보세요. 등기부등본도\n직접 발급해서 비교하시면 됩니다.\n\n세입자: 서류와 주소를 확인하고 궁금한 내용\n\n을 정리해서 다시 연락드리겠습니다.\n\n르그\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "no_known_signals",
+        "ids": []
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "no_known_signals",
+        "ids": []
+      }
+    },
+    {
+      "id": "ordinary-refusal",
+      "sha256": "e64cb4727d15ffba4d29273a9cb0a01ee17533b526c71b0b112b968fdf25f7aa",
+      "draft": "연습용 대화ㆍ가상 예시\n\n임차인의 송금 거절\n\n세입자: 오늘 안에 계약금 먼저 보내라는 요청\n에는 동의하지 않습니다. 집을 직접 보고 서류\n\n를 확인한 뒤에 판단하겠습니다.\n\n집주인: 네, 방문 가능한 시간을 알려주세요.\n충분히 검토하시고 결정하세요.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "no_known_signals",
+        "ids": []
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "no_known_signals",
+        "ids": []
+      }
+    },
+    {
+      "id": "ordinary-denial",
+      "sha256": "b1dda95b21147635f446eee582e28aa8eb69dcfb0f44e1797d937540f43e8add",
+      "draft": "연습용 대화ㆍ가상 예시\n\n위험 단어의 부정문\n집주인: 압류나 경매는 없습니다. 등기부등본\n을 직접 발급해서 확인해보세요. 보증보험 가\n입도 가능합니다.\n\n세입자: 말씀 감사합니다. 서류와 보증기관 안\n\n내를 직접 확인한 뒤 계약을 검토하겠습니다.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "no_known_signals",
+        "ids": []
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "no_known_signals",
+        "ids": []
+      }
+    },
+    {
+      "id": "careful-short",
+      "sha256": "33c35ae7f8e7161018f6039e83f65b191946ec0635d5c4cbc234d2a3266db9ae",
+      "draft": "연습용 대화ㆍ가상 예시\n\n정보가 너무 적은 대화\n\n집주인: 네, 가능합니다.\n\n브\n\n세입자: 알겠습니다.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "insufficient_information",
+        "ids": []
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "insufficient_information",
+        "ids": []
+      }
+    },
+    {
+      "id": "careful-switch",
+      "sha256": "7e0db1afb6866c3e932ba6eca81db2d94bce18f574510b73c120cefd645153d8",
+      "draft": "연습용 대화ㆍ가상 예시\n\n광고 매물 변경\n\n중개사: 그 방은 이미 나갔어요. 다른 방 보여\n드릴게요.\n\n세입자: 새 매물의 주소와 조건을 먼저 알려주\n\n세요. 비교한 뒤 방문을 결정하겠습니다.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "needs_review",
+        "ids": [
+          "agent-pushy-switch"
+        ]
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "needs_review",
+        "ids": [
+          "agent-pushy-switch"
+        ]
+      }
+    },
+    {
+      "id": "careful-reported",
+      "sha256": "94339d40c242aba6778af12452790dc15b28bf027d513bd3df8792a19ba2afd8",
+      "draft": "연습용 대화ㆍ가상 예시\n\n다른 사람의 말을 전달\n\n세입자: 집주인이 전입신고 하지 말라고 했어\n요. 이 말을 듣고 계약 조건을 다시 확인하고\n\n있습니다.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "needs_review",
+        "ids": [
+          "con-no-moving-report"
+        ]
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "needs_review",
+        "ids": [
+          "con-no-moving-report"
+        ]
+      }
+    },
+    {
+      "id": "pressure-polite",
+      "sha256": "974761e85386003e43253c399d2584f5d7be9106f17df84ac4693ac713f8100a",
+      "draft": "연습용 대화ㆍ가상 예시\n\n공소하 송금 안박\n으노던 ㅇㅁ2버7\n\n집주인: 오늘 안에 계약금 먼저 입금해 주실\n수 있나요?\n\n세입자: 아직 방문하지 못했습니다. 서류를 확\n\n스 ㅅㅅ      ㅁ르>\n인할 시간을 주세요.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "pay-urgency"
+        ]
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "pay-urgency"
+        ]
+      }
+    },
+    {
+      "id": "pressure-later-demand",
+      "sha256": "9cc7420e1cfdb8e6bf8a68b7f91bc286a360d36e55469a5d4c6d440c2b9b812b",
+      "draft": "연습용 대화 ㆍ가상 예시\n질문 뒤에 이어지는 요구\n\n세입자: 오늘 안에 계약금 먼저 보내라는 뜻인\n\n가요?\n\n집주인: 오늘 안에 계약금 먼저 보내주세요.\n다른 사람도 기다리고 있습니다.\n\n개인정보 없는 학습용 이미지\n\nㄴ 의브ㅎ",
+      "raw": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "pay-before-contract",
+          "pay-urgency"
+        ]
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "pay-before-contract",
+          "pay-urgency"
+        ]
+      }
+    },
+    {
+      "id": "pressure-before-viewing",
+      "sha256": "e34366adb8b8e3a77361eadd4aa623ff64a12eb00e94acdbf64ed9aafcdc9afa",
+      "draft": "연습용 대화ㆍ가상 예시\n\n방을 보기 전 입금\n중개사: 방 보려면 먼저 예약금 입금하셔야 합\n\n니다. 입금 확인 후에 보여드릴게요.\n\n세입자: 방을 보지 못한 상태에서는 송금하지\n않겠습니다.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "pay-before-viewing"
+        ]
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "pay-before-viewing"
+        ]
+      }
+    },
+    {
+      "id": "risk-third-party",
+      "sha256": "1acc54ec46cbca2f5051c75e7588de4db5571384b9eb53c9cfe4f7bb8b4dc638",
+      "draft": "연습용 대화ㆍ가상 예시\n\n중개인의 개인 계좌\n\n중개사: 보증금은 제 명의 계좌로 보내주세요.\n집주인에게 제가 전달하겠습니다.\n\n세입자: 계좌 예금주와 소유자 관계를 서류로\n먼저 확인하고 싶습니다.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "pay-personal-account"
+        ]
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "pay-personal-account"
+        ]
+      }
+    },
+    {
+      "id": "risk-registration",
+      "sha256": "96e844c98c0347d80e604be20fd3d10956fc287f10f366f0758cf028de698554",
+      "draft": "연습용 대화ㆍ가상 예시\n\n금지 요구 뒤의 질문\n\n집주인: 전입신고 하지 마세요. 다른 궁금한\n점 있나요?\n\n세입자: 해당 조건을 붙아들이기 전에 공식 안\n\n내와 상담을 확인하겠습니다.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "con-no-moving-report"
+        ]
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "con-no-moving-report"
+        ]
+      }
+    },
+    {
+      "id": "risk-trust-consent",
+      "sha256": "99271725fdd99edc1752f06522b1f0d25feb2927db8e5ad487b0de9cb484baa6",
+      "draft": "연습용 대화ㆍ가상 예시\n동의 없이 진행하자는 요구\n중개사: 이 집은 신탁등기가 되어 있습니다.\n\n신탁사 동의 없이 계약해도 됩니다.\n\n세입자: 계약 권한과 필요한 서류를 먼저 확인\n하겠습니다.\n\n개인정보 없는 학습용 이미지\n\n삐ㄴ 의븐",
+      "raw": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "reg-trust"
+        ]
+      },
+      "correctionRequired": false,
+      "reviewed": {
+        "assessment": "strong_warning_signals",
+        "ids": [
+          "reg-trust"
+        ]
+      }
+    }
+  ]
+}

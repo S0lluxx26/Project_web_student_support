@@ -96,7 +96,14 @@
       ROLE_LABELS.forEach(function (entry) {
         entry.forms.forEach(function (f) {
           var nf = f.toLowerCase().replace(/\s+/g, '');
-          if (n === nf || n.indexOf(nf) !== -1) {
+          // A personal name containing "i", "me" or "나" is not a role.
+          // Permit explicit compound labels such as "집주인 김씨" only for
+          // descriptive role names; personal aliases must match exactly.
+          var escaped = f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          var descriptive = nf.length > 2;
+          var boundary = new RegExp('(^|[\\s(\\[])(?:' + escaped + ')(?=$|[\\s)\\]님:：-])', 'i');
+          if (n === nf || (descriptive && boundary.test(String(label))) ||
+              (nf === '부동산' && /^[가-힣]{1,10}부동산$/.test(n))) {
             if (!best || nf.length > best.len) best = { role: entry.role, len: nf.length };
           }
         });
@@ -241,6 +248,14 @@
       if (/니까요?$/.test(tail)) return false;
 
       return !!this._any(tail, QUESTION);
+    },
+
+    /** A polite request is still a demand when it explicitly asks the other
+     * person to transfer money. A tenant's own request is gated separately. */
+    isPaymentRequest: function (text) {
+      var n = this._norm(text);
+      return /(?:입금|송금|이체)해주(?:시|실|겠|세|면)|(?:계약금|보증금|돈|가계약금).*?(?:보내|넣어)주(?:시|실|겠|세|면)/.test(n) ||
+        /\b(?:can|could|would|will)\s+you\s+(?:please\s+)?(?:pay\b|(?:send|transfer)\b.{0,50}\b(?:deposit|money|payment|funds|fee|sum)\b)/i.test(text);
     },
 
     /**

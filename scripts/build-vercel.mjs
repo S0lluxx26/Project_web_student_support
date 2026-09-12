@@ -38,7 +38,7 @@ const die = (msg) => { console.error('\nBUILD FAILED: ' + msg + '\n'); process.e
  * CI instead.
  */
 const SUITES = ['test-analyzer.js', 'test-detector.js', 'test-data.js',
-                'test-ocr.js', 'test-llm.js'];
+                'test-ocr.js', 'test-llm.js', 'test-learning-cases.js'];
 
 if (skipTests) {
   log('tests skipped (--skip-tests)');
@@ -64,7 +64,7 @@ if (skipTests) {
  * it by accident — a private fixture or a half-finished note would go out with
  * the next deploy and nobody would notice.
  */
-const FILES = ['index.html', 'demo.html', 'manual/PROJECT_GUIDE.md',
+const FILES = ['index.html', 'demo.html', 'help.html', 'manual/PROJECT_GUIDE.md',
   'manual/project-guide.pdf', '.nojekyll', 'LICENSE'];
 const DIRS = ['assets', 'data'];
 

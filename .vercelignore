@@ -9,6 +9,7 @@
 
 !index.html
 !demo.html
+!help.html
 !manual/
 !manual/PROJECT_GUIDE.md
 !manual/project-guide.pdf
@@ -34,3 +35,5 @@
 # Never upload: the demo set and its generated report, the review fixtures,
 # the browser-only suites (they need Playwright, which the build does not
 # install), and anything the desktop app drops into the folder.
+
+!scripts/test-learning-cases.js

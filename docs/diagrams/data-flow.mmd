@@ -15,7 +15,7 @@ flowchart TB
     Weights["Verified model weights<br/>file or origin cache"] --> AI
     AI --> Draft["Separate draft<br/>never changes the assessment"]
   end
-  Host["Pages or Vercel<br/>static files"] -.->|Assets and JSON| Data
+  Host["Static host<br/>GitHub Pages / Vercel"] -.->|Assets and JSON| Data
   HF["Hugging Face<br/>pinned model file"] -.->|Only after explicit load| Weights
   Confirm --> Output["Clipboard / share / print"]
   classDef core fill:#eaf2ee,stroke:#146356,color:#182e33

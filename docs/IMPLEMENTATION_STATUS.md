@@ -39,7 +39,7 @@ target hardware or an account connection.
 
 ## Verification and limits
 
-The public bilingual Demo uses two fictional chat images and seven actual
+The public bilingual Demo uses two fictional chat images and eight actual
 captures. Real OCR shows four signals for the pressure example and zero for
 the ordinary example. INSTALL.md gives a reusable AI setup prompt;
 manual/PROJECT_GUIDE.md and its PDF document the project under maker

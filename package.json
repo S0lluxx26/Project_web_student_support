@@ -2,18 +2,21 @@
   "name": "student-rental-support",
   "version": "1.0.0",
   "private": true,
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "node scripts/build-vercel.mjs",
     "serve": "node scripts/serve-site.mjs",
     "test": "node scripts/run-tests.mjs",
     "verify:install": "npm run build && npm run test:ocr && npm run test:browser && npm run test:report",
     "test:report": "node scripts/check-report.mjs",
-    "test:browser": "node scripts/smoke-ocr.mjs && node scripts/smoke-session.mjs && node scripts/smoke-hosts.mjs && node scripts/smoke-llm.mjs && node scripts/smoke-manual.mjs",
+    "test:browser": "node scripts/smoke-ocr.mjs && node scripts/smoke-session.mjs && node scripts/smoke-hosts.mjs && node scripts/smoke-llm.mjs && node scripts/smoke-manual.mjs && node scripts/smoke-learning.mjs",
     "demo:capture": "node scripts/capture-manual.mjs",
     "test:ocr": "node scripts/test-ocr-real.js --require-engine",
     "bench:llm": "node scripts/bench-llm.mjs",
-    "assets:stamp": "node scripts/stamp-assets.mjs"
+    "assets:stamp": "node scripts/stamp-assets.mjs",
+    "test:learning": "node scripts/test-learning-cases.js && node scripts/smoke-learning.mjs"
   },
   "devDependencies": {
     "@wllama/wllama": "3.6.1",

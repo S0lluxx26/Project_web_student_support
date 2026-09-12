@@ -1950,6 +1950,11 @@
           "see the room",
           "after",
           "pay"
+        ],
+        [
+          "보려면",
+          "먼저",
+          "입금"
         ]
       ],
       "title": {
@@ -1967,6 +1972,15 @@
       "sample": {
         "ko": "입금 확인되면 방 주소랑 호수 알려드릴게요.",
         "en": "The viewing can only be arranged once a holding sum reaches the bank details I sent."
+      },
+      "suppressedBy": {
+        "ko": [
+          "입금할 필요 없",
+          "입금하실 필요 없"
+        ],
+        "en": [
+          "no need to pay before viewing"
+        ]
       }
     }
   ]

@@ -3,13 +3,15 @@
 
 **Maker: Bui Xuan Mai**
 
-Edition: 12 September 2026 · Architecture and documentation revision
+Edition: 12 September 2026 · Logic review and learning examples
 
 **Git repository:** [https://github.com/S0lluxx26/Project_web_student_support](https://github.com/S0lluxx26/Project_web_student_support)
 
 **Live project:** [https://s0lluxx26.github.io/Project_web_student_support/](https://s0lluxx26.github.io/Project_web_student_support/)
 
 **Demo/manual:** [https://s0lluxx26.github.io/Project_web_student_support/demo.html](https://s0lluxx26.github.io/Project_web_student_support/demo.html)
+
+**Safety help and practice:** [https://s0lluxx26.github.io/Project_web_student_support/help.html](https://s0lluxx26.github.io/Project_web_student_support/help.html)
 
 **AI prompt reference:** [docs/AI_PROMPTS.md](https://github.com/S0lluxx26/Project_web_student_support/blob/main/docs/AI_PROMPTS.md)
 
@@ -64,14 +66,16 @@ This project supports students reviewing rental conversations in Korea. Its purp
 
 | Requirement | Implemented behavior | Practical limit |
 |---|---|---|
-| Static deployment | One public build supports Pages and Vercel | Vercel account import is optional and not completed |
+| Static deployment | One build for GitHub Pages and Vercel | Vercel account import remains optional |
 | Mobile access | Text checker, OCR and user manual | Optional LLM is disabled on phones/tablets |
 | Private input processing | Messages and images stay in the browser | Hosts still receive ordinary asset requests |
 | Explainable findings | 27 curated patterns with evidence | Heuristics, not calibrated fraud probabilities |
 | AI assistance | Explicit PC opt-in, CPU inference | About 397 MB download; meaning errors observed |
-| Reproducible demonstration | Two fictional chats, actual captures | Not an evaluation of real-world accuracy |
+| Reproducible demonstration | Two illustrated examples plus 12 new practice screenshots | Not an evaluation of real-world accuracy |
 
 **Technology distinction.** The rule analyzer produces the assessment. Tesseract performs screenshot OCR. Wllama runs the optional Qwen model. The project has no trained rental-scam classifier, application database, scraper or server-side inference endpoint.
+
+Contract photos are a separate local preview; they do not enter screenshot OCR or the helper. Language/theme preferences and model caches may persist, but chat content is not intentionally stored. A model cache belongs to a site origin, so different hosts do not share it. No service worker is installed; local processing is not a promise of offline reload.
 
 **Reading route.** Readers assessing the design can start with Chapters 2-5. Developers can follow Chapters 6-8 and 11-13. Users can follow Chapters 8-10 and the public Demo. Evidence and remaining work are in Chapter 14.
 
@@ -89,6 +93,7 @@ This tree emphasizes the files needed to understand and reproduce the project. I
 Project_web_student_support/
 |-- index.html                    # main application
 |-- demo.html                     # illustrated KO/EN user manual
+|-- help.html                     # self-check guidance and 12 examples
 |-- INSTALL.md                    # PC setup and AI installation prompt
 |-- README.md / PLAN.md            # overview and current work
 |-- package.json / package-lock.json
@@ -105,7 +110,9 @@ Project_web_student_support/
 |   |   |-- ocr.js / redact.js    # screenshot OCR and export masking
 |   |   |-- llm.js / llm-ui.js / llm-worker.js
 |   |   |-- goshiwon.js / manual.js
+|   |   |-- theme.js / help.js     # shared theme and practice page
 |   |-- vendor/                   # pinned OCR, Wllama and hash runtime
+|   |-- examples/                 # 12 PNGs, targets and OCR observations
 |   |-- manual/                   # fictional samples and actual captures
 |       |-- cases.json            # recorded OCR/analysis outputs
 |       |-- diagrams/             # generated SVG, PNG and manifest
@@ -115,6 +122,7 @@ Project_web_student_support/
 |   |-- AI_PROMPTS.md             # research and rule prompt playbook
 |   |-- OCR.md / BROWSER_LLM_OPTIONS.md
 |   |-- DEPLOY_VERCEL.md / IMPLEMENTATION_STATUS.md
+|   |-- REVIEW_2026-09-12.md       # logic and learning-example review
 |   |-- FIELD_RESEARCH.md / REVIEW_ANALYSIS.md
 |   |-- SCAM_PATTERNS.md / CONTRIBUTING.md
 |   |-- benchmarks/              # recorded model measurements
@@ -143,13 +151,14 @@ Project_web_student_support/
 | Export | redact.js, housing.js | Editable masking preview before copy, share or print |
 | Optional explanation | llm.js, llm-ui.js, llm-worker.js | Desktop opt-in, verified model, worker and draft checks |
 | Demo and guide | demo.html, assets/manual/, manual/ | Fictional samples, actual captures and downloadable guide |
-| Delivery | scripts/build-vercel.mjs, deploy.yml, vercel.json | One public artifact for both hosting services |
+| Safety help/theme | help.html, help.js, theme.js, assets/examples/ | Independent checks, 12 examples and a shared viewing preference |
+| Delivery | scripts/build-vercel.mjs, deploy.yml, vercel.json | One artifact for GitHub Pages and optional Vercel |
 
 JavaScript filenames in the table are under assets/js/ unless another path is shown. The deployment workflow is .github/workflows/deploy.yml.
 
 **Important integration detail.** analyzer.js calls Conversation.parse() and Detector.matchRules(). The near-duplicate Detector.scan() API has no application consumer; it should not be presented as a shipped review-analysis feature.
 
-**Repository versus publication.** scripts/build-vercel.mjs stages an allowlist into dist/: the two HTML pages, the published guide, assets, JSON and license files. The complete docs/ and scripts/ trees, test fixtures, node_modules, model GGUF files and private keys are not website assets. Only selected fictional samples and captured screens under assets/manual/ are public. Report-only Mermaid dependencies stay out of the ordinary application installation.
+**Repository versus publication.** scripts/build-vercel.mjs stages an allowlist into dist/: three HTML pages, the published guide, assets, JSON and license files. The complete docs/ and scripts/ trees, original test fixtures, node_modules, model GGUF files and private keys are not website assets. Selected fictional samples, captures and recorded observations under assets/manual/ and assets/examples/ are public. Report-only Mermaid dependencies stay out of the ordinary application installation.
 
 <!-- pagebreak -->
 
@@ -178,7 +187,7 @@ flowchart TB
   class Gate,Stop gate
 ```
 
-Figure 1. The maintainer pushes code; Actions validates before Pages publication. The Vercel branch is an optional separate account import, not a claim that a Vercel site is live.
+Figure 1. Actions validates before GitHub Pages publication. Vercel is an optional separate account connection. Its configuration is supplied; no Vercel site is claimed live.
 
 [Editable Mermaid source](https://github.com/S0lluxx26/Project_web_student_support/blob/main/docs/diagrams/deployment.mmd) · [Full-size diagram](../assets/manual/diagrams/deployment.svg)
 
@@ -206,7 +215,7 @@ flowchart TB
     Weights["Verified model weights<br/>file or origin cache"] --> AI
     AI --> Draft["Separate draft<br/>never changes the assessment"]
   end
-  Host["Pages or Vercel<br/>static files"] -.->|Assets and JSON| Data
+  Host["Static host<br/>GitHub Pages / Vercel"] -.->|Assets and JSON| Data
   HF["Hugging Face<br/>pinned model file"] -.->|Only after explicit load| Weights
   Confirm --> Output["Clipboard / share / print"]
   classDef core fill:#eaf2ee,stroke:#146356,color:#182e33
@@ -229,8 +238,6 @@ Figure 2. Local processing and external boundaries. The browser receives assets 
 | Report to helper | One selected rule guidance and fixed assessment | PC opt-in plus explicit model load |
 | Model source to worker | Exact local file, verified cache or pinned download | Size/SHA-256 validation; no transcript upload |
 | Report to export | Masked, editable report text | Final user confirmation is required |
-
-Contract photos are a separate local preview; they do not enter screenshot OCR or the helper. Language preference and model caches may persist, but chat content is not intentionally stored. A model cache belongs to a site origin, so Pages and Vercel do not share it. No service worker is installed; local processing is not a promise of offline reload.
 
 <!-- pagebreak -->
 
@@ -274,7 +281,7 @@ Figure 3. Recognition stops at an editable draft. The user must apply it before 
 
 [Editable Mermaid source](https://github.com/S0lluxx26/Project_web_student_support/blob/main/docs/diagrams/ocr-sequence.mmd) · [Full-size diagram](../assets/manual/diagrams/ocr-sequence.svg)
 
-The UI checks file bounds and cancels earlier work before beginning a new OCR job. It tracks session identity and ignores stale callbacks. Speaker-side selection does not establish whether the counterparty is an owner or agent; the result provides separate speaker review.
+The UI checks file limits. Session identity prevents stale OCR callbacks after reset. Bubble-side selection identifies your messages; confirm the other speaker's role separately.
 
 ### 4.2 Optional desktop AI explanation
 
@@ -399,6 +406,8 @@ After changes, report the files changed and actual checks run.
 
 **Implemented result.** The landing page offers text and screenshot input, a Demo / guide link and supporting document/goshiwon tools. Screenshot analysis goes directly to the report after the user reviews and applies the draft.
 
+The report has six numbered sections: summary, input coverage, evidence, next checks, reviewed export and optional AI. Evidence highlights and action accents help users locate the reason and next step. The header links to Safety help. A Dark mode toggle persists a viewing preference across the checker, Demo and help pages; it stores no chat content.
+
 ![Actual home screen with text, screenshot and Demo entry points.](../assets/manual/01-home.jpg)
 
 <!-- pagebreak -->
@@ -426,6 +435,14 @@ and bilingual keys. Identify unsupported legal claims separately.
 **Implementation steps.** Parse messages with speaker labels; keep unrecognized roles unknown. Match curated phrases and concepts. Apply context and suppression rules. Combine manual answers without treating unknown as no. Render the assessment, evidence and questions. Add regression cases for ordinary wording as well as suspicious demands.
 
 **Implemented result.** The release uses deterministic analysis and documented heuristics. Source-related references exist for all 27 patterns, but exact legal-claim review remains incomplete. The similarity engine in detector.js is available as a library; a review-scraping interface has not been implemented.
+
+### Logic review in this edition
+
+The analyzer now preserves sentence ownership directly and checks each candidate before deduplicating a pattern. A harmless first occurrence cannot hide a later demand, and identical words from two speakers keep their separate ownership. Speech acts apply to the quoted sentence, so a question at the end of a message does not erase an earlier demand.
+
+Explicit polite payment requests are distinguished from ordinary document questions. Short role aliases no longer match inside personal names. Consent questions and explicit delayed-consent clauses cannot suppress a trust-property warning. A narrow pre-viewing payment rule has paired no-payment and risky-conditional controls.
+
+The [review record](https://github.com/S0lluxx26/Project_web_student_support/blob/main/docs/REVIEW_2026-09-12.md) maps each defect to a regression test. These fixes improve the tested behavior; they do not establish accuracy on real conversations.
 
 ### Data collection decision
 
@@ -477,7 +494,7 @@ The public capture record is assets/manual/cases.json. It contains fixture hashe
 
 **Observed result:** strong_warning_signals, 4 scored signals. The chat combines pressure to send money, an agent's account request, refusal to show the room and delayed document access. Inspect the actual quoted evidence before deciding what to ask next.
 
-![Actual result for the fictional pressure conversation: four messages need attention.](../assets/manual/03-pressure-result.jpg)
+![Actual result for the fictional pressure conversation: four warning signals need attention.](../assets/manual/03-pressure-result.jpg)
 
 ### Sample B: ordinary
 
@@ -488,6 +505,21 @@ Reset the session before selecting sample B so unrelated conversations do not ac
 ![Actual result for the ordinary fictional conversation: no known signals.](../assets/manual/04-ordinary-result.jpg)
 
 **Result of this step:** a side-by-side teaching example of differing system behavior. These two examples do not measure precision, recall or fraud detection accuracy.
+
+### Twelve additional practice screenshots
+
+Open [Safety help and practice](https://s0lluxx26.github.io/Project_web_student_support/help.html) for independent checks, category filters, downloadable PNGs and matching transcripts. Reset between unrelated examples. Compare speaker labels, amounts and negations before applying OCR text.
+
+| Teaching category | Three fictional cases | Expected reviewed result |
+|---|---|---|
+| Ordinary | Documents available; tenant refusal; no payment pressure | No known signals |
+| Careful/uncertain | Short input; substitute-room pressure; reported restriction | Insufficient information or needs review |
+| Pressure | Polite payment request; later demand; payment before viewing | Strong warning signals |
+| Strong risk indicators | Third-party payment; registration restriction; delayed trust consent | Strong warning signals |
+
+The expected outcomes were specified in assets/examples/cases.json. Actual drafts and outcomes are recorded separately in assets/examples/observations.json. All 12 reached their intended assessment and required findings without text corrections in the recorded real-browser OCR run. Some headings and footers contain recognition errors. Three screenshots use dark chat backgrounds.
+
+These are synthetic regression and teaching examples. They are not real phone captures, proof of fraud or a real-world accuracy measurement. The help page explains why ordinary behavior and no known signals still require independent checks, with links to official HUG and government guidance.
 
 <!-- pagebreak -->
 
@@ -523,9 +555,15 @@ Open a report containing warnings, expand the AI explanation panel and read its 
 
 Then choose Download / load cached model, or select the exact previously downloaded GGUF file. Once ready, select one warning and generate a draft. Cancel stops work; Unload releases model memory; Remove cached model deletes this application's saved weights on the current site origin.
 
+Yes: the model runs from the downloaded or selected file bytes on this device. Later loads reuse a verified browser cache when available. Browser eviction or removal can require another download; a different site origin has separate storage. The panel identifies whether the active model came from the network, verified cache or local file.
+
 Phones and tablets cannot enable the helper. Detection uses browser device hints, mobile/tablet user agents and the touch-capable iPad desktop-mode signature. A narrow PC window does not disable it. This is best-effort device detection, not a guarantee of hardware performance. Text checking and OCR remain available on mobile.
 
 ![Actual desktop opt-in controls, before any model has been loaded.](../assets/manual/07-ai-controls.jpg)
+
+The interface separates opt-in, load and generate into three stages. Before Generate explanation draft, a visible warning gives the measured wait and says a slower laptop may take several minutes or fail. The busy status repeats that warning. Users can continue reading the rule report or cancel.
+
+![Actual generation wait warning and controls before a model is loaded.](../assets/manual/08-ai-wait.jpg)
 
 ### Runtime and measured cost
 
@@ -579,7 +617,7 @@ The experiment therefore remains optional and visibly cautioned. A small model c
 
 The header's Demo / guide link opens demo.html. Its Korean/English walkthrough covers samples, opening the reader, review, results, documents, export and the desktop helper. It includes downloadable fictional images and links to this Markdown guide and its PDF.
 
-The published captures are deliberately separate from private user data. Only two existing fictional sample images are copied into public assets/manual/. Contract screenshots show the actual checklist without a real contract image. No internet contract photo is needed for this demonstration.
+The published captures contain only fictional data. Two existing sample images are copied into assets/manual/; 12 additional fictional practice PNGs and their records live in assets/examples/. Contract screenshots show the actual checklist without a real contract image. No internet contract photo is needed for this demonstration.
 
 ### Suggested AI prompt
 
@@ -604,6 +642,31 @@ npm run demo:capture
 ```
 
 Review every changed image and assets/manual/cases.json. Update this Markdown if the observed behavior or instructions changed. The English guide is the source of the PDF, and both include the full repository address.
+
+For the 12 learning screenshots, use the separate generator and explicit recording command:
+
+```sh
+python scripts/make-learning-screenshots.py
+npm run build
+node scripts/smoke-learning.mjs --record
+```
+
+The generator needs Pillow and a Korean font; EXAMPLE_FONT overrides the Windows default. Review all images, actual OCR drafts and correction flags. Preserve independent expected targets when a test fails. Normal verification is npm run test:learning and does not rewrite observations.
+
+### Suggested learning-feature prompt
+
+```text
+Read docs/AI_PROMPTS.md and the current review record first.
+Add fictional ordinary, uncertain, pressure and strong-warning
+examples, each with an independent expected result and explanation.
+Test screenshot OCR separately from reviewed-text rule logic.
+Record corrections honestly. Keep real records and identifiers out.
+Provide a bilingual help page teaching independent verification.
+Preserve no-known-signals versus verified-safe distinctions.
+Number the report sections and test both light and dark layouts.
+Explain local model cache reuse and long generation waits.
+Run the release checks and report limits without accuracy claims.
+```
 
 To regenerate the PDF using the committed diagram images, install Python with reportlab, pypdf and Pillow, then run:
 
@@ -692,10 +755,12 @@ This provides a second static host. It does not create a server-side model or re
 | OCR | Editable real Korean recognition before apply | capture record and real OCR tests |
 | Pressure sample | 4 scored signals | cases.json and pressure-result capture |
 | Ordinary sample | 0 scored signals | cases.json and ordinary-result capture |
+| Learning set | 12 additional screenshots reached intended outcomes through real OCR | assets/examples/observations.json; synthetic cases only |
+| Reading/help | Six numbered sections, light/dark toggle, independent checks | help.html and browser layout checks |
 | Documents/export | Manual checks and editable export preview | contract/export captures and browser checks |
 | Optional AI | Explicit PC opt-in; mobile disabled; no GPU requirement | support policy, worker config and browser tests |
 | Real model | Runs on Pages; meaning errors observed | committed model benchmark records |
-| Delivery | Shared dist/ for Pages and Vercel | workflow, build script and vercel.json |
+| Delivery | Shared dist/; GitHub active, Vercel configurable | GitHub workflow, build script and vercel.json |
 | Documentation | Maker and repository in Markdown and PDF | this guide and its generated PDF |
 
 ### Work that is still open
@@ -756,4 +821,4 @@ Implementation and capture review date: 12 September 2026. External documentatio
 | CI | Automated checks run by GitHub Actions before publication |
 | dist/ | Generated public site artifact, not the full repository |
 
-**Traceability.** Baseline code reviewed for this report: commit 67c2dd4. The report update adds documentation, diagrams and generation checks. Diagrams reflect the existing application behavior; they do not represent newly added backend services.
+**Traceability.** Baseline reviewed for this edition: commit 192b565. This update fixes rule context/ownership handling, adds 12 fictional screenshots and Safety help, organizes the report and AI controls, and adds theme support. The captured original samples still produce four and zero scored signals respectively. Diagrams describe browser processing and static hosts; no backend inference service was added.

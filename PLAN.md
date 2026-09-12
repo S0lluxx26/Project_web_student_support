@@ -16,6 +16,8 @@ screenshot inputs are the main entry points; documents/goshiwon are supporting t
 | LLM | Real Wllama integration, pinned/hash-verified GGUF, download/local file, cancel/cache removal |
 | LLM gate | Visible PC experiment, opt-in and explicit load; disabled on phones/tablets |
 | Demo/manual | Bilingual public walkthrough, two fictional samples, actual captures, Markdown/PDF |
+| Safety help | Independent checks and 12 additional fictional screenshots across four teaching categories |
+| Reading order/theme | Six numbered report sections, highlighted actions and shared light/dark control |
 | Installation | INSTALL.md with an AI setup prompt and npm run verify:install |
 | Build | Locked tooling; public dist/ allowlist; byte verification; model/key exclusion |
 | Pages | Active workflow validates before publishing dist/ |
@@ -69,9 +71,14 @@ npm run assets:stamp
 npm run build
 npm run test:ocr
 npm run test:browser
+npm run test:report
 ```
 
 For model/runtime changes, verify actual size/SHA-256, rerun the real benchmark
 and review meaning. Do not make the experiment automatic or promote it as
 validated advice without language quality and target-device evidence.
 Schema-valid output is not evidence of correctness.
+
+The [12 September review](docs/REVIEW_2026-09-12.md) records sentence ownership,
+polite payment requests, suppressor fixes and independently specified examples.
+No labeled real conversation corpus or production accuracy claim was added.

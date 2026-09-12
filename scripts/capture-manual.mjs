@@ -62,7 +62,15 @@ try {
       await page.locator('#export-cancel').click();
       await page.locator('#llm-panel summary').click();
       await page.locator('#llm-enable').check();
-      await shot('07-ai-controls.jpg', '#llm-panel');
+      // Oversized panels are centered by scrollIntoView, hiding their heading.
+      // Capture each meaningful stage from below the sticky header instead.
+      for (const [file, selector] of [['07-ai-controls.jpg', '#llm-panel'], ['08-ai-wait.jpg', '#llm-wait-warning']]) {
+        await page.evaluate(selector => {
+          const header = document.querySelector('header').getBoundingClientRect().height;
+          window.scrollTo(0, scrollY + document.querySelector(selector).getBoundingClientRect().top - header - 20);
+        }, selector);
+        await shot(file);
+      }
       await page.locator('[data-goto-step="3"]').last().click();
       await page.evaluate(() => window.scrollTo(0, 0));
       await shot('05-contract.jpg');
