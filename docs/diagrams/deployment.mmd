@@ -1,0 +1,14 @@
+flowchart TB
+  Dev["Maintainer<br/>Git working copy"] --> Repo["GitHub repository<br/>main branch"]
+  Repo --> CI["GitHub Actions<br/>build and tests"]
+  CI --> Gate{"Checks pass?"}
+  Gate -->|No| Stop["Stop publication<br/>fix and rerun"]
+  Gate -->|Yes| Dist["dist/<br/>public files only"]
+  Dist --> Pages["GitHub Pages<br/>default deployment"]
+  Repo -.->|Optional account import| Vercel["Vercel<br/>same build definition"]
+  Pages --> Browser["Visitor browser<br/>UI, OCR and optional CPU LLM"]
+  Vercel --> Browser
+  classDef core fill:#eaf2ee,stroke:#146356,color:#182e33
+  classDef gate fill:#faf0db,stroke:#aa7021,color:#182e33
+  class Dev,Repo,CI,Dist,Pages,Vercel,Browser core
+  class Gate,Stop gate

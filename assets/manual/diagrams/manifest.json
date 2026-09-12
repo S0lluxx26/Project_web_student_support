@@ -1,0 +1,49 @@
+{
+  "renderer": "mermaid@12.0.0",
+  "diagrams": [
+    {
+      "id": "deployment",
+      "source": "docs/diagrams/deployment.mmd",
+      "sourceSha256": "8d7f0d5f88109ede4a4097823566b889765515156fa35f58a62c15e4b478bcff",
+      "svg": "assets/manual/diagrams/deployment.svg",
+      "svgSha256": "692a0aa4770f78419b427ef4ddbdddacb6b62a09e98915a1f009e756542868ad",
+      "png": "assets/manual/diagrams/deployment.png",
+      "pngSha256": "35d28b606f22578138911c3b0c4e10000f4024d96925878e81df707262e9dea4",
+      "width": 637,
+      "height": 918
+    },
+    {
+      "id": "data-flow",
+      "source": "docs/diagrams/data-flow.mmd",
+      "sourceSha256": "eb017eb4629d7c98df08a27ad6865eaa8544434ab44fcf409f31cd7510e9dbfe",
+      "svg": "assets/manual/diagrams/data-flow.svg",
+      "svgSha256": "413381a4117e107f5149d92c39fb567440c42a9572d309f09e66659ee6c1391a",
+      "png": "assets/manual/diagrams/data-flow.png",
+      "pngSha256": "a0c1f75ed699770061b11447e80bb41dab02a72ecb05e8124299f0e43c85fa86",
+      "width": 1163,
+      "height": 1140
+    },
+    {
+      "id": "ocr-sequence",
+      "source": "docs/diagrams/ocr-sequence.mmd",
+      "sourceSha256": "4e76e53271f3e12c1be1b9d5263519bad9bbfab353764ec98aae5ccfc606430d",
+      "svg": "assets/manual/diagrams/ocr-sequence.svg",
+      "svgSha256": "c5149592d944fd72b14c8ada2519c1728c8524382ef1d9905222a34dac472c90",
+      "png": "assets/manual/diagrams/ocr-sequence.png",
+      "pngSha256": "7c08be0e7547c275673c0608a1e2d541d5d003b3c7e930c9e6c82fcdc2f46ad3",
+      "width": 874,
+      "height": 994
+    },
+    {
+      "id": "llm-sequence",
+      "source": "docs/diagrams/llm-sequence.mmd",
+      "sourceSha256": "b145eacf138f89e94bfb780b6821774e96429d5b0247bcf8be185baf23478e3f",
+      "svg": "assets/manual/diagrams/llm-sequence.svg",
+      "svgSha256": "1900a1b1cee1e2cdbd268acad58dfb3d571085a6509b4eca4626b7de007f2cc7",
+      "png": "assets/manual/diagrams/llm-sequence.png",
+      "pngSha256": "2afeb362ab3cd42e289e7094206f5e55196af3f472798883a00fff6e45658e8f",
+      "width": 875,
+      "height": 1134
+    }
+  ]
+}

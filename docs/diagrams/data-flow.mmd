@@ -1,0 +1,26 @@
+flowchart TB
+  subgraph Browser["Visitor browser - local processing"]
+    direction TB
+    Text["Pasted messages"] --> Reviewed["Reviewed conversation<br/>and speaker/context input"]
+    Shot["Chat screenshot"] --> OCR["Tesseract worker<br/>Korean OCR"]
+    OCR --> Review["Editable draft<br/>user checks and applies"]
+    Review --> Reviewed
+    Docs["Manual document answers<br/>unknown stays unknown"] --> Rules
+    Reviewed --> Rules["Conversation parser<br/>and rule analyzer"]
+    Data["Curated JSON<br/>patterns and concepts"] --> Rules
+    Rules --> Report["Report<br/>assessment, evidence, questions"]
+    Report --> Redact["Mask identifiers<br/>editable export preview"]
+    Redact --> Confirm["User confirms export"]
+    Report -.->|One selected rule's guidance| AI["Optional PC helper<br/>Wllama / CPU"]
+    Weights["Verified model weights<br/>file or origin cache"] --> AI
+    AI --> Draft["Separate draft<br/>never changes the assessment"]
+  end
+  Host["Pages or Vercel<br/>static files"] -.->|Assets and JSON| Data
+  HF["Hugging Face<br/>pinned model file"] -.->|Only after explicit load| Weights
+  Confirm --> Output["Clipboard / share / print"]
+  classDef core fill:#eaf2ee,stroke:#146356,color:#182e33
+  classDef human fill:#faf0db,stroke:#aa7021,color:#182e33
+  classDef external fill:#eef1f7,stroke:#5b6d8a,color:#182e33
+  class Text,Reviewed,Shot,OCR,Docs,Rules,Data,Report,Redact,AI,Weights,Draft core
+  class Review,Confirm human
+  class Host,HF,Output external

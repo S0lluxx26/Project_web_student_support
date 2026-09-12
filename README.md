@@ -107,5 +107,12 @@ Run `npm run verify:install` for the complete installation checks. Run
 `npm run demo:capture` to regenerate the public screenshots using real OCR;
 review the images and recorded results before updating the guide.
 
+The [technical report](manual/PROJECT_GUIDE.md) includes a table of contents,
+repository file tree, deployment/data-flow diagrams, system sequence diagrams,
+illustrated results and links to [the prompt playbook](docs/AI_PROMPTS.md).
+[Editable Mermaid sources and reproduction steps](docs/diagrams/README.md)
+are included. `npm run test:report` checks the committed report and PDF for
+consistency without installing Python or Mermaid.
+
 Application: MIT. Vendored components retain their licenses. The GGUF model is
 Apache-2.0 and is not bundled in the repository.

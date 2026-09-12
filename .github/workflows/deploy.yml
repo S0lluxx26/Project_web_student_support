@@ -29,6 +29,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Validate and build the shared public artifact
         run: npm run build
+      - name: Verify the report, diagrams and PDF are consistent
+        run: npm run test:report
       - name: Verify vendored OCR with the real engine
         run: npm run test:ocr
       - name: Verify session recovery and both host URL layouts

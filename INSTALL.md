@@ -109,6 +109,8 @@ This command:
    root/sub-path hosting.
 4. Checks the Demo's samples, images, Markdown/PDF links, language controls
    and desktop/mobile AI policy.
+5. Verifies the report's contents links and that its committed Mermaid
+   figures and PDF match the reviewed Markdown. No report renderer is needed.
 
 **Pass condition:** command exits with code 0 and all suites pass.
 No GGUF model is downloaded. Mock model tests verify the controls and error

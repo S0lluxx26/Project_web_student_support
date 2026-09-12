@@ -4,6 +4,7 @@ No network access, model download or code execution from Markdown.
 """
 from pathlib import Path
 from xml.sax.saxutils import escape, quoteattr
+from urllib.parse import urljoin
 import hashlib, json, os, re, shutil, textwrap
 from PIL import Image as PILImage
 from pypdf import PdfReader
@@ -13,15 +14,18 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, CondPageBreak, Table, TableStyle, Image, KeepTogether, Preformatted
+from reportlab.platypus.tableofcontents import TableOfContents
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "manual/PROJECT_GUIDE.md"
 OUT = ROOT / "output/pdf/project-guide.pdf"
 PUBLIC = ROOT / "manual/project-guide.pdf"
 REPO = "https://github.com/S0lluxx26/Project_web_student_support"
+PROMPTS = REPO + "/blob/main/docs/AI_PROMPTS.md"
+PUBLIC_SOURCE = "https://s0lluxx26.github.io/Project_web_student_support/manual/PROJECT_GUIDE.md"
 FENCE = chr(96) * 3
 md = SOURCE.read_text(encoding="utf-8")
-assert "**Maker: Bui Xuan Mai**" in md and REPO in md
+assert "**Maker: Bui Xuan Mai**" in md and REPO in md and PROMPTS in md
 assert not re.search(r"\b(daughter|father|mother)\b", md, re.I)
 assert md.count(FENCE) % 2 == 0, "Unclosed Markdown code fence"
 regular = Path(os.environ.get("GUIDE_FONT", "C:/Windows/Fonts/malgun.ttf"))
@@ -52,6 +56,34 @@ styles = {
     "cellhead": ParagraphStyle("cellhead", fontName="GuideBold", fontSize=8, leading=11.4, textColor=colors.white)
 }
 styles["bullet"] = ParagraphStyle("bullet", parent=styles["body"], leftIndent=13, firstLineIndent=-10, spaceAfter=4)
+styles["toc"] = ParagraphStyle("toc", parent=styles["body"], fontSize=10, leading=15, spaceBefore=6, spaceAfter=6, rightIndent=25)
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def slug(text):
+    return re.sub(r"[^a-z0-9 -]", "", text.lower()).replace(" ", "-")
+
+diagram_manifest = json.loads((ROOT / "assets/manual/diagrams/manifest.json").read_text(encoding="utf-8"))
+diagrams = {item["id"]: item for item in diagram_manifest["diagrams"]}
+for item in diagrams.values():
+    for kind in ("source", "svg", "png"):
+        assert digest(ROOT / item[kind]) == item[kind + "Sha256"], "Stale diagram: " + item[kind]
+
+class GuideDocument(SimpleDocTemplate):
+    def beforeDocument(self):
+        self.chapter_entries = []
+
+    def afterFlowable(self, flowable):
+        entry = getattr(flowable, "guide_heading", None)
+        if not entry:
+            return
+        level, title, key = entry
+        self.canv.bookmarkPage(key)
+        self.canv.addOutlineEntry(title, key, level=level, closed=False)
+        if level == 0:
+            self.notify("TOCEntry", (0, title, self.page, key))
+            self.chapter_entries.append({"title": title, "anchor": key, "page": self.page})
 
 def inline(text):
     tokens = []
@@ -59,7 +91,7 @@ def inline(text):
         tokens.append(markup)
         return "\x00" + str(len(tokens) - 1) + "\x00"
     text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", lambda m: hold(
-        "<a href=" + quoteattr(m.group(2)) + ' color="#146356">' + escape(m.group(1)) + "</a>"), text)
+        "<a href=" + quoteattr(m.group(2) if m.group(2).startswith("#") else urljoin(PUBLIC_SOURCE, m.group(2))) + ' color="#146356">' + escape(m.group(1)) + "</a>"), text)
     text = re.sub(chr(96) + "([^" + chr(96) + "]+)" + chr(96), lambda m: hold('<font name="' + MONO + '">' + escape(m.group(1)) + "</font>"), text)
     text = escape(text)
     text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
@@ -83,29 +115,70 @@ def decorate(canvas, doc):
     canvas.drawRightString(PAGE_W - MARGIN, 22, str(doc.page))
     canvas.restoreState()
 
-story, lines, i, headings, section_breaks = [], md.splitlines(), 0, [], 0
+story, lines, i, headings, pending_diagram = [], md.splitlines(), 0, [], None
+section_breaks = 0
+rendered_diagrams = []
 while i < len(lines):
     line = lines[i]
     if not line.strip():
         i += 1; continue
     if line.strip() == "<!-- pagebreak -->":
-        # Keep the cover separate. Subsequent section boundaries reserve room
-        # for an introduction rather than producing nearly empty spill pages.
-        story.append(PageBreak() if section_breaks == 0 else CondPageBreak(190))
-        if section_breaks: story.append(Spacer(1, 12))
+        # Keep the cover, contents, architecture and diagram chapters separate.
+        # Later chapters may share a page when there is room for a substantial
+        # introduction, avoiding almost-empty screenshot/paragraph spill pages.
+        story.append(PageBreak() if section_breaks < 5 else CondPageBreak(300))
+        if section_breaks >= 5:
+            story.append(Spacer(1, 14))
         section_breaks += 1
+        i += 1; continue
+    if line.strip() == "<!-- toc:start -->":
+        toc = TableOfContents()
+        toc.levelStyles = [styles["toc"]]
+        toc.dotsMinLevel = 0
+        story.append(toc)
+        while i < len(lines) and lines[i].strip() != "<!-- toc:end -->":
+            i += 1
+        assert i < len(lines), "Unclosed contents marker"
+        i += 1; continue
+    diagram_marker = re.fullmatch(r"<!-- mermaid: ([a-z-]+) -->", line.strip())
+    if diagram_marker:
+        pending_diagram = diagram_marker[1]
         i += 1; continue
     heading = re.match(r"^(#{1,3}) (.+)$", line)
     if heading:
         headings.append(heading[2])
-        story.append(para(heading[2], "h" + str(len(heading[1])))); i += 1; continue
+        paragraph = para(heading[2], "h" + str(len(heading[1])))
+        if len(heading[1]) == 2 and re.match(r"\d+\. ", heading[2]):
+            paragraph.guide_heading = (0, heading[2], slug(heading[2]))
+        elif len(heading[1]) == 3 and re.match(r"[34]\.[12] ", heading[2]):
+            paragraph.guide_heading = (1, heading[2], slug(heading[2]))
+        story.append(paragraph); i += 1; continue
     if line.startswith(FENCE):
+        language = line[len(FENCE):].strip()
         i += 1
         block = []
         while i < len(lines) and not lines[i].startswith(FENCE):
-            block.extend(textwrap.wrap(lines[i], width=91, replace_whitespace=False, drop_whitespace=False) or [""])
+            block.append(lines[i])
             i += 1
-        story.append(Preformatted("\n".join(block), styles["code"]))
+        if language == "mermaid":
+            assert pending_diagram in diagrams, "Missing Mermaid figure marker"
+            item = diagrams[pending_diagram]
+            expected = (ROOT / item["source"]).read_text(encoding="utf-8").strip()
+            assert "\n".join(block).strip() == expected, "Markdown/source diagram mismatch: " + pending_diagram
+            file = ROOT / item["png"]
+            with PILImage.open(file) as img:
+                w, h = img.size
+            scale = min(WIDTH / w, 575 / h)
+            figure = Image(str(file), width=w * scale, height=h * scale, hAlign="CENTER")
+            figure.keepWithNext = True
+            story.append(figure)
+            rendered_diagrams.append(pending_diagram)
+            pending_diagram = None
+        else:
+            wrapped = []
+            for row in block:
+                wrapped.extend(textwrap.wrap(row, width=91, replace_whitespace=False, drop_whitespace=False) or [""])
+            story.append(Preformatted("\n".join(wrapped), styles["code"]))
         i += 1; continue
     match = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", line)
     if match:
@@ -151,27 +224,35 @@ while i < len(lines):
         markup += inline(part.rstrip())
         if j < len(block) - 1:
             markup += "<br/>" if part.endswith("  ") else " "
-    story.append(Paragraph(markup, styles["body"]))
+    story.append(Paragraph(markup, styles["caption"] if re.match(r"Figure \d+\.", block[0]) else styles["body"]))
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
-doc = SimpleDocTemplate(str(OUT), pagesize=A4, rightMargin=MARGIN, leftMargin=MARGIN, topMargin=48, bottomMargin=47,
+doc = GuideDocument(str(OUT), pagesize=A4, rightMargin=MARGIN, leftMargin=MARGIN, topMargin=48, bottomMargin=47,
                         title="Student Housing Safety Assistant - Project guide", author="Bui Xuan Mai")
-doc.build(story, onFirstPage=decorate, onLaterPages=decorate)
+assert len(rendered_diagrams) == len(diagrams) == 4
+doc.multiBuild(story, onFirstPage=decorate, onLaterPages=decorate)
 reader = PdfReader(str(OUT))
 text = "\n".join(page.extract_text() for page in reader.pages)
 collapsed = re.sub(r"\s+", "", text)
-assert REPO in collapsed and "BuiXuanMai" in collapsed
+assert REPO in collapsed and PROMPTS in collapsed and "BuiXuanMai" in collapsed
 assert not re.search(r"\b(daughter|father|mother)\b", text, re.I)
 for heading in headings:
     assert re.sub(r"\s+", "", heading) in collapsed, "Missing heading: " + heading
 assert reader.metadata.author == "Bui Xuan Mai"
+assert len(doc.chapter_entries) == 15
+for entry in doc.chapter_entries:
+    page_text = re.sub(r"\s+", "", reader.pages[entry["page"] - 1].extract_text())
+    assert re.sub(r"\s+", "", entry["title"]) in page_text, "Incorrect contents destination: " + entry["title"]
 PUBLIC.parent.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(OUT, PUBLIC)
 assert OUT.read_bytes() == PUBLIC.read_bytes()
 record = {"source": "manual/PROJECT_GUIDE.md", "sourceSha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
           "pdfSha256": hashlib.sha256(OUT.read_bytes()).hexdigest(), "pages": len(reader.pages),
           "bytes": OUT.stat().st_size, "maker": reader.metadata.author, "repository": REPO,
-          "headingsVerified": len(headings), "visualReview": "Required separately: render and inspect every page."}
+          "promptReference": PROMPTS, "headingsVerified": len(headings), "contents": doc.chapter_entries,
+          "diagramManifestSha256": digest(ROOT / "assets/manual/diagrams/manifest.json"),
+          "visualReview": "Required separately: render and inspect every page."}
+(ROOT / "assets/manual/report-build.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
 tmp = ROOT / "tmp/pdfs"
 tmp.mkdir(parents=True, exist_ok=True)
 (tmp / "guide-text.txt").write_text(text, encoding="utf-8")

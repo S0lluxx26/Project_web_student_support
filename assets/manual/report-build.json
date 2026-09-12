@@ -1,0 +1,90 @@
+{
+  "source": "manual/PROJECT_GUIDE.md",
+  "sourceSha256": "195f44747881edb05747667393be61f46e517fe9c9d6357108164a4d84f35267",
+  "pdfSha256": "121480324f09d9fb45ee6d8146b095b463f7d09a5ebcc2c188293bc5c693f4c5",
+  "pages": 24,
+  "bytes": 1765010,
+  "maker": "Bui Xuan Mai",
+  "repository": "https://github.com/S0lluxx26/Project_web_student_support",
+  "promptReference": "https://github.com/S0lluxx26/Project_web_student_support/blob/main/docs/AI_PROMPTS.md",
+  "headingsVerified": 50,
+  "contents": [
+    {
+      "title": "1. Project overview and scope",
+      "anchor": "1-project-overview-and-scope",
+      "page": 3
+    },
+    {
+      "title": "2. Repository architecture and file structure",
+      "anchor": "2-repository-architecture-and-file-structure",
+      "page": 4
+    },
+    {
+      "title": "3. Deployment and data flow",
+      "anchor": "3-deployment-and-data-flow",
+      "page": 6
+    },
+    {
+      "title": "4. System sequence diagrams",
+      "anchor": "4-system-sequence-diagrams",
+      "page": 9
+    },
+    {
+      "title": "5. AI prompt sources and working method",
+      "anchor": "5-ai-prompt-sources-and-working-method",
+      "page": 11
+    },
+    {
+      "title": "6. Local setup and interface implementation",
+      "anchor": "6-local-setup-and-interface-implementation",
+      "page": 12
+    },
+    {
+      "title": "7. Implementing explainable conversation checks",
+      "anchor": "7-implementing-explainable-conversation-checks",
+      "page": 13
+    },
+    {
+      "title": "8. Screenshot OCR and the review workflow",
+      "anchor": "8-screenshot-ocr-and-the-review-workflow",
+      "page": 14
+    },
+    {
+      "title": "9. Demonstration results",
+      "anchor": "9-demonstration-results",
+      "page": 15
+    },
+    {
+      "title": "10. Document review and private export",
+      "anchor": "10-document-review-and-private-export",
+      "page": 17
+    },
+    {
+      "title": "11. Optional desktop AI and its limitations",
+      "anchor": "11-optional-desktop-ai-and-its-limitations",
+      "page": 19
+    },
+    {
+      "title": "12. Demo and report reproduction",
+      "anchor": "12-demo-and-report-reproduction",
+      "page": 21
+    },
+    {
+      "title": "13. Verification and deployment",
+      "anchor": "13-verification-and-deployment",
+      "page": 22
+    },
+    {
+      "title": "14. Results, limitations and remaining work",
+      "anchor": "14-results-limitations-and-remaining-work",
+      "page": 23
+    },
+    {
+      "title": "15. References and glossary",
+      "anchor": "15-references-and-glossary",
+      "page": 24
+    }
+  ],
+  "diagramManifestSha256": "7dbd76a46f8a41e05d16440042190a9bd00c7f75a4a01844a073970196713da9",
+  "visualReview": "Required separately: render and inspect every page."
+}

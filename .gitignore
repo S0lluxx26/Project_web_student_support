@@ -12,6 +12,10 @@ desktop.ini
 node_modules/
 npm-debug.log*
 
+# Optional Python report tooling
+__pycache__/
+*.pyc
+
 # Local scratch
 tmp/
 *.local

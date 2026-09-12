@@ -1,0 +1,24 @@
+sequenceDiagram
+  actor U as PC user
+  participant UI as Browser UI
+  participant W as LLM worker
+  participant S as Model source
+  Note over U,UI: Phones/tablets are blocked. PC opt-in starts unchecked
+  U->>UI: Enable experiment
+  UI-->>U: Show load controls without downloading
+  U->>UI: Explicit load or choose local GGUF
+  UI->>W: Load pinned model configuration
+  W->>S: Read chosen file/cache or fetch weights
+  Note over W,S: Network fallback is pinned Hugging Face URL. No chat sent
+  S-->>W: Model bytes
+  W-->>UI: Verified model ready or load failure
+  U->>UI: Select one finding and generate
+  UI->>W: Only rule guidance and fixed assessment
+  W-->>UI: Generated draft or error
+  alt Draft passes UI validation
+    UI-->>U: Separate experimental explanation
+  else Invalid output or failure
+    UI-->>U: Keep original rule report and show status
+  end
+  Note over UI,W: Cancel/reset terminates worker. Stale jobs cannot restore output
+  Note over U,UI: Draft never changes the assessment or enters report exports

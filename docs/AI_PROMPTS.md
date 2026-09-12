@@ -1,13 +1,24 @@
 # AI 프롬프트 가이드 · AI Prompt Playbook
 
-Prompts that actually produce usable material for this project, and the failure
-modes that will bite you if you trust the output.
+Suggested prompts for developing this project, with the checks needed before
+using generated material.
 
-The tool itself contains **no AI at runtime** — it is a deterministic rule
-engine, which is why it is free, private and auditable. AI is used *upstream*,
-by us, to research patterns and draft rules. That distinction matters: a
-hallucinated fact in a chat window costs nothing, but the same fact written
-into `patterns.json` gets shown to a student as safety advice.
+The main scam-signal assessment is a **deterministic rule engine**. The current
+application also has Korean screenshot OCR and an optional browser LLM on PCs.
+The LLM explains one existing finding; it cannot change the assessment and is
+disabled on phones/tablets. See [the measured limits](BROWSER_LLM_OPTIONS.md).
+
+This document focuses on AI used during development to research patterns and
+draft rules. A suggested fact must be verified before it enters `patterns.json`
+and becomes guidance shown to users. These prompts are reusable templates,
+not an authenticated transcript of the project's development history.
+
+**Maker: Bui Xuan Mai** · [Repository](https://github.com/S0lluxx26/Project_web_student_support)
+
+Related prompts: [PC installation](../INSTALL.md#1-prompt-to-give-another-ai),
+[implementation prompts and project report](../manual/PROJECT_GUIDE.md), and
+[field-research protocol](FIELD_RESEARCH.md). The report links back to this
+playbook and distinguishes research prompts from installation and coding tasks.
 
 So the rule for everything below is: **AI drafts, a primary source decides.**
 
@@ -101,9 +112,9 @@ abbreviations and typos, and use slang for "send money" (쏘다, 넣다, 쏴).
 Original: "오늘 가계약금 먼저 입금해주시면 방 잡아드릴게요."
 ```
 
-Paste the results straight into `scripts/test-detector.js`. If the concept
-rules catch fewer than eight of ten, the lexicon is missing surface forms —
-add them and re-run.
+Review the generated intent and labels before adding useful examples to
+`scripts/test-detector.js`. Investigate missed paraphrases alongside benign
+controls; do not expand a rule merely to reach an arbitrary synthetic score.
 
 ### 2.4 Find the Korean term for a concept
 
@@ -161,9 +172,8 @@ same session**, and treat a control firing as a bug in the rule, not the control
 
 "전세사기 피해자의 70%가 20–30대" — a number like this will be produced on
 request, with or without a real source. Either cite a specific published
-report you have opened, or write the claim qualitatively. Our homepage says
-"상당수가 20–30대 1인 가구" for exactly this reason: it is defensible without
-a number we cannot source.
+report you have opened, or omit the unsupported claim. Replacing a number with
+"many" does not remove the need for evidence.
 
 ### 3.6 The model agreeing with you
 
@@ -176,7 +186,8 @@ you agreement.
 
 ## 4. A worked example, end to end
 
-**Field finding.** An agent wrote: "입금 확인되면 방 킵해드릴게요."
+**Illustrative input, not a verified field-research record:**
+"입금 확인되면 방 킵해드릴게요."
 
 **Prompt.**
 
@@ -192,18 +203,19 @@ Korean rental chat: "입금 확인되면 방 킵해드릴게요."
    present.
 ```
 
-**What comes back that you keep.** "킵" belongs in `HOLD_ROOM`; also missing
-are "찜", "예약해". The tactic is pay-before-viewing, and the mechanism is that
-a holding payment with no written terms has no legal basis for recovery.
+**Candidate output to review.** "킵", "찜" and "예약해" may be useful
+`HOLD_ROOM` surface forms. Check whether they already exist and how they behave
+in ordinary sentences. The quoted sentence alone does not establish whether
+a viewing occurred or whether any fraud is involved.
 
-**What you verify.** The claim about recoverability — check against
-가계약금 반환 case law before writing it into `why`.
+**What you verify.** Check the surrounding conversation before labeling the
+scenario. If the model makes a claim about recovering a payment, require an
+applicable primary source and qualified review before adding it to `why`.
 
-**What you do.** Add `"킵", "찜", "예약해"` to `HOLD_ROOM` in
-`data/lexicon.json`. Add the benign sentences to the control set in
-`scripts/test-detector.js`. Run the tests. The existing rule
-`fz-hold-room-payment` now catches this sentence and four paraphrases of it,
-without a new pattern and without touching any code.
+**What you do.** Propose only justified lexicon changes in `data/lexicon.json`.
+Add reviewed suspicious and benign examples to `scripts/test-detector.js`.
+Run the tests and record the observed outcomes. This worked example is a
+contribution method, not evidence that an unrecorded test run passed.
 
 That is the shape of a good contribution: one word in a JSON file, verified
 against a primary source, covered by a test.

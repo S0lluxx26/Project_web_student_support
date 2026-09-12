@@ -1,0 +1,25 @@
+sequenceDiagram
+  actor U as User
+  participant UI as Browser UI
+  participant OCR as OCR worker
+  participant A as Rule analyzer
+  U->>UI: Select chat screenshot
+  UI->>OCR: Start a new recognition job
+  Note over UI,OCR: Vendored engine and Korean assets load on demand
+  OCR-->>UI: Progress updates
+  alt User cancels or resets
+    U->>UI: Cancel or reset
+    UI->>OCR: Terminate worker
+    Note over UI,OCR: Invalidate job and ignore stale callbacks
+  else Recognition finishes
+    OCR-->>UI: Draft text, boxes and uncertainty
+    UI-->>U: Original image and editable review
+    U->>UI: Confirm side, correct text, apply
+    UI->>A: Reviewed text, context and answers
+    A-->>UI: Assessment, evidence and questions
+    UI-->>U: Display report
+    U->>UI: Request copy, share or print
+    UI-->>U: Editable masked export preview
+    U->>UI: Edit preview and confirm
+    UI-->>U: Export only reviewed text
+  end
