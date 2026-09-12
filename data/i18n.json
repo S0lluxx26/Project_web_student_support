@@ -210,10 +210,17 @@
     "ocr.review.sides.left": "왼쪽이 내가 보낸 말입니다",
     "ocr.review.sides.none": "나누지 않기",
     "ocr.review.label": "읽은 글 (고칠 수 있습니다)",
-    "ocr.review.append": "대화에 추가",
+    "ocr.review.append": "대화에 추가만",
     "ocr.review.discard": "버리기",
     "ocr.label.me": "저",
-    "ocr.label.them": "상대방"
+    "ocr.label.them": "상대방",
+    "ocr.cancel": "읽기 중단",
+    "ocr.review.source": "원본 스크린샷",
+    "ocr.review.relabel": "화자 구분 다시 적용 (고친 내용은 지워집니다)",
+    "ocr.review.original": "지워진 부분 보기",
+    "ocr.review.original.hint": "시각 표시처럼 보이는 부분은 자동으로 지웠습니다. 실제 대화 내용이었다면 아래에서 확인하고 위 칸에 직접 넣어주세요.",
+    "ocr.review.analyze": "추가하고 바로 분석",
+    "export.print": "인쇄하기"
   },
   "en": {
     "site.title": "Student Housing Safety Assistant",
@@ -426,9 +433,16 @@
     "ocr.review.sides.left": "The left-hand side is me",
     "ocr.review.sides.none": "Don't label them",
     "ocr.review.label": "Recognised text (you can edit it)",
-    "ocr.review.append": "Add to the conversation",
+    "ocr.review.append": "Just add to the conversation",
     "ocr.review.discard": "Discard",
     "ocr.label.me": "Me",
-    "ocr.label.them": "Them"
+    "ocr.label.them": "Them",
+    "ocr.cancel": "Stop reading",
+    "ocr.review.source": "The original screenshot",
+    "ocr.review.relabel": "Re-apply speaker labels (your edits will be lost)",
+    "ocr.review.original": "Show what was removed",
+    "ocr.review.original.hint": "Anything that looked like a timestamp was removed automatically. If it was actually part of the conversation, check below and put it back in the box above.",
+    "ocr.review.analyze": "Add and check now",
+    "export.print": "Print"
   }
 }

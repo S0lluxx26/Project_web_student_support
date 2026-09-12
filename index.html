@@ -17,7 +17,7 @@
 <!-- Inline so the page never makes a request for it; the browser asks for
      /favicon.ico otherwise and logs a 404 on every visit. -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8F%A0%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/css/style.css?v=22b827e8">
+<link rel="stylesheet" href="assets/css/style.css?v=d225430a">
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="nav.skip">본문으로 건너뛰기</a>
@@ -159,6 +159,10 @@
           <input type="file" id="ocr-file" accept="image/png,image/jpeg,image/webp" multiple>
         </label>
         <p class="note" id="ocr-progress" role="status" aria-live="polite" hidden></p>
+        <div class="actions" id="ocr-cancel-row" hidden>
+          <button class="btn btn-ghost btn-sm" id="btn-ocr-cancel" type="button"
+                  data-i18n="ocr.cancel">읽기 중단</button>
+        </div>
         <p class="error" id="ocr-error" hidden></p>
 
         <!-- The review gate. OCR output lands here and nowhere else; the
@@ -166,6 +170,13 @@
         <div id="ocr-review" hidden>
           <h3 class="h3" data-i18n="ocr.review.heading">읽은 내용 확인</h3>
           <p class="lede" data-i18n="ocr.review.lede"></p>
+          <!-- The picture the draft came from. Cleanup removes things on
+               purpose and recognition gets words wrong; either way the
+               reviewer can only judge the text against the original. -->
+          <div id="ocr-source-row" hidden>
+            <p class="field-label" data-i18n="ocr.review.source"></p>
+            <div class="ocr-sources" id="ocr-sources"></div>
+          </div>
           <div id="ocr-uncertain" hidden>
             <p class="field-label" data-i18n="ocr.review.uncertain"></p>
             <ul class="q-list" id="ocr-uncertain-list"></ul>
@@ -186,8 +197,23 @@
             <textarea id="ocr-text" rows="10" spellcheck="false"></textarea>
           </label>
           <div class="actions">
-            <button class="btn btn-primary" id="btn-ocr-append" type="button"
-                    data-i18n="ocr.review.append">대화에 추가</button>
+            <!-- Appears only once the user has typed: re-labelling rebuilds the
+                 draft and would throw their corrections away, so it is
+                 something they press rather than something that happens. -->
+            <button class="btn btn-ghost btn-sm" id="btn-ocr-relabel" type="button" hidden
+                    data-i18n="ocr.review.relabel">화자 구분 다시 적용</button>
+            <button class="btn btn-ghost btn-sm" id="btn-ocr-original" type="button" hidden
+                    data-i18n="ocr.review.original">지워진 부분 보기</button>
+          </div>
+          <div class="panel panel-muted" id="ocr-original" hidden>
+            <p class="field-hint" data-i18n="ocr.review.original.hint"></p>
+            <pre></pre>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="btn-ocr-analyze" type="button"
+                    data-i18n="ocr.review.analyze">추가하고 바로 분석</button>
+            <button class="btn btn-ghost" id="btn-ocr-append" type="button"
+                    data-i18n="ocr.review.append">대화에 추가만</button>
             <button class="btn btn-ghost" id="btn-ocr-discard" type="button"
                     data-i18n="ocr.review.discard">버리기</button>
           </div>
@@ -340,14 +366,14 @@
   </div>
 </footer>
 
-<script src="assets/js/i18n.js?v=22b827e8"></script>
-<script src="assets/js/redact.js?v=22b827e8"></script>
-<script src="assets/js/ocr.js?v=22b827e8"></script>
-<script src="assets/js/conversation.js?v=22b827e8"></script>
-<script src="assets/js/detector.js?v=22b827e8"></script>
-<script src="assets/js/analyzer.js?v=22b827e8"></script>
-<script src="assets/js/housing.js?v=22b827e8"></script>
-<script src="assets/js/goshiwon.js?v=22b827e8"></script>
-<script src="assets/js/app.js?v=22b827e8"></script>
+<script src="assets/js/i18n.js?v=d225430a"></script>
+<script src="assets/js/redact.js?v=d225430a"></script>
+<script src="assets/js/ocr.js?v=d225430a"></script>
+<script src="assets/js/conversation.js?v=d225430a"></script>
+<script src="assets/js/detector.js?v=d225430a"></script>
+<script src="assets/js/analyzer.js?v=d225430a"></script>
+<script src="assets/js/housing.js?v=d225430a"></script>
+<script src="assets/js/goshiwon.js?v=d225430a"></script>
+<script src="assets/js/app.js?v=d225430a"></script>
 </body>
 </html>

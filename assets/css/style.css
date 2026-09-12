@@ -734,3 +734,27 @@ legend { font-size: .95rem; font-weight: 700; padding: 0; margin-bottom: 11px; }
   .ocr > summary { padding: 15px 17px; min-height: 52px; }
   .ocr > :not(summary) { margin-left: 17px; margin-right: 17px; }
 }
+
+/* ---- screenshot reader: sources, original, cancel ---------------------- */
+.ocr-sources { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.ocr-sources img {
+  width: 96px; height: auto; max-height: 200px; object-fit: cover;
+  border-radius: 8px; border: 1px solid var(--border);
+}
+#ocr-original pre {
+  white-space: pre-wrap; word-break: break-word; margin: 8px 0 0;
+  font: .86rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  max-height: 220px; overflow: auto;
+}
+
+/* Printing the reviewed export snapshot, not the page. Everything else is
+   hidden so nothing the redaction preview masked can reach the paper. */
+#print-sheet { display: none; }
+#print-sheet pre {
+  white-space: pre-wrap; word-break: break-word;
+  font: 11pt/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media print {
+  body.printing-sheet > *:not(#print-sheet) { display: none !important; }
+  body.printing-sheet #print-sheet { display: block; padding: 0; margin: 0; }
+}

@@ -25,7 +25,12 @@
           "오늘 계약",
           "마감 임박",
           "곧 나가요",
-          "지금 결정"
+          "지금 결정",
+          "다음 분께 넘어",
+          "다른 분한테 넘어",
+          "다른 분께 넘어",
+          "오늘 안에 결정",
+          "내일이면 없어"
         ],
         "en": [
           "today only",
@@ -75,6 +80,18 @@
         [
           "now",
           "deposit"
+        ],
+        [
+          "오늘",
+          "넘어"
+        ],
+        [
+          "결정",
+          "넘어가"
+        ],
+        [
+          "오늘 안에",
+          "결정"
         ]
       ]
     },
@@ -102,7 +119,15 @@
           "친구 계좌",
           "와이프 계좌",
           "사장님 계좌",
-          "제 명의 아닌"
+          "제 명의 아닌",
+          "제 명의 계좌",
+          "본인 명의 계좌",
+          "중개사 명의 계좌",
+          "대리인 명의 계좌",
+          "제 이름으로 된 계좌",
+          "중개사 계좌",
+          "대리인 계좌",
+          "제가 받아서"
         ],
         "en": [
           "my personal account",
@@ -176,16 +201,26 @@
           "소유자와 같",
           "명의가 같",
           "예금주가 같",
-          "일치",
-          "본인 명의",
-          "제 명의"
+          "일치"
         ],
         "en": [
           "same as the owner",
           "matches the owner",
-          "in my own name",
           "account holder matches"
-        ]
+        ],
+        "bySpeaker": {
+          "landlord": {
+            "ko": [
+              "제 명의",
+              "본인 명의",
+              "제 이름"
+            ],
+            "en": [
+              "in my own name",
+              "in my name"
+            ]
+          }
+        }
       }
     },
     {
@@ -567,7 +602,25 @@
           "trust",
           "real owner"
         ]
-      ]
+      ],
+      "suppressedBy": {
+        "anywhere": {
+          "ko": [
+            "신탁사 동의",
+            "신탁회사 동의",
+            "임대차 동의서",
+            "신탁사 지정 계좌",
+            "신탁회사 지정 계좌",
+            "신탁사 계좌로",
+            "동의서를 먼저"
+          ],
+          "en": [
+            "trust consent",
+            "consent from the trust",
+            "trust company account"
+          ]
+        }
+      }
     },
     {
       "id": "reg-seizure-auction",
@@ -641,6 +694,75 @@
         ]
       ],
       "deniable": true
+    },
+    {
+      "id": "reg-dismiss-question",
+      "category": "register_risk",
+      "severity": 4,
+      "title": {
+        "ko": "등기·권리관계 질문을 얼버무림",
+        "en": "Brushes off questions about the register"
+      },
+      "why": {
+        "ko": "상대방이 근저당·가압류·선순위 채권에 대한 질문에 금액이나 서류로 답하지 않고 \"별거 아니다\", \"신경 쓰지 마라\"로 넘어가고 있습니다. 금액은 등기부등본에 숫자로 적혀 있어 확인에 1분도 걸리지 않습니다. 확인을 막는 행동 자체가 신호입니다.",
+        "en": "They answered a question about liens, seizures or prior claims with reassurance instead of a number or a document. Those amounts are printed on the property register and take a minute to check, so steering you away from checking is itself the signal."
+      },
+      "action": {
+        "ko": "\"을구에 적힌 채권최고액이 정확히 얼마인가요?\"라고 숫자를 다시 물어보세요. 답을 피하면 등기부등본을 직접 발급(인터넷등기소, 700원)해 확인하고, 그 전에는 어떤 돈도 보내지 마세요.",
+        "en": "Ask again for the number: \"what exactly is the maximum claim amount in section 을구?\" If they dodge, issue the register yourself at iros.go.kr and send no money until you have read it."
+      },
+      "sample": {
+        "ko": "그런 거 따지면 계약 못 해요. 별거 아닙니다.",
+        "en": "If you worry about that you'll never rent anything. It's nothing."
+      },
+      "keywords": {
+        "ko": [
+          "별거 아닙니다",
+          "별거 아니에요",
+          "별 거 아닙니다",
+          "곧 풀립니다",
+          "곧 풀려요",
+          "곧 말소될",
+          "곧 말소됩니다",
+          "걱정도 팔자",
+          "그런 거 따지면",
+          "그런 거 따지시면",
+          "따지면 계약 못",
+          "신경 쓰실 필요 없",
+          "신경 안 쓰셔도",
+          "신경 쓰지 마",
+          "신경 쓸 필요 없",
+          "확정일자만 받",
+          "확정일자만 있으면",
+          "원래 다 그래요",
+          "요즘 다 이렇",
+          "그냥 믿으셔도"
+        ],
+        "en": [
+          "it's nothing",
+          "don't worry about that",
+          "no need to check that",
+          "everyone does it this way",
+          "just trust me",
+          "it will be cleared soon"
+        ]
+      },
+      "combos": [
+        [
+          "따지",
+          "계약",
+          "못"
+        ],
+        [
+          "신경",
+          "필요 없"
+        ],
+        [
+          "믿으",
+          "됩니다"
+        ]
+      ],
+      "refusalGate": false
     },
     {
       "id": "reg-gangtong",
@@ -1551,7 +1673,14 @@
           "일단 보내주시면",
           "입금 확인 후 계약",
           "송금하시면 계약서",
-          "예약금 먼저"
+          "예약금 먼저",
+          "계약서는 입금 후",
+          "계약서는 입금 확인",
+          "입금 확인 후에 보내",
+          "입금하시면 계약서",
+          "계약서는 나중에 쓰",
+          "돈부터 넣",
+          "계약금부터 넣"
         ],
         "en": [
           "pay before the contract",
@@ -1595,6 +1724,16 @@
           "send",
           "first",
           "contract"
+        ],
+        [
+          "계약서",
+          "입금",
+          "후"
+        ],
+        [
+          "contract",
+          "after",
+          "payment"
         ]
       ]
     },

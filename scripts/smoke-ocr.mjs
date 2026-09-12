@@ -11,15 +11,16 @@
  * in a form the worker can read, whether the review pane fills, and
  * whether the reviewed text actually reaches the conversation box.
  *
- * It drives the real page — no stubs, no injected text. It serves the repo
- * over http because a file:// origin cannot start a worker, and it uploads a
- * committed fixture through the real <input type="file">.
+ * It drives the real page — no stubs, no injected text. It serves the repo over
+ * http (via the shared server in scripts/serve-site.mjs) because a file://
+ * origin cannot start a worker, and it uploads a committed fixture through the
+ * real <input type="file">.
  */
 
-import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createSiteServer, listen } from './serve-site.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT || 8765);
@@ -33,26 +34,8 @@ try {
   process.exit(1);
 }
 
-const TYPES = {
-  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png', '.jpg': 'image/jpeg', '.wasm': 'application/wasm',
-  /* The model is shipped uncompressed (see the gzip note in ocr.js), so the
-     only thing that matters here is that it is served as an opaque stream. */
-  '.traineddata': 'application/octet-stream'
-};
-
-const server = http.createServer((req, res) => {
-  const rel = decodeURIComponent(req.url.split('?')[0]).replace(/^\/+/, '') || 'index.html';
-  const file = path.join(ROOT, rel);
-  if (!file.startsWith(ROOT) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
-    res.writeHead(404).end('not found');
-    return;
-  }
-  res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream' });
-  fs.createReadStream(file).pipe(res);
-});
-await new Promise(r => server.listen(PORT, r));
+const server = createSiteServer({ root: ROOT });
+await listen(server, PORT);
 
 let fails = 0;
 const ok = (c, m) => { console.log((c ? 'PASS  ' : 'FAIL  ') + m); if (!c) fails++; };

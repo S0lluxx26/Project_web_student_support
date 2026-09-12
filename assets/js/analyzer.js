@@ -270,7 +270,7 @@
      * reasons are kept rather than silently discarded so the report can
      * explain why something was NOT flagged when a user expects it.
      */
-    gate: function (pattern, message) {
+    gate: function (pattern, message, convo) {
       if (!message) return null;
       var C = global.Conversation;
       if (!C) return null;
@@ -282,8 +282,15 @@
       /* Asking whether a risk applies is not evidence that it does. */
       if (message.act === 'question') return 'question';
 
-      /* A refusal by the speaker is the opposite of a demand. */
-      if (message.act === 'refusal') return 'refusal';
+      /*
+       * A refusal by the speaker is the opposite of a demand — but only for
+       * patterns that describe a demand. "그런 거 따지면 계약 못 해요" carries a
+       * refusal marker (못 해요) while being the counterparty dismissing a
+       * question about the register, which is the risk itself rather than the
+       * absence of one. Patterns whose subject is the other side's rhetoric
+       * set `refusalGate: false` and opt out.
+       */
+      if (message.act === 'refusal' && pattern.refusalGate !== false) return 'refusal';
 
       /* An explicit denial voids patterns whose whole claim is that the
          risk is PRESENT. It must not void patterns where the reassurance
@@ -302,10 +309,49 @@
       /* A pattern may name phrases that describe the correct situation. */
       var sup = pattern.suppressedBy;
       if (sup) {
-        var forms = [].concat(sup.ko || [], sup.en || []);
         var nt = this.normalize(message.text);
+        var forms = [].concat(sup.ko || [], sup.en || []);
         for (var i = 0; i < forms.length; i++) {
           if (nt.indexOf(this.normalize(forms[i])) !== -1) return 'stated-correct';
+        }
+
+        /*
+         * Some reassurances only reassure depending on who is speaking. "제
+         * 명의 계좌로 보내주세요" from the OWNER means the account matches the
+         * register, which is exactly right; from the AGENT it means the deposit
+         * is going into the agent's own name, which is the classic version of
+         * this fraud. A speaker-blind suppressor silently cancelled the second
+         * case — found when demo/run-demo.mjs put a real screenshot through and
+         * the agent's request produced nothing. Hence `suppressedBy.bySpeaker`:
+         * the phrase excuses the pattern only from the listed speakers.
+         */
+        /*
+         * Some reassurances are made once and cover the whole conversation.
+         * An agent who explains that a trust-owned flat needs the trustee's
+         * written consent, and points the deposit at the trust's own account,
+         * has handled the single most dangerous thing about that property
+         * correctly — but says so in a DIFFERENT message from the one that
+         * mentions the trust, so a per-message suppressor never sees it and
+         * the correct behaviour is reported as a strong warning. `anywhere`
+         * is checked against everything the counterparty said.
+         */
+        if (sup.anywhere && convo) {
+          var anyForms = [].concat(sup.anywhere.ko || [], sup.anywhere.en || []);
+          for (var k = 0; k < anyForms.length; k++) {
+            if (convo.indexOf(this.normalize(anyForms[k])) !== -1) return 'stated-correct';
+          }
+        }
+
+        var by = sup.bySpeaker;
+        if (by) {
+          for (var role in by) {
+            if (!Object.prototype.hasOwnProperty.call(by, role)) continue;
+            if (message.speaker !== role) continue;
+            var roleForms = [].concat(by[role].ko || [], by[role].en || []);
+            for (var j = 0; j < roleForms.length; j++) {
+              if (nt.indexOf(this.normalize(roleForms[j])) !== -1) return 'stated-correct';
+            }
+          }
         }
       }
       return null;
@@ -340,6 +386,16 @@
           }
         });
       }
+      /* Everything the OTHER side said, as one normalized string, for
+         suppressors that cover the whole conversation rather than one line
+         (see `suppressedBy.anywhere` in gate). The user's own words are
+         excluded — a tenant saying the right thing does not make the
+         counterparty's behaviour safe. */
+      var counterpartyText = this.normalize(
+        messages.filter(function (m) {
+          return global.Conversation ? Conversation.countsAsCounterparty(m) : true;
+        }).map(function (m) { return m.text; }).join(' '));
+
       var suppressed = [];
 
       /* Sentences come from message BODIES, never the raw paste.
@@ -408,7 +464,7 @@
         if (!hit.length) return;
 
         var msg = messageFor(quote || text);
-        var blocked = self.gate(p, msg);
+        var blocked = self.gate(p, msg, counterpartyText);
         if (blocked) {
           suppressed.push({ patternId: p.id, reason: blocked,
                             speaker: msg ? msg.speaker : 'unknown' });
@@ -441,7 +497,7 @@
             if (!p || already[p.id]) return;
 
             var fmsg = messageFor(hit.sentence);
-            var fblocked = self.gate(p, fmsg);
+            var fblocked = self.gate(p, fmsg, counterpartyText);
             if (fblocked) {
               suppressed.push({ patternId: p.id, reason: fblocked,
                                 speaker: fmsg ? fmsg.speaker : 'unknown' });

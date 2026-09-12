@@ -88,12 +88,36 @@ cleanup deliberately refuses to fix and the flag that gates the feature.
 The fixtures are synthetic, so a green test run is a regression guard rather than
 proof it works on a real phone capture.
 
+## Seeing it work
+
+```bash
+./demo/run.sh              # macOS/Linux — serves the site and opens a browser
+.\demo\run.ps1             # Windows
+./demo/run.sh --report     # every demo screenshot through the real pipeline
+```
+
+`demo/screenshots/` holds 22 phone-resolution chat captures — a group chat, dark
+mode, SMS, slang, a photo taken off a screen, a 420px thumbnail, and nine that
+each isolate one transaction risk (깡통전세, 신탁등기, 무권대리, 이중계약,
+무등록 중개, 명의 불일치, 가압류). Last measured: 17 dangerous conversations
+all flagged, 5 ordinary ones all clean. Show `01` and then `02` — `02` is the
+ordinary one and comes back with nothing, which is the harder half to get
+right. [`demo/README.md`](demo/README.md) covers
+the rest, including why the images are drawn rather than downloaded.
+
 ## Not implemented yet
 
 Stated plainly so nobody has to read the code to find out:
 
 - **Any trained classifier.** There is no model, no training data, and no evaluation
   set. The pattern catalogue is a rule catalogue, not a labelled corpus.
+- **The browser LLM.** `assets/js/llm.js` is a tested adapter for an optional, on-device
+  model that would draft an explanation of findings the rule engine already made. It is
+  **disabled, and no model has ever been loaded or benchmarked** — CI fails the build if
+  the flag is flipped without a recorded measurement, and the 8 MB runtime is not even
+  published while it is off. [`docs/BROWSER_LLM_OPTIONS.md`](docs/BROWSER_LLM_OPTIONS.md)
+  covers what is built, what the guardrails are, and why the cost/benefit is worth
+  settling before building more on it.
 - **Offline reload.** Processing is local, but there is no service worker, so the app
   still needs the network to start. "Local processing" and "works offline" are
   different claims and only the first one is true here.
@@ -110,7 +134,12 @@ npm install --no-save tesseract.js@5 pngjs
 node scripts/test-ocr-real.js --require-engine   # the real model over real fixtures
 
 npm install --no-save playwright && npx playwright install chromium
+node scripts/test-llm.js         # browser-LLM adapter, MOCK engine — no model is loaded
+
+npm install --no-save playwright && npx playwright install chromium
 node scripts/smoke-ocr.mjs       # the real page, a real worker: the gate for OCR
+node scripts/smoke-session.mjs   # edits survive, stale results cannot land, print is redacted
+node scripts/smoke-hosts.mjs     # the built artifact at both URL layouts
 ```
 
 All of them run in CI before every deploy. `OCR.enabled` in `assets/js/ocr.js` is
@@ -120,13 +149,27 @@ true-positive half: a tool that cries wolf gets ignored, and then misses the rea
 
 ## Running it locally
 
-No build step. Serve the folder over HTTP (the `fetch` calls for the JSON data need a server,
-so opening `index.html` from the filesystem will not work):
+Serve over HTTP — `fetch` cannot read the data files from a `file://` page and the OCR
+worker cannot start there, so opening `index.html` from the filesystem gives a blank
+screen and a misleading console.
 
 ```bash
-python3 -m http.server 8000
-# then open http://localhost:8000
+node scripts/build-vercel.mjs      # stage dist/
+node scripts/serve-site.mjs        # http://127.0.0.1:8765/
+node scripts/serve-site.mjs --src  # or serve the source tree, no build
 ```
+
+## Deployment
+
+One repository, one build, two hosts: GitHub Pages and Vercel. Both serve the same
+`dist/`, staged by `scripts/build-vercel.mjs` from an allowlist, so adding a file to the
+repository never publishes it by accident. `scripts/smoke-hosts.mjs` drives the built
+artifact in a real browser at **both** URL shapes — a root-relative URL works on Vercel
+and 404s on the Pages sub-path, and nothing else would catch it.
+
+Pages is configured and runs from `.github/workflows/deploy.yml`. Vercel is not connected
+yet; [`docs/DEPLOY_VERCEL.md`](docs/DEPLOY_VERCEL.md) has the remaining steps and the
+caveats, including that the two origins have separate caches.
 
 ## Project layout
 
@@ -142,7 +185,12 @@ assets/js/goshiwon.js   visit guide and question generator
 assets/js/app.js        data loading, routing, focus, session reset
 assets/js/ocr.js        screenshot reading: greyscale, cleanup, the review gate
 assets/js/redact.js     masking identifiers before anything is copied or shared
+assets/js/llm.js        optional on-device LLM adapter (disabled, unbenchmarked)
 assets/vendor/tesseract/  the vendored OCR engine and Korean model
+assets/vendor/wllama/     the vendored LLM runtime (not published while disabled)
+vercel.json             build/output/headers for Vercel
+scripts/build-vercel.mjs  stages dist/ — the one definition of what is public
+scripts/serve-site.mjs    the local preview server, shared by every harness
 data/patterns.json      26 scam patterns
 data/lexicon.json       concepts and concept rules
 data/documents.json     document checklist and questions
@@ -151,6 +199,7 @@ data/examples.json      three clearly fictional example conversations
 data/i18n.json          UI strings, Korean and English
 scripts/                test suites, run in CI
 scripts/fixtures/       synthetic Korean chat screenshots for the OCR tests
+demo/                   run scripts, demo screenshots, and a report generator
 docs/                   pattern catalogue, contribution guide, reviews
 ```
 

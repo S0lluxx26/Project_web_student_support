@@ -133,6 +133,42 @@
       });
     },
 
+    /* ------------------------------------------------------------ passes --- */
+
+    /*
+     * Two recognition passes, keeping whichever read more.
+     *
+     * Tesseract's page segmentation decides how the image is carved up before
+     * a single character is read, and on chat screenshots it does not fail
+     * gracefully — it fails totally. tesseract.js defaults to PSM 6 ("one
+     * uniform block"), which is excellent on most captures and returned
+     * NOTHING BUT THE DATE DIVIDERS on two of the demo screenshots, both of
+     * them perfectly legible to a human. PSM 4 ("a single column of variable
+     * sizes") never collapses but is a little worse where 6 works.
+     *
+     * Measured over 8 demo captures, counting recovery of 45 key phrases:
+     *
+     *     PSM 6 alone   30/45   (two total losses: 0/6 and 1/6)
+     *     PSM 4 alone   36/45   (no collapse; worst case 3/6)
+     *     both, richer  43/45
+     *
+     * So we run both and keep the richer read. It doubles recognition time —
+     * about 2s to 4s per screenshot on a desktop — which is the right trade
+     * for a check someone runs once before handing over a deposit, and far
+     * better than a silent empty result telling a student their conversation
+     * looks fine.
+     *
+     * The tie-break is deliberately dumb: count the letters. Any cleverer
+     * scoring would be a quality judgement about text nobody has read yet.
+     */
+    PASSES: ['6', '4'],
+
+    /** How much language a pass actually recovered. Higher wins. */
+    scoreRead: function (result) {
+      var t = String((result && result.text) || '');
+      return (t.match(/[가-힣]/g) || []).length + (t.match(/[A-Za-z0-9]/g) || []).length;
+    },
+
     /* ----------------------------------------------------------- engine --- */
 
     /*
@@ -186,9 +222,17 @@
             if (onProgress) onProgress(m.status, typeof m.progress === 'number' ? m.progress : 0);
           }
         }).then(function (worker) {
+          var currentPsm = null;
           return {
-            recognize: function (input) {
-              return worker.recognize(input).then(function (r) {
+            recognize: function (input, opts) {
+              var psm = opts && opts.psm;
+              /* setParameters is a round trip to the worker, so only pay for
+                 it when the mode actually changes. */
+              var ready = (psm && psm !== currentPsm)
+                ? worker.setParameters({ tessedit_pageseg_mode: psm })
+                    .then(function () { currentPsm = psm; })
+                : Promise.resolve();
+              return ready.then(function () { return worker.recognize(input); }).then(function (r) {
                 return {
                   text: r.data.text || '',
                   confidence: r.data.confidence,
@@ -247,6 +291,24 @@
      */
     JUNK_TAIL: /\s[.,;:]\S{0,7}$/,
 
+    /*
+     * The same debris at the FRONT of a line: an avatar circle read as "_ _",
+     * a bubble tail as "." or ",", a UI chevron as "<" or "|". Stripped only
+     * while the leading token carries no language at all (the isNoiseLine
+     * test), so "” 기" loses the quote mark and keeps the 기 — a misread
+     * syllable is still something someone said, and deleting it is not ours to
+     * do.
+     */
+    trimJunkHead: function (line) {
+      var out = line;
+      for (var i = 0; i < 4; i++) {
+        var m = /^\s*(\S+)(\s+)/.exec(out);
+        if (!m || !this.isNoiseLine(m[1])) break;
+        out = out.slice(m[0].length);
+      }
+      return out;
+    },
+
     isNoiseLine: function (line) {
       var s = line.trim();
       if (!s) return false;
@@ -260,7 +322,7 @@
       var out = String(raw || '')
         .split(/\r?\n/)
         .map(function (l) {
-          var out = l.replace(self.TIME_TAIL, '');
+          var out = self.trimJunkHead(l).replace(self.TIME_TAIL, '');
           /* Only when something is left to keep: a line that IS the junk is
              the noise filter's job, not this one. */
           var trimmed = out.replace(self.JUNK_TAIL, '');
@@ -294,10 +356,64 @@
      * tenant, or the reverse, so "no answer" is the right answer more often
      * than a confident one.
      */
+    /*
+     * Tesseract sometimes emits a fragment of a line as its own line, sitting
+     * inside the box of the real one ("락드립" inside "건으로 연락드립니다").
+     * Left in, it becomes a separate message of nonsense.
+     */
+    dropContained: function (lines) {
+      return lines.filter(function (l, i) {
+        return !lines.some(function (o, j) {
+          if (i === j || !o.bbox) return false;
+          var a = l.bbox, b = o.bbox;
+          var inside = a.x0 >= b.x0 - 2 && a.x1 <= b.x1 + 2 &&
+                       a.y0 >= b.y0 - 2 && a.y1 <= b.y1 + 2;
+          /* Keep the bigger one: it is the one that read the whole line. */
+          return inside && (b.x1 - b.x0) * (b.y1 - b.y0) > (a.x1 - a.x0) * (a.y1 - a.y0);
+        });
+      });
+    },
+
+    /*
+     * A chat bubble wider than one line becomes several OCR lines, and treating
+     * each as its own message splits sentences in half — "방을 못" / "보여드려요"
+     * reads as two messages and the refusal it describes matches nothing. The
+     * spacing separates them cleanly: measured on the demo captures, lines
+     * inside one bubble sit ~12px apart while consecutive bubbles sit ~35px
+     * apart, against a line height of ~25. Rejoining below 0.6 line-heights
+     * puts the threshold in the middle of that gap and scales with the
+     * screenshot's resolution instead of hard-coding pixels.
+     */
+    BUBBLE_GAP: 0.6,
+
+    mergeBubbles: function (lines) {
+      if (!lines.length) return [];
+      var heights = lines.map(function (l) { return l.bbox.y1 - l.bbox.y0; })
+                         .sort(function (a, b) { return a - b; });
+      var unit = heights[Math.floor(heights.length / 2)] || 20;
+      var limit = unit * this.BUBBLE_GAP;
+
+      var out = [];
+      lines.forEach(function (l) {
+        var prev = out[out.length - 1];
+        var tight = prev && prev.side === l.side && (l.bbox.y0 - prev.bbox.y1) < limit;
+        if (tight) {
+          prev.text += ' ' + l.text.trim();
+          prev.bbox = { x0: Math.min(prev.bbox.x0, l.bbox.x0), y0: prev.bbox.y0,
+                        x1: Math.max(prev.bbox.x1, l.bbox.x1), y1: l.bbox.y1 };
+        } else {
+          out.push({ text: l.text.trim(), side: l.side, bbox: l.bbox });
+        }
+      });
+      return out;
+    },
+
     sideSplit: function (lines) {
       var boxed = (lines || []).filter(function (l) {
         return l.bbox && typeof l.bbox.x0 === 'number' && (l.text || '').trim();
       });
+      boxed = this.dropContained(boxed);
+      boxed.sort(function (a, b) { return a.bbox.y0 - b.bbox.y0; });
       if (boxed.length < 4) return null;
 
       var lefts = boxed.map(function (l) { return l.bbox.x0; }).sort(function (a, b) { return a - b; });
@@ -313,12 +429,20 @@
       if (bestGap <= Math.max(spreadA, spreadB)) return null;
 
       var boundary = (lefts[cut - 1] + lefts[cut]) / 2;
+      /* Trim each line's leading debris BEFORE merging. Afterwards the junk
+         from a wrapped line sits in the middle of the joined sentence, where
+         no line-based rule can reach it. */
+      var self = this;
+      var sided = boxed.map(function (l) {
+        return { text: self.trimJunkHead(l.text).trim(), bbox: l.bbox,
+                 side: l.bbox.x0 < boundary ? 'left' : 'right' };
+      }).filter(function (l) { return l.text; });
       return {
         boundary: boundary,
         /* Which side is the user's is a question only the user can answer;
            we report the grouping and let the review pane ask. */
-        groups: boxed.map(function (l) {
-          return { text: l.text.trim(), side: l.bbox.x0 < boundary ? 'left' : 'right' };
+        groups: this.mergeBubbles(sided).map(function (g) {
+          return { text: g.text, side: g.side };
         })
       };
     },
@@ -346,11 +470,24 @@
         ? this.prepare(file).catch(function () { return file; })
         : Promise.resolve(file);
 
+      var passes = opts.passes || this.PASSES;
+
       return input.then(function (prepared) {
         report('loading', 0);
         return self._engine(report).then(function (engine) {
           report('recognizing text', 0);
-          return engine.recognize(prepared, { onProgress: report });
+          /* Sequential, not parallel: there is one worker, and a phone has no
+             spare core to waste on a second wasm instance anyway. */
+          var best = null;
+          return passes.reduce(function (chain, psm, i) {
+            return chain.then(function () {
+              return engine.recognize(prepared, { onProgress: report, psm: psm })
+                .then(function (r) {
+                  report('recognizing text', (i + 1) / passes.length);
+                  if (!best || self.scoreRead(r) > self.scoreRead(best)) best = r;
+                });
+            });
+          }, Promise.resolve()).then(function () { return best; });
         });
       }).then(function (result) {
         var lines = result.lines || [];

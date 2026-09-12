@@ -12,7 +12,9 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # A Pages deployment should always finish; cancelling mid-flight can abort
+  # between the artifact upload and the deploy. Queue instead.
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -24,11 +26,105 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate JSON data files
+      - name: Validate data files
         run: |
           for f in data/*.json; do
-            python3 -c "import json,sys; json.load(open('$f', encoding='utf-8')); print('ok: $f')"
+            python3 -c "import json,sys; json.load(open('$f', encoding='utf-8')); print('ok:', '$f')"
           done
+
+      - name: Check Korean and English string tables match
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+          d = json.load(open('data/i18n.json', encoding='utf-8'))
+          ko, en = set(d['ko']), set(d['en'])
+          missing = sorted((ko - en) | (en - ko))
+          # Every level key is built by concatenation (t('result.level.' + lvl)),
+          # so it can never be found by grepping the source. Assert them here.
+          required = ['result.level.' + l for l in ('safe','caution','high','veryhigh')]
+          required += [k + '.msg' for k in required]
+          absent = [k for k in required if k not in d['ko'] or k not in d['en']]
+          if missing: print('language tables disagree on:', ', '.join(missing))
+          if absent:  print('missing dynamically-built keys:', ', '.join(absent))
+          sys.exit(1 if (missing or absent) else 0)
+          EOF
+
+      - name: Check JavaScript parses
+        run: |
+          for f in assets/js/*.js; do node --check "$f" && echo "ok: $f"; done
+
+      - name: Run detector tests
+        run: node scripts/test-detector.js
+
+      - name: Run analyzer regression tests
+        run: node scripts/test-analyzer.js
+
+      - name: Check data integrity and asset version
+        run: node scripts/test-data.js
+
+      # Proves the code around the recognition engine. Fast, no downloads.
+      - name: Run OCR integration tests (mock engine)
+        run: node scripts/test-ocr.js
+
+      # The browser-LLM adapter: output validation, the injection defence and
+      # job identity. No model is loaded — see the header of the file.
+      - name: Run browser-LLM adapter tests (mock engine)
+        run: node scripts/test-llm.js
+
+      # A build must never ship the experiment on without a device benchmark.
+      - name: Assert the browser LLM is disabled
+        run: |
+          if grep -qE '^\s*enabled: true' assets/js/llm.js; then
+            echo "LLM.enabled is true but no device benchmark is recorded." >&2
+            exit 1
+          fi
+          echo "browser LLM is disabled, as expected"
+
+      # Proves the vendored model still reads Korean chat text, and that the
+      # greyscale step still recovers the outgoing bubbles. --require-engine
+      # turns "the dependency is missing" into a failure, so a broken install
+      # cannot masquerade as a pass.
+      - name: Run OCR tests against the real engine
+        run: |
+          npm install --no-save tesseract.js@5 pngjs
+          node scripts/test-ocr-real.js --require-engine
+
+      # The gate for OCR.enabled: the real page, a real worker, real wasm.
+      # Nothing else in CI can tell us the vendored files actually work in a
+      # browser, and shipping OCR without this is shipping a guess.
+      - name: OCR browser smoke test
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          node scripts/smoke-ocr.mjs
+
+      # Session lifecycle: a recognition in flight must not repopulate a reset
+      # session, and a correction must not be silently overwritten. Only a real
+      # browser can reproduce "the read you started ten seconds ago".
+      - name: Session and edit-preservation smoke test
+        run: node scripts/smoke-session.mjs
+
+      # One definition of "what is public", shared with Vercel. The upload step
+      # below used to take `path: .`, which would have published the test
+      # suites, the demo screenshots and anything else in the folder.
+      - name: Stage the public artifact
+        run: node scripts/build-vercel.mjs
+
+      # The same artifact has to work from the repository sub-path, not only
+      # from a domain root. A root-relative URL passes locally and 404s on
+      # Pages, and nothing else in CI would catch it.
+      - name: Check the artifact at both URL layouts
+        run: node scripts/smoke-hosts.mjs
+
+      # A build whose OCR flag is on must have just passed the smoke test above;
+      # the ordering makes that automatic, this makes it visible.
+      - name: State whether OCR ships enabled
+        run: |
+          if grep -q 'enabled: true' assets/js/ocr.js; then
+            echo "OCR is ENABLED in this build and the smoke test above passed."
+          else
+            echo "OCR is DISABLED in this build."
+          fi
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -38,7 +134,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
 
       - name: Deploy
         id: deployment

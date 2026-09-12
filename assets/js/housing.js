@@ -265,7 +265,13 @@
          until the user has seen exactly what would leave. */
       on('btn-copy', 'click', function () { self.openExport('copy'); });
 
-      on('btn-print', 'click', function () { global.print(); });
+      /*
+       * Print goes through the same redaction preview as copy and share.
+       * Printing is a way of handing the report to someone else — a landlord,
+       * a friend, a university office — so exempting it meant the one export
+       * that lands on paper was the one nobody had masked.
+       */
+      on('btn-print', 'click', function () { self.openExport('print'); });
 
       if (global.navigator && navigator.share) {
         var shareBtn = document.getElementById('btn-share');
@@ -328,6 +334,23 @@
      */
     ocrState: null,
 
+    /*
+     * Two identities, both load-bearing.
+     *
+     * `sessionId` changes on every full reset. `ocrJob` changes on every new
+     * recognition. Recognition takes seconds and cannot be aborted mid-wasm, so
+     * without these a user who resets while a screenshot is being read gets the
+     * OLD conversation pasted into their NEW session a moment later — text they
+     * did not ask for, in a report they are about to act on. Every callback
+     * checks both before touching the DOM.
+     */
+    sessionId: 1,
+    ocrJob: 0,
+
+    /* The user has typed in the review box. Their words outrank anything we
+       would regenerate. */
+    ocrDirty: false,
+
     bindOcr: function () {
       var self = this;
       var panel = document.getElementById('ocr-panel');
@@ -347,21 +370,76 @@
       }
 
       document.addEventListener('change', function (e) {
-        if (e.target && e.target.name === 'ocr-mine') self.renderOcrDraft();
+        if (e.target && e.target.name === 'ocr-mine') self.sideChanged();
       });
 
-      on('btn-ocr-append', 'click', function () { self.appendOcr(); });
+      /* Any keystroke in the review box marks it the user's. */
+      var ta = document.getElementById('ocr-text');
+      if (ta) ta.addEventListener('input', function () {
+        if (ta.value !== self.ocrPristine) self.markOcrDirty();
+      });
+
+      on('btn-ocr-append', 'click', function () { self.appendOcr(false); });
+      on('btn-ocr-analyze', 'click', function () { self.appendOcr(true); });
       on('btn-ocr-discard', 'click', function () { self.clearOcr(); });
+      on('btn-ocr-relabel', 'click', function () { self.renderOcrDraft(true); });
+      on('btn-ocr-cancel', 'click', function () { self.cancelOcr(); });
+      on('btn-ocr-original', 'click', function () { self.showOcrOriginal(); });
+    },
+
+    markOcrDirty: function () {
+      if (this.ocrDirty) return;
+      this.ocrDirty = true;
+      /* Offer the re-label as a button instead of doing it behind their back. */
+      var b = document.getElementById('btn-ocr-relabel');
+      if (b) b.hidden = false;
+    },
+
+    /*
+     * Changing which side is "me" normally rewrites the draft. Once the user
+     * has corrected a word, rewriting would throw that correction away — and a
+     * correction is the whole point of the review step, because it is usually
+     * an amount or a negation that the engine got wrong. So an edited box is
+     * left alone and the re-label becomes something they press.
+     */
+    sideChanged: function () {
+      if (!this.ocrDirty) { this.renderOcrDraft(); return; }
+      var b = document.getElementById('btn-ocr-relabel');
+      if (b) b.hidden = false;
+    },
+
+    /** Cancel the running recognition: the result can no longer land. */
+    cancelOcr: function () {
+      this.ocrJob++;
+      hide('ocr-progress');
+      hide('ocr-cancel-row');
+      hide('ocr-error');
     },
 
     clearOcr: function () {
+      /* Bumping the job is what makes this safe to call at any moment,
+         including while a recognition is still running. */
+      this.ocrJob++;
       this.ocrState = null;
+      this.ocrDirty = false;
+      this.ocrPristine = '';
       var box = document.getElementById('ocr-review');
       if (box) box.hidden = true;
       hide('ocr-error');
       hide('ocr-progress');
+      hide('ocr-cancel-row');
+      hide('ocr-original');
+      var relabel = document.getElementById('btn-ocr-relabel');
+      if (relabel) relabel.hidden = true;
       var ta = document.getElementById('ocr-text');
       if (ta) ta.value = '';
+      var img = document.getElementById('ocr-source');
+      if (img) {
+        if (img.src) { try { URL.revokeObjectURL(img.src); } catch (e) {} }
+        img.removeAttribute('src');
+      }
+      var sources = document.getElementById('ocr-source-row');
+      if (sources) sources.hidden = true;
     },
 
     /** Run each image in turn, reporting as it goes. */
@@ -371,14 +449,28 @@
       var prog = document.getElementById('ocr-progress');
       hide('ocr-error');
       if (prog) { prog.hidden = false; prog.textContent = t('ocr.progress.start'); }
+      show('ocr-cancel-row');
+
+      /* Captured now and checked at every await. Recognition cannot be aborted
+         mid-wasm, so a reset or a new pick while one is running leaves a
+         promise in flight that would otherwise resolve into whatever session
+         happens to be on screen when it lands. */
+      var job = ++self.ocrJob;
+      var session = self.sessionId;
+      var mine = function () { return job === self.ocrJob && session === self.sessionId; };
+
+      /* Keep the source images beside the text: the reviewer needs to be able
+         to look at what the engine was looking at. */
+      self.showSources(files);
 
       var results = [];
       var chain = Promise.resolve();
       files.forEach(function (file, i) {
         chain = chain.then(function () {
+          if (!mine()) return null;
           return OCR.recognize(file, {
             onProgress: function (status, p) {
-              if (!prog) return;
+              if (!prog || !mine()) return;
               /* The first run downloads the model, which on a phone is the
                  slow part; say so rather than showing a stalled bar. */
               var key = status === 'recognizing text' ? 'ocr.progress.reading'
@@ -392,10 +484,19 @@
       });
 
       chain.then(function () {
+        if (!mine()) return;              /* cancelled or reset while reading */
         if (prog) prog.hidden = true;
+        hide('ocr-cancel-row');
         self.ocrState = {
           text: results.map(function (r) { return r.text; })
                        .filter(function (s) { return s.trim(); }).join('\n\n'),
+          /* Kept so the reviewer can see what cleanup removed. Timestamps are
+             stripped from line ends, and a line that genuinely ends with a
+             time ("만나는 시간은 3:30") is indistinguishable from the chat
+             app's own clock — so the removal is offered for inspection rather
+             than treated as certainly correct. */
+          raw: results.map(function (r) { return r.raw; })
+                      .filter(function (s) { return (s || '').trim(); }).join('\n\n'),
           uncertain: results.reduce(function (a, r) { return a.concat(r.uncertain || []); }, []),
           sides: results.length === 1 ? results[0].sides : null
         };
@@ -407,7 +508,9 @@
         }
         self.showOcrReview();
       }).catch(function (err) {
+        if (!mine()) return;
         if (prog) prog.hidden = true;
+        hide('ocr-cancel-row');
         console.error(err);
         var box = document.getElementById('ocr-error');
         if (box) {
@@ -415,6 +518,42 @@
           box.textContent = t('ocr.error.failed') + ' (' + (err && err.message || err) + ')';
         }
       });
+    },
+
+    /*
+     * Show the screenshots next to the recognised text. Cleanup removes things
+     * on purpose and recognition gets words wrong; either way the reviewer can
+     * only judge the draft against the picture it came from.
+     */
+    showSources: function (files) {
+      var row = document.getElementById('ocr-sources');
+      if (!row) return;
+      Array.prototype.forEach.call(row.querySelectorAll('img'), function (img) {
+        if (img.src) { try { URL.revokeObjectURL(img.src); } catch (e) {} }
+      });
+      row.innerHTML = '';
+      files.forEach(function (f) {
+        if (!/^image\//.test(f.type || '')) return;
+        var img = document.createElement('img');
+        img.src = URL.createObjectURL(f);
+        img.alt = f.name || '';
+        img.loading = 'lazy';
+        row.appendChild(img);
+      });
+      var wrap = document.getElementById('ocr-source-row');
+      if (wrap) wrap.hidden = !row.children.length;
+    },
+
+    /** Reveal exactly what cleanup removed, so nothing is deleted in secret. */
+    showOcrOriginal: function () {
+      var s = this.ocrState;
+      var box = document.getElementById('ocr-original');
+      if (!s || !box) return;
+      box.hidden = false;
+      var pre = box.querySelector('pre');
+      if (pre) pre.textContent = s.raw || '';
+      var btn = document.getElementById('btn-ocr-original');
+      if (btn) btn.hidden = true;
     },
 
     showOcrReview: function () {
@@ -439,7 +578,21 @@
       var sides = document.getElementById('ocr-sides');
       if (sides) sides.hidden = !s.sides;
 
+      /* A fresh recognition starts clean: nothing has been edited yet. */
+      this.ocrDirty = false;
+      var relabel = document.getElementById('btn-ocr-relabel');
+      if (relabel) relabel.hidden = true;
+
       this.renderOcrDraft();
+
+      /* Offer the uncleaned original only when cleanup actually changed
+         something; a button that reveals identical text is noise. */
+      var origBtn = document.getElementById('btn-ocr-original');
+      var origBox = document.getElementById('ocr-original');
+      var changed = (s.raw || '').trim() !== (s.text || '').trim();
+      if (origBtn) origBtn.hidden = !changed;
+      if (origBox) origBox.hidden = true;
+
       var box = document.getElementById('ocr-review');
       if (box) box.hidden = false;
       var ta = document.getElementById('ocr-text');
@@ -451,14 +604,25 @@
      * by the chosen side. Re-rendering overwrites the textarea, so it runs only
      * on a side change and on first show — never while the user is typing.
      */
-    renderOcrDraft: function () {
+    renderOcrDraft: function (force) {
       var s = this.ocrState;
       var ta = document.getElementById('ocr-text');
       if (!s || !ta) return;
+      /* Never overwrite the user's corrections behind their back. `force` is
+         the explicit re-label button, which is the only way an edited box gets
+         rebuilt. */
+      if (this.ocrDirty && !force) return;
 
       var choice = document.querySelector('[name="ocr-mine"]:checked');
       var mine = s.sides && choice ? choice.value : 'none';
-      if (mine === 'none' || !s.sides) { ta.value = s.text; return; }
+      if (mine === 'none' || !s.sides) {
+        ta.value = s.text;
+        this.ocrPristine = ta.value;
+        this.ocrDirty = false;
+        var b0 = document.getElementById('btn-ocr-relabel');
+        if (b0) b0.hidden = true;
+        return;
+      }
 
       /* The side grouping carries the engine's RAW line text, so the cleanup
          has to be applied again here — the first version of this labelled the
@@ -471,6 +635,10 @@
         var text = OCR.clean(g.text);
         return text ? (g.side === mine ? meLabel : themLabel) + ': ' + text : '';
       }).filter(function (l) { return l; }).join('\n');
+      this.ocrPristine = ta.value;
+      this.ocrDirty = false;
+      var b = document.getElementById('btn-ocr-relabel');
+      if (b) b.hidden = true;
     },
 
     /**
@@ -478,7 +646,7 @@
      * substituted: someone who has already typed part of the conversation
      * should not lose it to a screenshot.
      */
-    appendOcr: function () {
+    appendOcr: function (straightToReport) {
       var ta = document.getElementById('ocr-text');
       var target = document.getElementById('chat-input');
       if (!ta || !target) return;
@@ -491,6 +659,21 @@
       var panel = document.getElementById('ocr-panel');
       if (panel) panel.open = false;
       hide('chat-error');
+
+      /*
+       * A screenshot is a complete input on its own. Routing it through the
+       * contract step first asks someone who has just handed over a
+       * conversation to answer questions about a document they may not have,
+       * before they are shown anything at all. The direct path goes straight
+       * to the report; the document questions stay available and still enrich
+       * it afterwards.
+       */
+      if (straightToReport) {
+        this.runAnalysis();
+        global.App.gotoStep(4);
+        return;
+      }
+
       target.focus();
       /* Put the cursor at the end so the user sees what was added. */
       try { target.setSelectionRange(target.value.length, target.value.length); } catch (e) {}
@@ -542,7 +725,23 @@
      * shared machine the difference matters.
      */
     resetSession: function () {
-      ['home-chat', 'chat-input', 'ctx-deposit', 'ctx-market', 'ctx-lien'].forEach(function (id) {
+      /*
+       * A new session id invalidates every callback still in flight — a
+       * recognition started ten seconds ago must not paste the old
+       * conversation into the fresh one. Reset owns ALL of the session's
+       * state; a field left behind here is a field that silently carries into
+       * the next check.
+       */
+      this.sessionId++;
+      this.clearOcr();
+
+      var ex = document.getElementById('export-preview');
+      if (ex) ex.remove();
+
+      var picker = document.getElementById('example-picker');
+      if (picker) picker.remove();
+
+      ['home-chat', 'chat-input', 'ctx-deposit', 'ctx-market', 'ctx-lien', 'ctx-rent'].forEach(function (id) {
         var e = document.getElementById(id);
         if (e) e.value = '';
       });
@@ -561,6 +760,11 @@
       this.lastCtx = null;
       this.badNumbers = [];
       this.speakerOverrides = {};
+      this.speakerEdited = false;
+      this.housingType = 'unknown';
+      /* The landing page's own radio group is part of the session too. */
+      var gate = document.querySelector('[name="home-housing-type"][value="unknown"]');
+      if (gate) gate.checked = true;
 
       var prev = document.getElementById('contract-preview');
       if (prev) prev.innerHTML = '';
@@ -654,7 +858,8 @@
           '</span><textarea id="export-text" rows="12"></textarea></label>' +
         '<div class="actions">' +
           '<button class="btn btn-primary" type="button" id="export-go">' +
-            esc(t(mode === 'share' ? 'export.share' : 'export.copy')) + '</button>' +
+            esc(t(mode === 'share' ? 'export.share'
+                  : mode === 'print' ? 'export.print' : 'export.copy')) + '</button>' +
           '<button class="btn btn-ghost" type="button" id="export-raw">' +
             esc(t('export.unmasked')) + '</button>' +
           '<button class="btn btn-ghost" type="button" id="export-cancel">' +
@@ -684,6 +889,13 @@
 
       box.querySelector('#export-go').addEventListener('click', function () {
         var text = ta.value;
+        if (mode === 'print') {
+          /* Print the reviewed snapshot, not the page: what goes on paper has
+             to be the text the user just approved. */
+          self.printText(text);
+          box.remove();
+          return;
+        }
         if (mode === 'share' && global.navigator && navigator.share) {
           navigator.share({ title: I18n.t('share.title'), text: text })
             .then(function () { box.remove(); })
@@ -695,6 +907,37 @@
           box.remove();
         }
       });
+    },
+
+    /**
+     * Print one block of reviewed text.
+     *
+     * The page itself is not printed. Its own print stylesheet would render the
+     * full report including anything the redaction preview had just masked,
+     * which is the defect this replaces.
+     */
+    printText: function (text) {
+      var old = document.getElementById('print-sheet');
+      if (old) old.remove();
+      var sheet = document.createElement('div');
+      sheet.id = 'print-sheet';
+      sheet.setAttribute('aria-hidden', 'true');
+      var pre = document.createElement('pre');
+      pre.textContent = text;
+      sheet.appendChild(pre);
+      document.body.appendChild(sheet);
+      document.body.classList.add('printing-sheet');
+
+      var done = function () {
+        document.body.classList.remove('printing-sheet');
+        var el = document.getElementById('print-sheet');
+        if (el) el.remove();
+        if (global.removeEventListener) global.removeEventListener('afterprint', done);
+      };
+      if (global.addEventListener) global.addEventListener('afterprint', done);
+      try { global.print(); } catch (e) { /* printing refused */ }
+      /* afterprint is unreliable on some mobile browsers; clean up anyway. */
+      global.setTimeout(done, 3000);
     },
 
     /** Escape the quote, then wrap the matched ranges in <mark>. */

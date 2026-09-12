@@ -44,6 +44,10 @@ fixtures in `scripts/fixtures/`, with tesseract.js 5.1.1 and the `kor`
 | plain dark text on white | 93 | clean |
 | dark mode | 92 | clean |
 
+`demo/README.md` carries the wider measurement: 22 phone-resolution captures
+including a group chat, a photo taken off a screen, and a 420px thumbnail —
+17 dangerous conversations all flagged, 5 ordinary ones all clean.
+
 A representative misread: `잡아드릴게요` came back as `잠아드릴게요`. The review
 pane flags the lines the engine itself scored lowest, so the user's attention
 goes to the lines most likely to be wrong rather than to the whole screen.
@@ -80,6 +84,47 @@ and the user cannot audit a correction they never see.
 A whole line is deleted only when it contains no Korean and no letters at all.
 Debris carrying a Hangul fragment is kept, because deleting a line on suspicion
 risks deleting something that was said.
+
+### Two segmentation passes
+
+Tesseract decides how to carve the image up before it reads a character, and on
+chat screenshots it does not fail gracefully — it fails totally. tesseract.js
+defaults to PSM 6 ("one uniform block"), which is excellent on most captures and
+returned **nothing but the date dividers** on two of the demo screenshots, both
+perfectly legible to a human. PSM 4 ("a single column of variable sizes") never
+collapses but is slightly worse where 6 works.
+
+Measured over 8 demo captures, counting recovery of 45 key phrases:
+
+| | recovered | worst case |
+|---|---|---|
+| PSM 6 alone (the default) | 30/45 | 0/6 — total loss |
+| PSM 4 alone | 36/45 | 3/6 |
+| both, keeping the richer read | **43/45** | 4/6 |
+
+So `recognize()` runs both and keeps whichever recovered more letters. It
+doubles recognition time, roughly 2s to 4s per screenshot on a desktop, which is
+the right trade for a check someone runs once before handing over a deposit —
+and far better than an empty result telling a student their conversation looks
+fine. The tie-break is deliberately dumb, a letter count: anything cleverer
+would be a quality judgement about text nobody has read yet.
+
+### Wrapped bubbles
+
+A bubble wider than one line comes back as several OCR lines. Treated as
+separate messages they split sentences in half — `방을 못` / `보여드려요` cut a
+refusal in two and it matched no pattern at all. The spacing separates them
+cleanly: measured on the demo captures, lines inside one bubble sit ~12px apart
+while consecutive bubbles sit ~35px apart, against a ~25px line height.
+`mergeBubbles()` rejoins anything closer than 0.6 line-heights, which scales
+with the screenshot's resolution instead of hard-coding pixels.
+
+Tesseract also emits a partial re-read of a line as its own line, boxed inside
+the real one (`락드립` inside `건으로 연락드립니다`). `dropContained()` removes
+those.
+
+Both were found by looking at `demo/report.html`, not by a test failing. See
+[`demo/README.md`](../demo/README.md).
 
 ### Who said what
 
@@ -127,13 +172,28 @@ Running them:
 install in CI cannot pass as a skip. All three run in `.github/workflows/deploy.yml`
 before anything is packaged for Pages.
 
+## Try it
+
+```bash
+./demo/run.sh            # or  .\demo\run.ps1  on Windows
+./demo/run.sh --report   # every demo screenshot through the real pipeline
+```
+
+`demo/screenshots/` holds 22 phone-resolution captures. Feed `01` and then
+`02` — `02` is an ordinary conversation and must come back with nothing.
+
 ## Known gaps
 
-- **The fixtures are synthetic.** They reproduce the layout closely enough to
-  catch the failure modes that matter, but they are drawn, not photographed: no
-  JPEG artefacts, no status bar, no odd crop. A green run is a regression guard,
-  not proof the feature works on a real phone capture. Testing against real
-  screenshots — with permission, and not committed — is the obvious next step.
+- **Every image is synthetic.** The test fixtures and the demo captures are
+  drawn, not photographed. The demo set at least runs at phone resolution with a
+  status bar and JPEG compression, but no real capture has ever been through
+  this. A green run is a regression guard, not proof the feature works on a
+  student's actual phone. Testing against real screenshots — with permission,
+  and not committed — is the obvious next step. `demo/README.md` explains why
+  nothing was downloaded.
+- **Chrome leaks into the transcript.** The status bar, the date divider and the
+  "메시지 입력" placeholder are read like any other text and land in the draft.
+  Harmless — they match no pattern — but the user has to delete them.
 - **Only Korean.** The model is `kor` alone. English inside a Korean
   conversation reads passably; an English-only screenshot will not. Adding
   `eng` costs 2.8 MB and has not been measured, so it has not been added.

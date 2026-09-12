@@ -1,0 +1,25 @@
+# Vercel uploads the repository before running the build, so this is an
+# allowlist: deny everything, then re-admit exactly the build's inputs.
+#
+# Keep this in step with scripts/build-vercel.mjs. If a package manifest, a
+# bundler or another test script is added, the upload list, the lockfile, the
+# install command and the build command all change together — an empty
+# installCommand is only correct while there are no npm dependencies.
+*
+
+!index.html
+!.nojekyll
+!LICENSE
+!assets/**
+!data/**
+
+!scripts/build-vercel.mjs
+!scripts/test-analyzer.js
+!scripts/test-detector.js
+!scripts/test-data.js
+!scripts/test-ocr.js
+!scripts/test-llm.js
+
+# Never upload: the demo set and its generated report, the review fixtures,
+# the browser-only suites (they need Playwright, which the build does not
+# install), and anything the desktop app drops into the folder.

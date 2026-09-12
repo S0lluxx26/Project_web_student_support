@@ -72,6 +72,26 @@ console.log('\n--- clean: mangled timestamps ---');
   eq(OCR.clean('네'), '네', 'a one-word line survives');
 }
 
+console.log('\n--- clean: junk at the front of a line ---');
+{
+  /* Avatar circles, bubble tails and UI chrome, all read as characters.
+     Straight off demo/screenshots/01 and 02. */
+  eq(OCR.clean('_ _ 안녕하세요 문의주신 원룸'), '안녕하세요 문의주신 원룸',
+     'strips avatar circles read as underscores');
+  eq(OCR.clean('. 사진으로 충분히 보셨죠'), '사진으로 충분히 보셨죠',
+     'strips a leading full stop');
+  eq(OCR.clean('| 전입신고랑 확정일자도 가능한가요'), '전입신고랑 확정일자도 가능한가요',
+     'strips a leading pipe');
+  eq(OCR.clean('” 기 네 토요일 오후 2시에 가능하십니다'),
+     '기 네 토요일 오후 2시에 가능하십니다',
+     'strips the quote mark but keeps the misread syllable');
+
+  eq(OCR.clean('3개월 계약입니다'), '3개월 계약입니다',
+     'does not eat a leading number that is part of the sentence');
+  eq(OCR.clean('네 알겠습니다'), '네 알겠습니다', 'leaves an ordinary line alone');
+  eq(OCR.clean('2026년 9월 8일'), '2026년 9월 8일', 'leaves a date divider alone');
+}
+
 console.log('\n--- clean: noise lines ---');
 {
   ok(OCR.isNoiseLine('.5*=-'), 'a symbol run is noise');
@@ -128,8 +148,22 @@ console.log('\n--- greyscale ---');
 
 /* ----------------------------------------------------------- sideSplit */
 console.log('\n--- sideSplit ---');
-const line = (text, x0, conf) => ({ text, confidence: conf === undefined ? 90 : conf,
-                                    bbox: { x0: x0, y0: 0, x1: x0 + 200, y1: 30 } });
+/* Geometry taken from a real capture (demo/screenshots/01): line height ~25,
+   lines inside one bubble ~12px apart, consecutive bubbles ~35px apart. `row`
+   spaces lines far enough apart to count as separate bubbles; `cont` places one
+   directly under its predecessor, as a wrapped line. */
+let _y = 0;
+const row = (text, x0, conf) => {
+  _y += 60;
+  return { text, confidence: conf === undefined ? 90 : conf,
+           bbox: { x0: x0, y0: _y, x1: x0 + 200, y1: _y + 25 } };
+};
+const cont = (text, x0, conf) => {
+  _y += 37;                                  /* 12px gap after a 25px line */
+  return { text, confidence: conf === undefined ? 90 : conf,
+           bbox: { x0: x0, y0: _y, x1: x0 + 200, y1: _y + 25 } };
+};
+const line = row;
 {
   const split = OCR.sideSplit([
     line('안녕하세요', 60), line('지금은 못 보여드려요', 62),
@@ -151,6 +185,55 @@ const line = (text, x0, conf) => ({ text, confidence: conf === undefined ? 90 : 
   ok(OCR.sideSplit([]) === null, 'refuses an empty page');
   ok(OCR.sideSplit([{ text: '가' }, { text: '나' }, { text: '다' }, { text: '라' }]) === null,
      'refuses when the engine gave no boxes');
+}
+
+console.log('\n--- wrapped bubbles are rejoined ---');
+{
+  /* The defect this exists for: a bubble wider than one line came back as two
+     messages, so "방을 못" / "보여드려요" split a refusal in half and it matched
+     nothing. Found by running demo/run-demo.mjs over a real-resolution capture. */
+  _y = 0;
+  const split = OCR.sideSplit([
+    row('지금 세입자가 살고 있어서 방을 못', 92),
+    cont('보여드려요', 92),
+    row('오늘 가계약금 100만원만 먼저', 92),
+    cont('보내주시면 방 잡아드릴게요', 92),
+    row('네 알겠습니다', 420),
+    cont('언제 볼 수 있나요', 420)
+  ]);
+  ok(!!split, 'still splits the sides');
+  const texts = split ? split.groups.map(g => g.text) : [];
+  eq(texts.length, 3, 'six lines become three bubbles');
+  ok(texts.some(t => t.includes('방을 못 보여드려요')),
+     'the wrapped refusal is one sentence again');
+  ok(texts.some(t => t.includes('먼저 보내주시면')),
+     'and so is the wrapped payment demand');
+
+  /* The threshold must not swallow separate bubbles into one blob. */
+  _y = 0;
+  const apart = OCR.sideSplit([
+    row('첫 번째 말풍선', 92), row('두 번째 말풍선', 92),
+    row('세 번째 말풍선', 420), row('네 번째 말풍선', 420)
+  ]);
+  eq(apart ? apart.groups.length : -1, 4, 'well-spaced lines stay four separate bubbles');
+}
+
+console.log('\n--- fragments inside another line are dropped ---');
+{
+  /* Tesseract emits a partial re-read of a line as its own line, boxed inside
+     the real one ("락드립" inside "건으로 연락드립니다"). Left in, it becomes a
+     message of nonsense. */
+  const whole = { text: '건으로 연락드립니다', bbox: { x0: 93, y0: 235, x1: 400, y1: 270 } };
+  const frag  = { text: '락드립',           bbox: { x0: 198, y0: 235, x1: 260, y1: 251 } };
+  const kept = OCR.dropContained([whole, frag]);
+  eq(kept.length, 1, 'the fragment goes');
+  eq(kept[0].text, '건으로 연락드립니다', 'the full line stays');
+
+  const overlapping = OCR.dropContained([
+    { text: '가', bbox: { x0: 0, y0: 0, x1: 100, y1: 30 } },
+    { text: '나', bbox: { x0: 90, y0: 0, x1: 200, y1: 30 } }
+  ]);
+  eq(overlapping.length, 2, 'merely overlapping boxes are both kept');
 }
 
 /* ----------------------------------------------------------------- flag */
@@ -208,6 +291,54 @@ const mock = (result) => ({ recognize: () => Promise.resolve(result) });
     OCR.engine = mock({ text: '가', confidence: 90, lines: [] });
     await OCR.recognize('x', { onProgress: (s) => seen.push(s) });
     ok(seen.indexOf('recognizing text') !== -1, 'reports progress to the caller');
+  }
+
+  {
+    /* Two segmentation passes, keeping whichever read more. PSM 6 returns
+       nothing but the date dividers on some perfectly legible captures while
+       PSM 4 reads them fine, and vice versa — measured, see the note in
+       ocr.js. Picking by letter count is the whole tie-break. */
+    const seen = [];
+    OCR.engine = {
+      recognize: (input, opts) => {
+        seen.push(opts.psm);
+        return Promise.resolve(opts.psm === '4'
+          ? { text: '지금 세입자가 있어서 방을 못 보여드려요', confidence: 70, lines: [] }
+          : { text: '2026년 9월 8일', confidence: 90, lines: [] });
+      }
+    };
+    const r = await OCR.recognize('x');
+    eq(seen.join(','), '6,4', 'runs both segmentation passes');
+    eq(r.text, '지금 세입자가 있어서 방을 못 보여드려요',
+       'keeps the richer read even though it scored lower confidence');
+  }
+
+  {
+    /* And the other way round, so the test is not just asserting "the second
+       one wins". */
+    OCR.engine = {
+      recognize: (input, opts) => Promise.resolve(opts.psm === '6'
+        ? { text: '오늘 계약금 먼저 보내주시면 방 잡아드릴게요', confidence: 80, lines: [] }
+        : { text: '오늘', confidence: 95, lines: [] })
+    };
+    const r = await OCR.recognize('x');
+    eq(r.text, '오늘 계약금 먼저 보내주시면 방 잡아드릴게요', 'the first pass can win too');
+  }
+
+  {
+    eq(OCR.scoreRead({ text: '가나다' }), 3, 'score counts Hangul');
+    eq(OCR.scoreRead({ text: 'abc 123' }), 6, 'and Latin letters and digits');
+    eq(OCR.scoreRead({ text: '... :: ~~' }), 0, 'punctuation is worth nothing');
+    eq(OCR.scoreRead({}), 0, 'an empty read scores zero');
+  }
+
+  {
+    const seen = [];
+    OCR.engine = {
+      recognize: (input, opts) => { seen.push(opts.psm); return Promise.resolve({ text: '가', lines: [] }); }
+    };
+    await OCR.recognize('x', { passes: ['6'] });
+    eq(seen.join(','), '6', 'a caller can ask for a single pass');
   }
 
   {
