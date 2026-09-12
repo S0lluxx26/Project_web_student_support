@@ -1,5 +1,6 @@
 /* Optional browser explanation experiment. See docs/BROWSER_LLM_OPTIONS.md.
- * Ordinary visits hide the UI; the model is never automatically downloaded.
+ * Desktop visits offer an explicit opt-in; mobile devices cannot enable it.
+ * The model is never automatically downloaded.
  * Tested under Pages restrictions, but quality was insufficient for ordinary
  * use. It cannot change the rule assessment and is excluded from exports. */
 (function (global) {
@@ -38,16 +39,30 @@
 
     /* ----------------------------------------------------- capabilities --- */
 
+    // A device policy, not a performance guarantee. Width alone is misleading:
+    // a resized PC window is still a PC, and iPads may use a desktop user agent.
+    isMobileDevice: function (nav) {
+      nav = nav || global.navigator || {};
+      return !!((nav.userAgentData && nav.userAgentData.mobile) ||
+        /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(nav.userAgent || '') ||
+        (/Mac/i.test(nav.platform || '') && nav.maxTouchPoints > 1));
+    },
+
+    support: function () {
+      var reason = this.isMobileDevice() ? 'mobile' :
+        typeof WebAssembly !== 'object' ? 'no-wasm' :
+        typeof Worker === 'undefined' ? 'no-worker' : null;
+      return { usable: reason === null, reason: reason };
+    },
+
     /**
      * What this browser can actually do, and a usable reason when it cannot.
      * Checked before the control is offered, so nobody is shown a button that
      * will fail after a 397 MB model load.
      */
     capabilities: function () {
-      var why = null;
-      if (!this.enabled) why = 'disabled';
-      else if (typeof WebAssembly !== 'object') why = 'no-wasm';
-      else if (typeof Worker === 'undefined') why = 'no-worker';
+      var why = this.support().reason;
+      if (!why && !this.enabled) why = 'disabled';
 
       return {
         usable: why === null,
@@ -102,6 +117,7 @@
     },
     _realEngine: function () { return Promise.resolve(new WorkerEngine()); },
     load: function (model, onProgress, jobId) {
+      if (this.isMobileDevice()) return Promise.reject(new Error('mobile-disabled'));
       var self = this;
       var job = jobId === undefined ? this.newJob() : jobId;
       if (!this.isCurrent(job)) return Promise.reject(this._cancelled());

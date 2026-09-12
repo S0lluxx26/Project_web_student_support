@@ -38,3 +38,4 @@ demo/report.html
 *.gguf
 /test-results/
 /kor.traineddata
+/output/

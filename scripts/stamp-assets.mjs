@@ -7,6 +7,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const hash = createHash('sha1');
 files.forEach(file => hash.update(fs.readFileSync(path.join(root, file))));
 const version = hash.digest('hex').slice(0, 8);
-const index = path.join(root, 'index.html');
-fs.writeFileSync(index, fs.readFileSync(index, 'utf8').replace(/\?v=[0-9a-f]{8}/g, '?v=' + version));
+for (const file of ['index.html', 'demo.html']) {
+  const index = path.join(root, file);
+  fs.writeFileSync(index, fs.readFileSync(index, 'utf8').replace(/\?v=[0-9a-f]{8}/g, '?v=' + version));
+}
 console.log('Asset version: ' + version);

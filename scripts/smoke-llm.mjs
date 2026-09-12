@@ -18,17 +18,19 @@ try {
     try {
       await page.goto(`http://127.0.0.1:${server.address().port}${prefix}/`);
       await page.waitForSelector('body[data-ready="true"]');
-      assert.equal(await page.locator('#llm-panel').isVisible(), false, 'unvalidated experiment is hidden on the ordinary site');
-      await page.goto(`http://127.0.0.1:${server.address().port}${prefix}/?experiment=llm`);
-      await page.waitForSelector('body[data-ready="true"]');
       await page.locator('#home-chat').fill('집주인: 오늘 안에 계약금 먼저 보내주세요. 연락처는 010-1234-5678 입니다.');
       await page.locator('#btn-home-analyze').click();
       await page.waitForSelector('#housing-step-4:not([hidden])');
+      assert.equal(await page.locator('#llm-panel').isVisible(), true, 'desktop result offers opt-in without a special URL');
+      assert.equal(await page.locator('#llm-enable').isEnabled(), true);
       const assessment = await page.evaluate(() => Housing.lastResult.assessment);
       await page.locator('#llm-panel summary').click();
       assert.equal(await page.locator('#llm-enable').isChecked(), false);
       assert.equal(requests.some(url => /wllama|hash-wasm|huggingface|llm-worker/.test(url)), false);
       await page.locator('#llm-enable').check();
+      assert.equal(await page.locator('#llm-generate').isDisabled(), true, 'cannot generate before a model is ready');
+      assert.equal(await page.locator('#llm-cancel').isVisible(), false, 'cancel is hidden until work starts');
+      assert.equal(await page.locator('#llm-unload').isVisible(), false, 'unload is hidden until the model loads');
       assert.equal(requests.some(url => /wllama|huggingface/.test(url)), false, 'checking opt-in alone does not download');
 
       // Wrong local file uses the real worker and fails before heavy imports.

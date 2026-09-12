@@ -8,10 +8,11 @@
     init: function () {
       if (this.bound) return;
       this.bound = true;
-      this.access = LLM.experimental && new URLSearchParams(location.search).get('experiment') === 'llm';
-      $('llm-panel').hidden = !this.access;
+      this.access = LLM.experimental && LLM.support().usable;
+      $('llm-panel').hidden = !LLM.experimental;
       var self = this;
       $('llm-enable').addEventListener('change', function () {
+        this.checked = self.access && this.checked;
         LLM.enabled = this.checked;
         if (!this.checked) self.stop(true);
         self.update();
@@ -40,6 +41,7 @@
           if (rev === self.revision) { self.busy = false; self.update(); }
         });
       });
+      I18n.onChange(function () { self.update(); });
       this.update();
     },
     setReport: function (result, lang) {
@@ -78,7 +80,10 @@
     status: function (key, vars) { $('llm-status').textContent = t(key, vars); },
     update: function () {
       if (!$('llm-enable')) return;
-      var enabled = $('llm-enable').checked;
+      var enabled = this.access && $('llm-enable').checked;
+      $('llm-enable').disabled = !this.access;
+      $('llm-device-note').textContent = t(LLM.isMobileDevice() ? 'llm.mobileDisabled' :
+        this.access ? 'llm.desktopCost' : 'llm.unavailable');
       var findings = !!(this.report && this.report.findings.length);
       $('llm-options').hidden = !enabled;
       $('llm-download').disabled = !enabled || this.busy || this.ready;
@@ -125,7 +130,7 @@
       this.status(error && error.cancelled ? 'llm.stopped' : keys[message] || 'llm.failed');
     },
     generate: function () {
-      if (!LLM.enabled || !this.ready || this.busy || !this.report) return;
+      if (!this.access || !LLM.enabled || !this.ready || this.busy || !this.report) return;
       var selected = $('llm-finding').value;
       var finding = this.report.findings.find(function (f) { return f.id === selected; });
       if (!finding) return;

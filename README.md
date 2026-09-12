@@ -6,6 +6,9 @@ It does not establish whether a person or property is fraudulent.
 
 **[Open the website](https://s0lluxx26.github.io/Project_web_student_support/)**
 
+**Maker: Bui Xuan Mai** · [Demo / user guide](https://s0lluxx26.github.io/Project_web_student_support/demo.html)
+· [Install on a PC](INSTALL.md) · [Project guide and AI prompts](manual/PROJECT_GUIDE.md)
+
 ## Main features
 
 - Conversation checking with 27 curated patterns, concepts, speaker attribution,
@@ -28,9 +31,10 @@ Similarity detection exists as a library API; there is no review-scraping UI.
 ## Browser LLM experiment
 
 **It runs under GitHub Pages restrictions, but failed the quality gate for
-ordinary use.** The explicit `?experiment=llm` URL reveals a separate opt-in
-panel on the report screen. Opening the URL or checking the box downloads no
-model. The ordinary URL hides the panel.
+ordinary use.** The report offers a separate, clearly labeled experiment on
+laptops and PCs. Phones and tablets receive a disabled control and explanation.
+No GPU is required. Opening the panel or checking the opt-in box downloads no
+model; a separate load action is required.
 
 Wllama 3.6.1 runs a pinned Qwen3 0.6B Q4 model in a worker. The download is
 **396,705,472 bytes**. It explains one existing finding; it cannot change the
@@ -86,7 +90,8 @@ accuracy on real conversations, real phone screenshots or legal questions.
 ## Deploy
 
 One build supports **GitHub Pages and Vercel**. Both serve `dist/`, containing
-public HTML, assets and JSON. GGUF weights, tests, demo screenshots, SSH keys and
+public HTML, assets, guide downloads and JSON. Selected fictional examples and
+actual app captures are explicitly published for the Demo. GGUF weights, tests, SSH keys and
 dependencies are excluded from the site artifact. Keep private files outside
 the public `assets/` and `data/` directories.
 
@@ -97,6 +102,10 @@ runs this model on a server: the visitor's browser does the work.
 
 [Deployment instructions](docs/DEPLOY_VERCEL.md) · [Current plan](PLAN.md) ·
 [Implementation handoff](docs/IMPLEMENTATION_STATUS.md)
+
+Run `npm run verify:install` for the complete installation checks. Run
+`npm run demo:capture` to regenerate the public screenshots using real OCR;
+review the images and recorded results before updating the guide.
 
 Application: MIT. Vendored components retain their licenses. The GGUF model is
 Apache-2.0 and is not bundled in the repository.

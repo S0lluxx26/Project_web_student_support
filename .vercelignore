@@ -8,6 +8,10 @@
 *
 
 !index.html
+!demo.html
+!manual/
+!manual/PROJECT_GUIDE.md
+!manual/project-guide.pdf
 !.nojekyll
 !LICENSE
 !vercel.json

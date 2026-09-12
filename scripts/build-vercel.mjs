@@ -64,7 +64,8 @@ if (skipTests) {
  * it by accident — a private fixture or a half-finished note would go out with
  * the next deploy and nobody would notice.
  */
-const FILES = ['index.html', '.nojekyll', 'LICENSE'];
+const FILES = ['index.html', 'demo.html', 'manual/PROJECT_GUIDE.md',
+  'manual/project-guide.pdf', '.nojekyll', 'LICENSE'];
 const DIRS = ['assets', 'data'];
 
 /*
@@ -81,6 +82,8 @@ const SKIP = LLM_ON ? [] : [LLM_DIR];
 /* Assets whose absence would break the site silently rather than loudly. */
 const REQUIRED = [
   'index.html',
+  'demo.html', 'manual/PROJECT_GUIDE.md', 'manual/project-guide.pdf',
+  'assets/manual/cases.json',
   'data/patterns.json',
   'data/i18n.json',
   'data/documents.json',
@@ -188,11 +191,13 @@ walk('');
 
 /* The site must stay portable between a domain root and a repository
    sub-path, so no absolute-rooted URL may appear in the HTML. */
-const html = fs.readFileSync(path.join(OUT, 'index.html'), 'utf8');
-const rooted = [...html.matchAll(/\b(?:src|href)="(\/[^/][^"]*)"/g)].map(m => m[1]);
-if (rooted.length)
-  die('index.html has root-relative URLs, which break on the Pages sub-path: ' +
-      [...new Set(rooted)].join(', '));
+for (const file of ['index.html', 'demo.html']) {
+  const html = fs.readFileSync(path.join(OUT, file), 'utf8');
+  const rooted = [...html.matchAll(/\b(?:src|href)="(\/[^/][^"]*)"/g)].map(m => m[1]);
+  if (rooted.length)
+    die(file + ' has root-relative URLs, which break on the Pages sub-path: ' +
+        [...new Set(rooted)].join(', '));
+}
 
 const stamp = {
   builtAt: new Date().toISOString(),

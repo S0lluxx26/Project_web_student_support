@@ -14,7 +14,9 @@ screenshot inputs are the main entry points; documents/goshiwon are supporting t
 | Session | Cancellation, reset, synchronized inputs, stale result invalidation |
 | Exports | Redaction preview for copy/share/Print; raw Ctrl+P housing output suppressed |
 | LLM | Real Wllama integration, pinned/hash-verified GGUF, download/local file, cancel/cache removal |
-| LLM gate | Hidden normally; `?experiment=llm`, then opt-in and explicit load |
+| LLM gate | Visible PC experiment, opt-in and explicit load; disabled on phones/tablets |
+| Demo/manual | Bilingual public walkthrough, two fictional samples, actual captures, Markdown/PDF |
+| Installation | INSTALL.md with an AI setup prompt and npm run verify:install |
 | Build | Locked tooling; public dist/ allowlist; byte verification; model/key exclusion |
 | Pages | Active workflow validates before publishing dist/ |
 | Vercel | Static config supplied; account import remains |
@@ -29,7 +31,8 @@ scraper, database or trained rental classifier has been added.
 
 The tested model downloads about 397 MB and used about 1.7 GB browser working
 set. Twenty synthetic explanations exposed meaning errors. Keep the experiment
-hidden from ordinary visits. [Measurements](docs/BROWSER_LLM_OPTIONS.md).
+optional on desktop with an explicit quality warning; keep mobile blocked.
+[Measurements](docs/BROWSER_LLM_OPTIONS.md).
 
 ## Remaining tasks and acceptance criteria
 
@@ -69,5 +72,6 @@ npm run test:browser
 ```
 
 For model/runtime changes, verify actual size/SHA-256, rerun the real benchmark
-and review meaning. Do not enable the experiment broadly until language quality
-and target-device tests pass. Schema-valid output is not evidence of correctness.
+and review meaning. Do not make the experiment automatic or promote it as
+validated advice without language quality and target-device evidence.
+Schema-valid output is not evidence of correctness.

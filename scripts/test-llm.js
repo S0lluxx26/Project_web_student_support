@@ -45,7 +45,14 @@ console.log('--- the flag ---');
   eq(LLM.enabled, false, 'ships disabled');
   const cap = LLM.capabilities();
   eq(cap.usable, false, 'capabilities() says unusable while disabled');
-  eq(cap.reason, 'disabled', 'and says why');
+  ok(['disabled', 'no-worker'].includes(cap.reason), 'and says why (Node has no browser Worker)');
+
+  eq(LLM.isMobileDevice({ userAgent: 'Mozilla Android Tablet' }), true, 'Android tablet is disabled');
+  eq(LLM.isMobileDevice({ userAgent: 'iPhone' }), true, 'iPhone is disabled');
+  eq(LLM.isMobileDevice({ userAgent: 'Macintosh', platform: 'MacIntel', maxTouchPoints: 5 }), true, 'desktop-mode iPad is disabled');
+  eq(LLM.isMobileDevice({ userAgentData: { mobile: true } }), true, 'mobile client hint is honored');
+  eq(LLM.isMobileDevice({ userAgent: 'Windows NT', platform: 'Win32', maxTouchPoints: 10 }), false, 'touchscreen Windows PC remains eligible');
+  eq(LLM.isMobileDevice({ userAgent: 'Macintosh', platform: 'MacIntel', maxTouchPoints: 0 }), false, 'Mac laptop remains eligible');
 
   LLM.enabled = true;
   const on = LLM.capabilities();

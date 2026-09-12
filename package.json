@@ -7,7 +7,9 @@
     "build": "node scripts/build-vercel.mjs",
     "serve": "node scripts/serve-site.mjs",
     "test": "node scripts/run-tests.mjs",
-    "test:browser": "node scripts/smoke-ocr.mjs && node scripts/smoke-session.mjs && node scripts/smoke-hosts.mjs && node scripts/smoke-llm.mjs",
+    "verify:install": "npm run build && npm run test:ocr && npm run test:browser",
+    "test:browser": "node scripts/smoke-ocr.mjs && node scripts/smoke-session.mjs && node scripts/smoke-hosts.mjs && node scripts/smoke-llm.mjs && node scripts/smoke-manual.mjs",
+    "demo:capture": "node scripts/capture-manual.mjs",
     "test:ocr": "node scripts/test-ocr-real.js --require-engine",
     "bench:llm": "node scripts/bench-llm.mjs",
     "assets:stamp": "node scripts/stamp-assets.mjs"

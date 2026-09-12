@@ -6,3 +6,4 @@
 *.wasm binary
 *.traineddata binary
 *.gguf binary
+*.pdf binary

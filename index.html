@@ -17,7 +17,7 @@
 <!-- Inline so the page never makes a request for it; the browser asks for
      /favicon.ico otherwise and logs a 404 on every visit. -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8F%A0%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/css/style.css?v=73ccf8e6">
+<link rel="stylesheet" href="assets/css/style.css?v=23812351">
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="nav.skip">본문으로 건너뛰기</a>
@@ -32,6 +32,7 @@
       </span>
     </a>
     <div class="header-actions">
+      <a class="btn btn-ghost btn-sm" href="demo.html" data-i18n="nav.demo">데모 · 사용법</a>
       <a class="btn btn-ghost btn-sm nav-home" href="#/" data-i18n="nav.home">처음으로</a>
       <button class="btn btn-ghost btn-sm" id="lang-toggle" type="button" data-i18n="nav.lang">English</button>
     </div>
@@ -288,7 +289,8 @@
       <details id="llm-panel" class="panel llm-panel no-print" hidden>
         <summary data-i18n="llm.title">기기에서 AI 설명 실험하기 (선택)</summary>
         <p class="note" data-i18n="llm.intro"></p>
-        <label class="opt"><input type="checkbox" id="llm-enable">
+        <p class="note" id="llm-device-note"></p>
+        <label class="opt"><input type="checkbox" id="llm-enable" aria-describedby="llm-device-note">
           <span data-i18n="llm.enable"></span></label>
         <div id="llm-options" hidden>
           <p class="note"><strong>Qwen3 0.6B · Q4_K_M · <span id="llm-size"></span></strong></p>
@@ -402,16 +404,16 @@
   </div>
 </footer>
 
-<script src="assets/js/i18n.js?v=73ccf8e6"></script>
-<script src="assets/js/redact.js?v=73ccf8e6"></script>
-<script src="assets/js/ocr.js?v=73ccf8e6"></script>
-<script src="assets/js/conversation.js?v=73ccf8e6"></script>
-<script src="assets/js/detector.js?v=73ccf8e6"></script>
-<script src="assets/js/analyzer.js?v=73ccf8e6"></script>
-<script src="assets/js/llm.js?v=73ccf8e6"></script>
-<script src="assets/js/llm-ui.js?v=73ccf8e6"></script>
-<script src="assets/js/housing.js?v=73ccf8e6"></script>
-<script src="assets/js/goshiwon.js?v=73ccf8e6"></script>
-<script src="assets/js/app.js?v=73ccf8e6"></script>
+<script src="assets/js/i18n.js?v=23812351"></script>
+<script src="assets/js/redact.js?v=23812351"></script>
+<script src="assets/js/ocr.js?v=23812351"></script>
+<script src="assets/js/conversation.js?v=23812351"></script>
+<script src="assets/js/detector.js?v=23812351"></script>
+<script src="assets/js/analyzer.js?v=23812351"></script>
+<script src="assets/js/llm.js?v=23812351"></script>
+<script src="assets/js/llm-ui.js?v=23812351"></script>
+<script src="assets/js/housing.js?v=23812351"></script>
+<script src="assets/js/goshiwon.js?v=23812351"></script>
+<script src="assets/js/app.js?v=23812351"></script>
 </body>
 </html>

@@ -28,7 +28,8 @@ target hardware or an account connection.
    cancellation, unload, cache deletion and bounded schema-constrained output.
 7. Completed real 20-case model evaluation plus browser download/cache/cancel
    checks. The model runs but makes meaning errors, so the experimental UI is
-   hidden on normal visits and remains opt-in behind `?experiment=llm`.
+   offered as a clearly cautioned PC-only experiment with explicit opt-in and
+   load. Phones/tablets cannot enable it; a narrow desktop remains eligible.
 8. Added locked Node tooling, consistent asset stamping and line endings, and
    activated the Pages workflow that publishes only tested `dist/`. Updated
    Vercel configuration and build-input allowlist for the same artifact.
@@ -38,9 +39,15 @@ target hardware or an account connection.
 
 ## Verification and limits
 
+The public bilingual Demo uses two fictional chat images and seven actual
+captures. Real OCR shows four signals for the pressure example and zero for
+the ordinary example. INSTALL.md gives a reusable AI setup prompt;
+manual/PROJECT_GUIDE.md and its PDF document the project under maker
+Bui Xuan Mai. The PDF is generated from the reviewed Markdown.
+
 `npm run build`, `npm run test:ocr`, and `npm run test:browser` are the release
 checks. The browser suite exercises real Korean OCR, session resets, export
-masking, default-hidden AI, mock inference failures, real wrong-file rejection,
+masking, desktop opt-in/mobile blocking, mock inference failures, real wrong-file rejection,
 and both root/sub-path layouts. Real GGUF inference is tested separately with
 `npm run bench:llm`; see [the recorded evidence](BROWSER_LLM_OPTIONS.md).
 The real LLM was also exercised on the public GitHub Pages origin. The

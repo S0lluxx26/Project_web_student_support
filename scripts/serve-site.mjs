@@ -50,6 +50,7 @@ export const TYPES = {
   '.ico': 'image/x-icon',
   '.txt': 'text/plain; charset=utf-8',
   '.md': 'text/plain; charset=utf-8',
+  '.pdf': 'application/pdf',
   '.wasm': 'application/wasm',
   /* Opaque stream, and deliberately NOT Content-Encoding: gzip. The model is
      vendored uncompressed; a host that marks it as gzip makes the browser

@@ -87,8 +87,7 @@ legal accuracy, false-positive rates or adversarial robustness.
 
 ## Try the experiment
 
-1. Add `?experiment=llm` before the URL hash, e.g.
-   `http://127.0.0.1:8765/?experiment=llm`.
+1. Open the normal site on a laptop or PC. No special URL is needed.
 2. Analyze text producing a warning, open the experimental panel below the
    report and read the limitation/download disclosures.
 3. Opt in, then choose Download or the exact local GGUF. Merely opting in does
@@ -97,8 +96,11 @@ legal accuracy, false-positive rates or adversarial robustness.
    Cancel/unload releases the worker; Remove downloaded model clears this app's
    model directory on this origin.
 
-The ordinary URL hides the panel. The URL is a usability gate, not an access
-control: there are no privileged services or secrets behind it.
+Phones and tablets see a disabled enable control with a reason. Desktop
+visitors must still explicitly opt in and load the model. Device detection
+uses browser mobile hints, user agents and the touch-capable iPad desktop
+signature; window width alone is not used. This is a usability policy, not a
+performance guarantee. The runtime is CPU-only and does not require WebGPU.
 
 ## Implementation boundaries
 
