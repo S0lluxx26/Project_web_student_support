@@ -11,6 +11,7 @@ It does not establish whether a person or property is fraudulent.
 · [Safety help and 12 practice screenshots](https://s0lluxx26.github.io/Project_web_student_support/help.html)
 · [한국어 프로젝트 보고서](manual/PROJECT_GUIDE_KO.md)
 · [주요 기능 소개와 실제 화면](manual/MAIN_FUNCTIONS_KO.md)
+· [Token usage and API cost / 토큰 사용량·API 비용](manual/usage-cost-report.html)
 
 ## Main features
 

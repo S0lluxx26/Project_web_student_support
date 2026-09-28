@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="English and Korean report on the Student Housing Safety Assistant: GitHub, GitHub Pages, recorded development tokens and estimated API-equivalent costs.">
+  <meta name="author" content="Bui Xuan Mai">
+  <title>Project links, token usage and API cost | 프로젝트 주소·토큰·비용 보고서</title>
+  <style>
+    :root { color-scheme: light; --ink:#182e33; --muted:#455c62; --teal:#146356; --line:#c6d8d1; --paper:#fff; --soft:#edf5f1; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; font-family:"Malgun Gothic","맑은 고딕",sans-serif; font-size:9pt; line-height:1; color:var(--ink); }
+    body { background:#f1f4f3; }
+    h1,h2,h3,p,li,td,th,a,small,strong { font-size:inherit; line-height:inherit; }
+    h1,h2,h3,p { margin:0; }
+    h1,h2,h3 { font-weight:700; }
+    p + p { margin-top:9px; }
+    a { color:var(--teal); text-underline-offset:2px; overflow-wrap:anywhere; }
+    a:focus-visible { outline:2px solid var(--teal); outline-offset:4px; }
+    .skip { position:absolute; left:12px; top:-80px; padding:10px; background:white; }
+    .skip:focus { top:8px; z-index:2; }
+    .report { max-width:1040px; margin:28px auto; padding:32px; background:var(--paper); border:1px solid var(--line); border-radius:14px; }
+    header { border-bottom:2px solid var(--teal); padding-bottom:20px; }
+    .eyebrow { color:var(--teal); font-weight:700; margin-bottom:12px; }
+    .parallel { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px; }
+    .parallel > * { min-width:0; }
+    .parallel > [lang="ko"] { padding-left:24px; border-left:1px solid var(--line); }
+    h1 { margin-bottom:10px; }
+    h2 { color:var(--teal); margin-bottom:12px; }
+    .language { color:var(--muted); margin-bottom:7px; }
+    .meta { margin-top:16px; color:var(--muted); }
+    .actions { display:flex; flex-wrap:wrap; gap:10px 18px; margin-top:15px; }
+    .metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:20px 0; }
+    .metric { padding:15px; border:1px solid var(--line); border-radius:8px; background:var(--soft); }
+    .metric strong { display:block; margin:10px 0; color:var(--teal); }
+    .metric span { display:block; }
+    section { margin-top:22px; }
+    .section-body { margin-top:12px; }
+    .links { display:grid; gap:12px; padding:15px; border:1px solid var(--line); border-radius:8px; }
+    .links strong { display:block; margin-bottom:6px; }
+    .table-wrap { margin:12px 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+    table { border-collapse:collapse; width:100%; table-layout:fixed; }
+    caption { text-align:left; padding:11px; background:var(--soft); font-weight:700; }
+    th,td { text-align:left; padding:10px 11px; vertical-align:top; border-top:1px solid var(--line); overflow-wrap:anywhere; }
+    th { background:#f5f8f6; font-weight:700; }
+    td [lang="ko"], th [lang="ko"] { display:block; margin-top:5px; color:var(--muted); }
+    .num { text-align:right; font-variant-numeric:tabular-nums; }
+    .total td { background:var(--soft); font-weight:700; }
+    .note { margin-top:12px; padding:13px; background:#fbf4e4; border-left:3px solid #a36b13; }
+    .formula { overflow-wrap:anywhere; margin-top:12px; padding:12px; border:1px solid var(--line); }
+    ul { padding-left:16px; margin:0; }
+    li + li { margin-top:8px; }
+    .sources { display:grid; gap:10px; margin-top:12px; }
+    .sources strong { display:block; margin-bottom:5px; }
+    footer { margin-top:24px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); }
+    @media (max-width:680px) {
+      .report { margin:0; padding:20px 14px; border:0; border-radius:0; }
+      .parallel,.metrics { grid-template-columns:1fr; gap:15px; }
+      .parallel > [lang="ko"] { padding-left:0; padding-top:12px; border-left:0; border-top:1px solid var(--line); }
+      th,td { padding:9px 6px; }
+    }
+    @page { size:A4; margin:14mm; }
+    @media print {
+      body { background:white; }
+      .report { margin:0; padding:0; max-width:none; border:0; border-radius:0; }
+      .parallel { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
+      .parallel > [lang="ko"] { padding:0 0 0 16px; border-top:0; border-left:1px solid var(--line); }
+      .metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .actions,.skip { display:none; }
+      section,.metrics,.table-wrap { break-inside:avoid; }
+      h1,h2,h3 { break-after:avoid; }
+      a { color:inherit; }
+    }
+  </style>
+</head>
+<body>
+<a class="skip" href="#report">Skip to report / <span lang="ko">보고서로 이동</span></a>
+<main class="report" id="report">
+  <header>
+    <p class="eyebrow">Student Housing Safety Assistant / <span lang="ko">학생 주거 안전 도우미</span></p>
+    <div class="parallel">
+      <div lang="en"><p class="language">English</p><h1>Project links, token usage and API cost</h1><p>A fixed record of development usage and an illustrative API-equivalent estimate.</p></div>
+      <div lang="ko"><p class="language">한국어</p><h1>프로젝트 주소·토큰 사용량·API 비용 보고서</h1><p>개발 과정의 사용량을 고정된 기준으로 정리하고 API 비용으로 환산한 참고 보고서입니다.</p></div>
+    </div>
+    <p class="meta">Maker / <span lang="ko">제작자</span>: <strong>Bui Xuan Mai</strong> · Report date / <span lang="ko">작성일</span>: <time datetime="2026-09-28">2026-09-28</time></p>
+    <nav class="actions" aria-label="Project links"><a href="https://s0lluxx26.github.io/Project_web_student_support/index.html">Open website / <span lang="ko">웹사이트 열기</span></a><a href="https://github.com/S0lluxx26/Project_web_student_support">GitHub repository / <span lang="ko">저장소</span></a><a href="../demo.html">Demo and reports / <span lang="ko">사용법·보고서</span></a></nav>
+  </header>
+
+  <div class="metrics" aria-label="Report summary">
+    <div class="metric"><span>Recorded tokens / <span lang="ko">기록된 토큰</span></span><strong data-value="total-tokens">54,773,411</strong><span>All included tasks / <span lang="ko">집계한 전체 작업</span></span></div>
+    <div class="metric"><span>Illustrative total / <span lang="ko">가정에 따른 전체 환산액</span></span><strong data-value="total-cost">US$101.51</strong><span>At one model's rates / <span lang="ko">동일 모델 단가 가정</span></span></div>
+    <div class="metric"><span>Main conversation / <span lang="ko">주 대화 환산액</span></span><strong data-value="main-cost">US$84.88</strong><span>Standard API rates / <span lang="ko">표준 API 단가</span></span></div>
+  </div>
+
+  <section aria-labelledby="links-title">
+    <div class="parallel"><div lang="en"><h2 id="links-title">1. GitHub and the live website</h2><p>GitHub stores the source code and documents. GitHub Pages serves the working web application.</p></div><div lang="ko"><h2>1. GitHub 저장소와 실제 웹사이트</h2><p>GitHub는 코드와 문서를 보관하며, GitHub Pages는 사용자가 접속하는 웹앱을 제공합니다.</p></div></div>
+    <div class="links section-body">
+      <div><strong>GitHub source / <span lang="ko">GitHub 소스 코드</span></strong><a href="https://github.com/S0lluxx26/Project_web_student_support">https://github.com/S0lluxx26/Project_web_student_support</a></div>
+      <div><strong>GitHub Pages website / <span lang="ko">GitHub Pages 웹사이트</span></strong><a href="https://s0lluxx26.github.io/Project_web_student_support/index.html">https://s0lluxx26.github.io/Project_web_student_support/index.html</a></div>
+    </div>
+    <div class="parallel section-body"><p lang="en">Checked on 2026-09-28: the repository is public, Pages is enabled and the website returned HTTP 200.</p><p lang="ko">2026-09-28 확인 결과: 공개 저장소이며 Pages가 활성화되어 있고, 웹사이트가 HTTP 200으로 응답했습니다.</p></div>
+  </section>
+
+  <section aria-labelledby="usage-title">
+    <div class="parallel"><div lang="en"><h2 id="usage-title">2. Recorded development token usage</h2><p>Snapshot cutoff: <strong>2026-09-28 23:19:40 KST</strong>, before the usage-check request. Later usage checks and this report's creation are excluded.</p></div><div lang="ko"><h2>2. 개발 과정에서 기록된 토큰 사용량</h2><p>집계 기준: <strong>2026-09-28 23:19:40 한국 시간</strong>의 사용량 확인 요청 이전입니다. 이후 사용량 조회와 이 보고서 작성은 제외했습니다.</p></div></div>
+    <div class="table-wrap"><table>
+      <caption>Usage by task / <span lang="ko">작업별 사용량</span></caption>
+      <colgroup><col style="width:66%"><col style="width:34%"></colgroup>
+      <thead><tr><th scope="col">Scope<span lang="ko">집계 범위</span></th><th scope="col" class="num">Tokens<span lang="ko">토큰 수</span></th></tr></thead>
+      <tbody><tr><td>Main project conversation<span lang="ko">주 프로젝트 대화</span></td><td class="num">48,759,452</td></tr><tr><td>Automatic background reviews (7 tasks)<span lang="ko">자동 백그라운드 검토 7개 작업</span></td><td class="num">6,013,959</td></tr><tr class="total"><td>Total (8 task records)<span lang="ko">합계: 작업 기록 8개</span></td><td class="num">54,773,411</td></tr></tbody>
+    </table></div>
+    <div class="parallel"><p lang="en">Each task's final cumulative counter was counted once. Tokens cover AI processing of instructions, conversation, code and tool results. Cached input is <strong>51,240,192 tokens (93.6% of the total)</strong>. Reasoning is already included in output and is not added again.</p><p lang="ko">각 작업의 최종 누적 값을 한 번씩 합산했습니다. 지시문, 대화, 코드, 도구 결과의 AI 처리량을 포함합니다. 캐시 입력은 <strong>51,240,192토큰으로 전체의 93.6%</strong>입니다. 추론 토큰은 출력에 이미 포함되므로 다시 더하지 않습니다.</p></div>
+  </section>
+
+  <section aria-labelledby="cost-title">
+    <div class="parallel"><div lang="en"><h2 id="cost-title">3. Estimated API-equivalent development cost</h2><p>Illustration using GPT-6 Astra Standard rates checked on 2026-09-28: US$10 per million uncached input tokens, US$1 per million cached input tokens and US$50 per million output tokens. The same cache usage is assumed. <a href="#source-openai">[1]</a></p></div><div lang="ko"><h2>3. 개발 사용량의 API 비용 환산 추정</h2><p>2026-09-28에 확인한 GPT-6 Astra 표준 단가를 적용했습니다. 100만 토큰당 일반 입력 US$10, 캐시 입력 US$1, 출력 US$50이며, 기록과 동일한 캐시 사용량을 가정합니다. <a href="#source-openai">[1]</a></p></div></div>
+    <div class="table-wrap"><table>
+      <caption>All recorded tokens at the assumed rates / <span lang="ko">가정한 단가를 전체 기록에 적용</span></caption>
+      <colgroup><col style="width:33%"><col style="width:28%"><col style="width:18%"><col style="width:21%"></colgroup>
+      <thead><tr><th scope="col">Category<span lang="ko">구분</span></th><th scope="col" class="num">Tokens<span lang="ko">토큰 수</span></th><th scope="col" class="num">US$/1M<span lang="ko">100만 토큰 단가</span></th><th scope="col" class="num">Cost (US$)<span lang="ko">환산액</span></th></tr></thead>
+      <tbody><tr><td>Uncached input<span lang="ko">캐시 미적용 입력</span></td><td class="num">3,159,763</td><td class="num">10.00</td><td class="num">31.60</td></tr><tr><td>Cached input<span lang="ko">캐시 입력</span></td><td class="num">51,240,192</td><td class="num">1.00</td><td class="num">51.24</td></tr><tr><td>Output, including reasoning<span lang="ko">출력: 추론 포함</span></td><td class="num">373,456</td><td class="num">50.00</td><td class="num">18.67</td></tr><tr class="total"><td>Total estimate<span lang="ko">환산 추정 합계</span></td><td class="num">54,773,411</td><td class="num">-</td><td class="num">101.51</td></tr></tbody>
+    </table></div>
+    <p class="formula" aria-label="Cost formula">(3,159,763 × 10 + 51,240,192 × 1 + 373,456 × 50) ÷ 1,000,000 = <strong>US$101.510622</strong> ≈ <strong>US$101.51</strong></p>
+    <div class="parallel note"><p lang="en"><strong>This is an estimate, not a bill.</strong> The main conversation used GPT-6 Astra and corresponds to US$84.88. Background reviews are recorded as <strong>codex-auto-review</strong>; their public API rate was not verified. Assigning Astra rates to them contributes an illustrative US$16.63 to the combined total.</p><p lang="ko"><strong>실제 청구액이 아닌 환산 추정치입니다.</strong> 주 대화는 GPT-6 Astra를 사용했으며 US$84.88로 환산됩니다. 자동 검토는 <strong>codex-auto-review</strong>로 기록되어 있고 공개 API 단가를 확인하지 못했습니다. 여기에 Astra 단가를 가정하여 더한 금액은 US$16.63입니다.</p></div>
+  </section>
+
+  <section aria-labelledby="hosting-title">
+    <div class="parallel"><div lang="en"><h2 id="hosting-title">4. Website hosting and operating costs</h2><p><strong>GitHub Pages hosting can be US$0</strong> for this public-repository setup under GitHub Free and its service limits. The published address uses GitHub's github.io domain. This report does not verify the account's subscription or billing statement. <a href="#source-github">[2]</a></p><p>The app's OCR, rules and optional local LLM run in the visitor's browser. The US$101.51 estimate concerns project development and documentation; it is not a website fee or a per-visitor API charge. Internet, device and electricity costs remain separate.</p></div><div lang="ko"><h2>4. 웹사이트 호스팅과 운영 비용</h2><p>현재와 같은 공개 저장소는 GitHub Free 및 서비스 제한 내에서 <strong>GitHub Pages 호스팅을 US$0으로 이용할 수 있습니다.</strong> 공개 주소는 GitHub의 github.io 도메인을 사용합니다. 계정의 구독이나 실제 청구서는 확인하지 않았습니다. <a href="#source-github">[2]</a></p><p>앱의 OCR, 규칙 분석, 선택형 로컬 LLM은 방문자의 브라우저에서 실행됩니다. US$101.51은 개발·문서 작성의 환산액이며 웹사이트 요금이나 방문자당 API 호출료가 아닙니다. 인터넷, 기기, 전기 비용은 별도입니다.</p></div></div>
+  </section>
+
+  <section aria-labelledby="scope-title">
+    <div class="parallel"><div lang="en"><h2 id="scope-title">5. Scope and limitations</h2><ul><li>Only this PC's available Codex project records are counted. Claude usage and records held only on other PCs are excluded.</li><li>API cache-write charges cannot be reconstructed from these counters and are excluded, along with paid tools, taxes and subscription charges.</li><li>Standard short-context prices are assumed. Model choice, Fast mode, longer requests, caching and future price changes can change an API bill.</li><li>Actual money paid cannot be determined from these token records. All currency amounts here are in US dollars.</li></ul></div><div lang="ko"><h2>5. 집계 범위와 한계</h2><ul><li>이 PC에서 확인한 해당 프로젝트의 Codex 기록만 집계했습니다. Claude와 다른 PC에만 있는 기록은 제외합니다.</li><li>이 누적 값으로 API 캐시 쓰기 요금을 재구성할 수 없어 제외했으며, 유료 도구·세금·구독료도 포함하지 않습니다.</li><li>표준 처리의 짧은 문맥 단가를 가정했습니다. 모델, Fast 모드, 긴 요청, 캐시 및 향후 단가 변경에 따라 API 요금이 달라질 수 있습니다.</li><li>토큰 기록만으로 실제 지불액은 알 수 없습니다. 이 보고서의 금액은 모두 미국 달러입니다.</li></ul></div></div>
+  </section>
+
+  <section aria-labelledby="sources-title">
+    <div class="parallel"><h2 id="sources-title" lang="en">6. Sources and verification</h2><h2 lang="ko">6. 출처와 검증</h2></div>
+    <div class="sources">
+      <div id="source-openai"><strong>[1] OpenAI: GPT-6 Astra pricing / <span lang="ko">공식 API 단가</span></strong><a href="https://developers.openai.com/api/docs/models/gpt-6-astra">https://developers.openai.com/api/docs/models/gpt-6-astra</a></div>
+      <div id="source-github"><strong>[2] GitHub Docs: GitHub Pages availability / <span lang="ko">GitHub Pages 이용 조건</span></strong><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages">https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages</a></div>
+      <div><strong>[3] Project README: local browser processing / <span lang="ko">프로젝트의 브라우저 내 처리 구조</span></strong><a href="https://github.com/S0lluxx26/Project_web_student_support/blob/d68bceaf2309b0ebd2655c3d4c59f8f0349d5253/README.md">Project README at the reviewed revision / <span lang="ko">검토한 버전의 README</span></a></div>
+    </div>
+    <div class="parallel section-body"><p lang="en">Usage source: local cumulative Codex task records, read without changing the logs. Raw conversation logs, credentials and local filesystem paths are not included in this public report. English and Korean share the same numeric tables.</p><p lang="ko">사용량 출처는 읽기 전용으로 확인한 로컬 Codex 작업별 누적 기록입니다. 이 공개 보고서에는 원본 대화 로그, 인증 정보, 로컬 파일 경로를 포함하지 않습니다. 영어와 한국어는 같은 수치 표를 공유합니다.</p></div>
+  </section>
+  <footer><p>Bui Xuan Mai · 2026-09-28 · Malgun Gothic / <span lang="ko">맑은 고딕</span>, 9 pt, line spacing / <span lang="ko">줄 간격</span> 1.0</p></footer>
+</main>
+<script id="usage-snapshot" type="application/json">
+{
+  "cutoffKST": "2026-09-28T23:19:40+09:00",
+  "reportDate": "2026-09-28",
+  "maker": "Bui Xuan Mai",
+  "main": { "input": 48394946, "cachedInput": 46365696, "output": 364506, "total": 48759452 },
+  "background": { "input": 6005009, "cachedInput": 4874496, "output": 8950, "total": 6013959, "tasks": 7, "model": "codex-auto-review", "verifiedPublicApiRate": null },
+  "combined": { "input": 54399955, "cachedInput": 51240192, "uncachedInput": 3159763, "output": 373456, "reasoningIncludedInOutput": 102920, "total": 54773411 },
+  "illustrativeRatesUsdPerMillion": { "model": "gpt-6-astra", "tier": "standard", "uncachedInput": 10, "cachedInput": 1, "output": 50 },
+  "estimatedCostUsd": { "main": 84.883496, "backgroundAtAssumedRates": 16.627126, "combinedAtAssumedRates": 101.510622 },
+  "actualAmountPaidUsd": null,
+  "excluded": ["later usage checks and report creation", "unreconstructed API cache writes", "paid tools", "taxes", "subscriptions", "Claude usage", "records only on other PCs"]
+}
+</script>
+</body>
+</html>
