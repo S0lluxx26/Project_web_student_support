@@ -66,6 +66,19 @@
       .parallel { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
       .parallel > [lang="ko"] { padding:0 0 0 16px; border-top:0; border-left:1px solid var(--line); }
       .metrics { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      header { padding-bottom:12px; }
+      .metrics { margin:12px 0; gap:8px; }
+      .metric { padding:10px; }
+      section { margin-top:14px; }
+      .section-body { margin-top:8px; }
+      .links { padding:11px; gap:8px; }
+      .table-wrap { margin:8px 0; }
+      th,td { padding:7px 8px; }
+      caption { padding:8px; }
+      .note { padding:9px; margin-top:8px; }
+      .formula { padding:8px; margin-top:8px; }
+      .sources { gap:8px; }
+      footer { margin-top:14px; padding-top:9px; }
       .actions,.skip { display:none; }
       section,.metrics,.table-wrap { break-inside:avoid; }
       h1,h2,h3 { break-after:avoid; }
@@ -83,7 +96,7 @@
       <div lang="ko"><p class="language">한국어</p><h1>프로젝트 주소·토큰 사용량·API 비용 보고서</h1><p>개발 과정의 사용량을 고정된 기준으로 정리하고 API 비용으로 환산한 참고 보고서입니다.</p></div>
     </div>
     <p class="meta">Maker / <span lang="ko">제작자</span>: <strong>Bui Xuan Mai</strong> · Report date / <span lang="ko">작성일</span>: <time datetime="2026-09-28">2026-09-28</time></p>
-    <nav class="actions" aria-label="Project links"><a href="https://s0lluxx26.github.io/Project_web_student_support/index.html">Open website / <span lang="ko">웹사이트 열기</span></a><a href="https://github.com/S0lluxx26/Project_web_student_support">GitHub repository / <span lang="ko">저장소</span></a><a href="../demo.html">Demo and reports / <span lang="ko">사용법·보고서</span></a></nav>
+    <nav class="actions" aria-label="Project links"><a href="https://s0lluxx26.github.io/Project_web_student_support/index.html">Open website / <span lang="ko">웹사이트 열기</span></a><a href="https://github.com/S0lluxx26/Project_web_student_support">GitHub repository / <span lang="ko">저장소</span></a><a href="../demo.html">Demo and reports / <span lang="ko">사용법·보고서</span></a><a href="usage-cost-report.pdf" download>Download PDF / <span lang="ko">PDF 내려받기</span></a></nav>
   </header>
 
   <div class="metrics" aria-label="Report summary">
@@ -120,7 +133,7 @@
       <thead><tr><th scope="col">Category<span lang="ko">구분</span></th><th scope="col" class="num">Tokens<span lang="ko">토큰 수</span></th><th scope="col" class="num">US$/1M<span lang="ko">100만 토큰 단가</span></th><th scope="col" class="num">Cost (US$)<span lang="ko">환산액</span></th></tr></thead>
       <tbody><tr><td>Uncached input<span lang="ko">캐시 미적용 입력</span></td><td class="num">3,159,763</td><td class="num">10.00</td><td class="num">31.60</td></tr><tr><td>Cached input<span lang="ko">캐시 입력</span></td><td class="num">51,240,192</td><td class="num">1.00</td><td class="num">51.24</td></tr><tr><td>Output, including reasoning<span lang="ko">출력: 추론 포함</span></td><td class="num">373,456</td><td class="num">50.00</td><td class="num">18.67</td></tr><tr class="total"><td>Total estimate<span lang="ko">환산 추정 합계</span></td><td class="num">54,773,411</td><td class="num">-</td><td class="num">101.51</td></tr></tbody>
     </table></div>
-    <p class="formula" aria-label="Cost formula">(3,159,763 × 10 + 51,240,192 × 1 + 373,456 × 50) ÷ 1,000,000 = <strong>US$101.510622</strong> ≈ <strong>US$101.51</strong></p>
+    <p class="formula" aria-label="Cost formula">(3,159,763 × 10 + 51,240,192 × 1 + 373,456 × 50) ÷ 1,000,000 = <strong>US$101.510622</strong><br>Rounded / <span lang="ko">반올림</span>: <strong>US$101.51</strong></p>
     <div class="parallel note"><p lang="en"><strong>This is an estimate, not a bill.</strong> The main conversation used GPT-6 Astra and corresponds to US$84.88. Background reviews are recorded as <strong>codex-auto-review</strong>; their public API rate was not verified. Assigning Astra rates to them contributes an illustrative US$16.63 to the combined total.</p><p lang="ko"><strong>실제 청구액이 아닌 환산 추정치입니다.</strong> 주 대화는 GPT-6 Astra를 사용했으며 US$84.88로 환산됩니다. 자동 검토는 <strong>codex-auto-review</strong>로 기록되어 있고 공개 API 단가를 확인하지 못했습니다. 여기에 Astra 단가를 가정하여 더한 금액은 US$16.63입니다.</p></div>
   </section>
 

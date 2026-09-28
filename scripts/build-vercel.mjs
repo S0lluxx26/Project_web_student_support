@@ -66,7 +66,8 @@ if (skipTests) {
  */
 const FILES = ['index.html', 'demo.html', 'help.html', 'manual/PROJECT_GUIDE.md',
   'manual/project-guide.pdf', 'manual/PROJECT_GUIDE_KO.md', 'manual/project-guide-ko.pdf',
-  'manual/MAIN_FUNCTIONS_KO.md', 'manual/main-functions-ko.pdf', 'manual/usage-cost-report.html', '.nojekyll', 'LICENSE'];
+  'manual/MAIN_FUNCTIONS_KO.md', 'manual/main-functions-ko.pdf', 'manual/usage-cost-report.html',
+  'manual/usage-cost-report.pdf', '.nojekyll', 'LICENSE'];
 const DIRS = ['assets', 'data'];
 
 /*
